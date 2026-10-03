@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,12 @@ export default async function ProjectsPage() {
           {projects.map((project) => (
             <li key={project.id} className="flex items-baseline justify-between gap-4 px-4 py-3">
               <div className="min-w-0">
-                <p className="truncate font-medium">{project.name}</p>
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="block truncate font-medium hover:underline"
+                >
+                  {project.name}
+                </Link>
                 {project.customer && (
                   <p className="truncate text-sm text-muted-foreground">{project.customer}</p>
                 )}
