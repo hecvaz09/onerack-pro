@@ -80,7 +80,12 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
         <ul className="divide-y divide-border rounded-lg border border-border">
           {project.racks.map((rack) => (
             <li key={rack.id} className="flex items-baseline justify-between gap-4 px-4 py-3">
-              <p className="min-w-0 truncate font-medium">{rack.name}</p>
+              <Link
+                href={`/projects/${id}/racks/${rack.id}`}
+                className="min-w-0 truncate font-medium hover:underline"
+              >
+                {rack.name}
+              </Link>
               <span className="shrink-0 text-sm text-muted-foreground">{rack.heightRU}U</span>
             </li>
           ))}
