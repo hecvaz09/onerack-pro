@@ -36,11 +36,13 @@ model Rack {
 
 model CatalogDevice {
   id        String   @id @default(cuid())
+  sku       String   @unique
   vendor    String
   model     String
   heightRU  Int      @default(1)
   category  String?
   createdAt DateTime @default(now())
+  rawData   Json?
   instances DeviceInstance[]
 }
 
