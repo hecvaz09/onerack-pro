@@ -11,3 +11,60 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  customer  String?
+  location  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  racks     Rack[]
+}
+
+model Rack {
+  id        String   @id @default(cuid())
+  name      String
+  heightRU  Int      @default(42)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  devices   DeviceInstance[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CatalogDevice {
+  id        String   @id @default(cuid())
+  vendor    String
+  model     String
+  heightRU  Int      @default(1)
+  category  String?
+  createdAt DateTime @default(now())
+  instances DeviceInstance[]
+}
+
+model DeviceInstance {
+  id              String   @id @default(cuid())
+  label           String?
+  startRU         Int
+  rackId          String
+  rack            Rack          @relation(fields: [rackId], references: [id], onDelete: Cascade)
+  catalogDeviceId String
+  catalogDevice   CatalogDevice @relation(fields: [catalogDeviceId], references: [id])
+  connectionsFrom Connection[]  @relation("FromDevice")
+  connectionsTo   Connection[]  @relation("ToDevice")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Connection {
+  id           String   @id @default(cuid())
+  cableType    String?
+  label        String?
+  fromDeviceId String
+  toDeviceId   String
+  fromDevice   DeviceInstance @relation("FromDevice", fields: [fromDeviceId], references: [id], onDelete: Cascade)
+  toDevice     DeviceInstance @relation("ToDevice", fields: [toDeviceId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
