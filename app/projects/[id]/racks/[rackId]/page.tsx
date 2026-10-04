@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ConnectionsPanel } from "./connections-panel";
 import { PlaceDeviceForm } from "./place-device-form";
 import { RackWorkspace } from "./rack-workspace";
 
@@ -11,7 +12,7 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
   // Render per request so placements reflect the database, not build time.
   await connection();
 
-  const [rack, catalog] = await Promise.all([
+  const [rack, catalog, connections] = await Promise.all([
     prisma.rack.findFirst({
       where: { id: rackId, projectId: id },
       include: {
@@ -24,9 +25,22 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
       orderBy: [{ vendor: "asc" }, { model: "asc" }],
       select: { id: true, vendor: true, model: true, heightRU: true, category: true },
     }),
+    // Connections are only created between devices in the same rack.
+    prisma.connection.findMany({
+      where: { fromDevice: { rackId, rack: { projectId: id } } },
+      include: {
+        fromDevice: { include: { catalogDevice: true } },
+        toDevice: { include: { catalogDevice: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
   ]);
 
   if (!rack) notFound();
+
+  // Model + RU tells identical devices apart, e.g. "Nexus 9336C-FX2 @ RU 47".
+  const deviceName = (device: { label: string | null; startRU: number; catalogDevice: { model: string } }) =>
+    `${device.label || device.catalogDevice.model} @ RU ${device.startRU}`;
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10">
@@ -89,6 +103,18 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
           })}
         </ul>
       )}
+
+      <ConnectionsPanel
+        rackId={rackId}
+        devices={rack.devices.map((device) => ({ id: device.id, name: deviceName(device) }))}
+        connections={connections.map((connection) => ({
+          id: connection.id,
+          fromName: deviceName(connection.fromDevice),
+          toName: deviceName(connection.toDevice),
+          cableType: connection.cableType,
+          label: connection.label,
+        }))}
+      />
     </main>
   );
 }

@@ -142,3 +142,80 @@ export async function moveDevice(
     return { ok: false, error: "Couldn't move the device. Please try again." };
   }
 }
+
+export type ConnectionResult = { ok: true } | { ok: false; error: string };
+
+export async function createConnection(
+  rackId: string,
+  fromDeviceId: string,
+  toDeviceId: string,
+  cableType: string | null,
+  label: string | null,
+): Promise<ConnectionResult> {
+  try {
+    if (!fromDeviceId || !toDeviceId) {
+      return { ok: false, error: "Choose both devices to connect." };
+    }
+    if (fromDeviceId === toDeviceId) {
+      return { ok: false, error: "A device can't be connected to itself." };
+    }
+
+    const [rack, fromDevice, toDevice] = await Promise.all([
+      prisma.rack.findUnique({ where: { id: rackId }, select: { projectId: true } }),
+      prisma.deviceInstance.findUnique({ where: { id: fromDeviceId }, select: { rackId: true } }),
+      prisma.deviceInstance.findUnique({ where: { id: toDeviceId }, select: { rackId: true } }),
+    ]);
+
+    if (!rack) return { ok: false, error: "Rack not found." };
+    if (!fromDevice || !toDevice) return { ok: false, error: "Device not found." };
+    if (fromDevice.rackId !== rackId || toDevice.rackId !== rackId) {
+      return { ok: false, error: "Only devices in this rack can be connected." };
+    }
+
+    // Either direction counts: A→B and B→A are the same cable.
+    const pair = [fromDeviceId, toDeviceId];
+    const existing = await prisma.connection.findFirst({
+      where: { fromDeviceId: { in: pair }, toDeviceId: { in: pair } },
+      select: { id: true },
+    });
+    if (existing) return { ok: false, error: "These devices are already connected." };
+
+    await prisma.connection.create({
+      data: {
+        fromDeviceId,
+        toDeviceId,
+        cableType: cableType?.trim() || null,
+        label: label?.trim() || null,
+      },
+    });
+
+    revalidatePath(`/projects/${rack.projectId}/racks/${rackId}`);
+    return { ok: true };
+  } catch (error) {
+    console.error("createConnection failed", error);
+    return { ok: false, error: "Couldn't create the connection. Please try again." };
+  }
+}
+
+export async function deleteConnection(
+  connectionId: string,
+  rackId: string,
+): Promise<ConnectionResult> {
+  try {
+    const connection = await prisma.connection.findUnique({
+      where: { id: connectionId },
+      select: { fromDevice: { select: { rackId: true, rack: { select: { projectId: true } } } } },
+    });
+    if (!connection || connection.fromDevice.rackId !== rackId) {
+      return { ok: false, error: "Connection not found in this rack." };
+    }
+
+    await prisma.connection.delete({ where: { id: connectionId } });
+
+    revalidatePath(`/projects/${connection.fromDevice.rack.projectId}/racks/${rackId}`);
+    return { ok: true };
+  } catch (error) {
+    console.error("deleteConnection failed", error);
+    return { ok: false, error: "Couldn't remove the connection. Please try again." };
+  }
+}
