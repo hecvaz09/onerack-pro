@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PlaceDeviceForm } from "./place-device-form";
+import { RackGrid } from "./rack-grid";
 
 export default async function RackPage({ params }: PageProps<"/projects/[id]/racks/[rackId]">) {
   const { id, rackId } = await params;
@@ -41,6 +42,10 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
       <h2 className="mt-8 mb-3 text-lg font-semibold">Place a device</h2>
 
       <PlaceDeviceForm rackId={rackId} rackHeightRU={rack.heightRU} catalog={catalog} />
+
+      <h2 className="mt-8 mb-3 text-lg font-semibold">Elevation</h2>
+
+      <RackGrid heightRU={rack.heightRU} devices={rack.devices} />
 
       <h2 className="mt-8 mb-3 text-lg font-semibold">Placed devices</h2>
 
