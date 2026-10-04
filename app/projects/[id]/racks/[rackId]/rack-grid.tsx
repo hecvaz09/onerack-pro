@@ -87,7 +87,7 @@ function RuSlot({ ru, row, isEmpty }: { ru: number; row: number; isEmpty: boolea
 function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: device.id,
-    data: { kind: "placed", startRU: device.startRU },
+    data: { kind: "placed", startRU: device.startRU, heightRU: device.catalogDevice.heightRU },
   });
 
   const topRU = device.startRU + device.catalogDevice.heightRU - 1;
@@ -98,6 +98,7 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      data-device-block
       title={`${name} — ${device.catalogDevice.vendor} ${device.catalogDevice.model} (RU ${device.startRU}–${topRU})`}
       className={[
         "m-px flex cursor-grab touch-none items-center justify-center overflow-hidden rounded-sm border border-black/20 px-2 text-xs font-medium text-neutral-900",
