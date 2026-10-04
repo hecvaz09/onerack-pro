@@ -16,7 +16,7 @@ export type RackGridDevice = {
   };
 };
 
-const ROW_HEIGHT = "1.75rem"; // h-7
+const ROW_HEIGHT = "1.375rem"; // 22px: a 48U rack fits with less scrolling
 
 // Presentational: the DndContext lives in RackWorkspace, which owns the drag handling.
 export function RackGrid({ heightRU, devices }: { heightRU: number; devices: RackGridDevice[] }) {
@@ -46,7 +46,7 @@ export function RackGrid({ heightRU, devices }: { heightRU: number; devices: Rac
         {ruSlots.map((ru) => (
           <span
             key={`label-${ru}`}
-            className="flex items-center justify-end text-xs text-muted-foreground tabular-nums"
+            className="flex items-center justify-end text-[11px] leading-none font-medium text-muted-foreground tabular-nums"
             style={{ gridColumn: 1, gridRow: rowFor(ru) }}
           >
             {ru}
@@ -101,7 +101,7 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
       data-device-block
       title={`${name} — ${device.catalogDevice.vendor} ${device.catalogDevice.model} (RU ${device.startRU}–${topRU})`}
       className={[
-        "m-px flex cursor-grab touch-none items-center justify-center overflow-hidden rounded-sm border border-black/20 px-2 text-xs font-medium text-neutral-900",
+        "m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border border-black/20 px-2 text-center text-xs leading-tight font-medium text-neutral-900",
         isDragging && "relative z-20 cursor-grabbing opacity-70 shadow-lg",
       ]
         .filter(Boolean)
@@ -113,7 +113,13 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
         transform: CSS.Translate.toString(transform),
       }}
     >
-      <span className="truncate">{name}</span>
+      <span className="w-full truncate">{name}</span>
+      {/* 1U blocks only have room for the name. */}
+      {device.catalogDevice.heightRU >= 2 && (
+        <span className="w-full truncate text-[10px] font-normal text-neutral-900/70 tabular-nums">
+          RU {device.startRU}–{topRU}
+        </span>
+      )}
     </div>
   );
 }
