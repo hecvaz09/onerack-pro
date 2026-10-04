@@ -45,7 +45,22 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
 
       <h2 className="mt-8 mb-3 text-lg font-semibold">Elevation</h2>
 
-      <RackGrid heightRU={rack.heightRU} devices={rack.devices} />
+      <RackGrid
+        rackId={rackId}
+        heightRU={rack.heightRU}
+        // Only what the grid draws: keeps rawData and timestamps out of the client payload.
+        devices={rack.devices.map(({ id, startRU, label, catalogDevice }) => ({
+          id,
+          startRU,
+          label,
+          catalogDevice: {
+            model: catalogDevice.model,
+            vendor: catalogDevice.vendor,
+            heightRU: catalogDevice.heightRU,
+            category: catalogDevice.category,
+          },
+        }))}
+      />
 
       <h2 className="mt-8 mb-3 text-lg font-semibold">Placed devices</h2>
 

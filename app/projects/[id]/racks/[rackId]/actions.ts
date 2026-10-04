@@ -76,3 +76,69 @@ export async function placeDevice(
   revalidatePath(`/projects/${rack.projectId}/racks/${rackId}`);
   return { success: true };
 }
+
+export type MoveDeviceResult = { ok: true } | { ok: false; error: string };
+
+export async function moveDevice(
+  rackId: string,
+  deviceId: string,
+  toStartRU: number,
+): Promise<MoveDeviceResult> {
+  try {
+    const [rack, movedDevice] = await Promise.all([
+      prisma.rack.findUnique({
+        where: { id: rackId },
+        include: { devices: { include: { catalogDevice: true } } },
+      }),
+      prisma.deviceInstance.findUnique({
+        where: { id: deviceId },
+        include: { catalogDevice: true },
+      }),
+    ]);
+
+    if (!rack) return { ok: false, error: "Rack not found." };
+    if (!movedDevice || movedDevice.rackId !== rackId) {
+      return { ok: false, error: "Device not found in this rack." };
+    }
+
+    if (!Number.isInteger(toStartRU) || toStartRU < 1) {
+      return { ok: false, error: "Starting RU must be 1 or higher." };
+    }
+
+    const { heightRU, model } = movedDevice.catalogDevice;
+    const endRU = toStartRU + heightRU - 1;
+    if (endRU > rack.heightRU) {
+      return {
+        ok: false,
+        error: `${model} is ${heightRU}U and won't fit at RU ${toStartRU} in a ${rack.heightRU}U rack.`,
+      };
+    }
+
+    // Exclude the device being moved, or it would always overlap its own old position.
+    const conflict = rack.devices
+      .filter((existing) => existing.id !== deviceId)
+      .find((existing) => {
+        const existingEnd = existing.startRU + existing.catalogDevice.heightRU - 1;
+        return toStartRU <= existingEnd && existing.startRU <= endRU;
+      });
+    if (conflict) {
+      const conflictEnd = conflict.startRU + conflict.catalogDevice.heightRU - 1;
+      const conflictName = conflict.label || conflict.catalogDevice.model;
+      return {
+        ok: false,
+        error: `RU ${toStartRU}–${endRU} overlaps ${conflictName} at RU ${conflict.startRU}–${conflictEnd}.`,
+      };
+    }
+
+    await prisma.deviceInstance.update({
+      where: { id: deviceId },
+      data: { startRU: toStartRU },
+    });
+
+    revalidatePath(`/projects/${rack.projectId}/racks/${rackId}`);
+    return { ok: true };
+  } catch (error) {
+    console.error("moveDevice failed", error);
+    return { ok: false, error: "Couldn't move the device. Please try again." };
+  }
+}
