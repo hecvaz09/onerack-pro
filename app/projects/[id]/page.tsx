@@ -2,11 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Button } from "@/components/ui/button";
-import { createRack } from "./actions";
-
-const inputClassName =
-  "h-8 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+import { RackForm } from "./rack-form";
 
 export default async function ProjectPage({ params }: PageProps<"/projects/[id]">) {
   const { id } = await params;
@@ -54,25 +50,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
 
       <h2 className="mt-8 mb-3 text-lg font-semibold">Racks</h2>
 
-      <form action={createRack.bind(null, id)} className="mb-6 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          name="name"
-          required
-          placeholder="Rack name"
-          className={`${inputClassName} flex-1`}
-        />
-        <input
-          type="number"
-          name="heightRU"
-          min={1}
-          max={60}
-          defaultValue={42}
-          aria-label="Height (RU)"
-          className={`${inputClassName} w-full sm:w-24`}
-        />
-        <Button type="submit">Add rack</Button>
-      </form>
+      <RackForm projectId={id} />
 
       {project.racks.length === 0 ? (
         <p className="text-sm text-muted-foreground">No racks yet.</p>
