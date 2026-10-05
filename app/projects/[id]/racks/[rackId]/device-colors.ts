@@ -1,10 +1,10 @@
 export const CATEGORY_COLORS: Record<string, string> = {
-  chassis: "#00d4f5",
-  switch: "#f59e0b",
-  accessory: "#8888cc",
+  chassis: "#cdd9ec",
+  switch: "#f5e0b8",
+  accessory: "#e4e4e7",
 };
 
-export const FALLBACK_COLOR = "#d4d4d8";
+export const FALLBACK_COLOR = "#e4e4e7";
 
 export function colorForCategory(category: string | null) {
   return CATEGORY_COLORS[category ?? ""] ?? FALLBACK_COLOR;

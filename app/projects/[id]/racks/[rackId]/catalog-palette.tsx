@@ -14,7 +14,7 @@ export type CatalogItem = {
 export function CatalogPalette({ catalog }: { catalog: CatalogItem[] }) {
   return (
     <div className="flex w-full shrink-0 flex-col sm:w-56">
-      <h3 className="mb-2 text-sm font-semibold">Catalog</h3>
+      <h3 className="mb-2 text-xs font-medium text-muted-foreground">Catalog</h3>
       {catalog.length === 0 ? (
         <p className="text-sm text-muted-foreground">No placeable devices in the catalog.</p>
       ) : (
@@ -49,7 +49,7 @@ export function CatalogChipBody({ item }: { item: CatalogItem }) {
   return (
     <div
       title={`${item.vendor} — ${item.model} (${item.heightRU}U)`}
-      className="cursor-grab touch-none truncate rounded-sm border border-black/20 px-2 py-1.5 text-xs font-medium text-neutral-900"
+      className="cursor-grab touch-none truncate rounded-md border border-black/10 px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-xs transition-shadow hover:shadow-sm"
       style={{ backgroundColor: colorForCategory(item.category) }}
     >
       {item.vendor} — {item.model} ({item.heightRU}U)

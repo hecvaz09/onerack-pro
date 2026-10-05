@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ConnectionsPanel } from "./connections-panel";
 import { PlaceDeviceForm } from "./place-device-form";
 import { RackWorkspace } from "./rack-workspace";
+import { cardClassName, listRowClassName, sectionLabelClassName } from "./styles";
 
 export default async function RackPage({ params }: PageProps<"/projects/[id]/racks/[rackId]">) {
   const { id, rackId } = await params;
@@ -43,78 +44,91 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
     `${device.label || device.catalogDevice.model} @ RU ${device.startRU}`;
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10">
-      <Link href={`/projects/${id}`} className="text-sm text-muted-foreground hover:underline">
-        ← Back to project
-      </Link>
+    <main className="mx-auto w-full max-w-3xl px-4 py-16">
+      <header className="mb-10">
+        <Link
+          href={`/projects/${id}`}
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          ← Back to project
+        </Link>
+        <p className="mt-6 text-sm text-muted-foreground">{rack.project.name}</p>
+        <h1 className="mt-1 flex flex-wrap items-baseline gap-3 text-3xl font-semibold tracking-tight">
+          {rack.name}
+          <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-sm font-medium text-muted-foreground">
+            {rack.heightRU}U
+          </span>
+        </h1>
+      </header>
 
-      <p className="mt-4 text-sm text-muted-foreground">{rack.project.name}</p>
-      <h1 className="text-2xl font-semibold tracking-tight">
-        {rack.name} ({rack.heightRU}U)
-      </h1>
+      <div className="space-y-8">
+        <section className={cardClassName}>
+          <h2 className={`${sectionLabelClassName} mb-4`}>Place a device</h2>
+          <PlaceDeviceForm rackId={rackId} rackHeightRU={rack.heightRU} catalog={catalog} />
+        </section>
 
-      <h2 className="mt-8 mb-3 text-lg font-semibold">Place a device</h2>
+        <section className={cardClassName}>
+          <h2 className={`${sectionLabelClassName} mb-4`}>Elevation</h2>
+          <RackWorkspace
+            rackId={rackId}
+            heightRU={rack.heightRU}
+            catalog={catalog}
+            // Only what the grid draws: keeps rawData and timestamps out of the client payload.
+            devices={rack.devices.map(({ id, startRU, label, catalogDevice }) => ({
+              id,
+              startRU,
+              label,
+              catalogDevice: {
+                model: catalogDevice.model,
+                vendor: catalogDevice.vendor,
+                heightRU: catalogDevice.heightRU,
+                category: catalogDevice.category,
+              },
+            }))}
+          />
+        </section>
 
-      <PlaceDeviceForm rackId={rackId} rackHeightRU={rack.heightRU} catalog={catalog} />
+        <section className={cardClassName}>
+          <h2 className={`${sectionLabelClassName} mb-4`}>Placed devices</h2>
+          {rack.devices.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No devices placed yet.</p>
+          ) : (
+            <ul className="-mx-3 space-y-0.5">
+              {rack.devices.map((device) => {
+                const endRU = device.startRU + device.catalogDevice.heightRU - 1;
+                return (
+                  <li key={device.id} className={listRowClassName}>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {device.label || device.catalogDevice.model}
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {device.catalogDevice.vendor} / {device.catalogDevice.model}
+                      </p>
+                    </div>
+                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                      RU {device.startRU}–{endRU}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
 
-      <h2 className="mt-8 mb-3 text-lg font-semibold">Elevation</h2>
-
-      <RackWorkspace
-        rackId={rackId}
-        heightRU={rack.heightRU}
-        catalog={catalog}
-        // Only what the grid draws: keeps rawData and timestamps out of the client payload.
-        devices={rack.devices.map(({ id, startRU, label, catalogDevice }) => ({
-          id,
-          startRU,
-          label,
-          catalogDevice: {
-            model: catalogDevice.model,
-            vendor: catalogDevice.vendor,
-            heightRU: catalogDevice.heightRU,
-            category: catalogDevice.category,
-          },
-        }))}
-      />
-
-      <h2 className="mt-8 mb-3 text-lg font-semibold">Placed devices</h2>
-
-      {rack.devices.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No devices placed yet.</p>
-      ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
-          {rack.devices.map((device) => {
-            const endRU = device.startRU + device.catalogDevice.heightRU - 1;
-            return (
-              <li key={device.id} className="flex items-baseline justify-between gap-4 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">
-                    {device.label || device.catalogDevice.model}
-                  </p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {device.catalogDevice.vendor} / {device.catalogDevice.model}
-                  </p>
-                </div>
-                <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
-                  RU {device.startRU}–{endRU}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <ConnectionsPanel
-        rackId={rackId}
-        devices={rack.devices.map((device) => ({ id: device.id, name: deviceName(device) }))}
-        connections={connections.map((connection) => ({
-          id: connection.id,
-          fromName: deviceName(connection.fromDevice),
-          toName: deviceName(connection.toDevice),
-          cableType: connection.cableType,
-          label: connection.label,
-        }))}
-      />
+        <ConnectionsPanel
+          rackId={rackId}
+          matrixHref={`/projects/${id}/racks/${rackId}/connections`}
+          devices={rack.devices.map((device) => ({ id: device.id, name: deviceName(device) }))}
+          connections={connections.map((connection) => ({
+            id: connection.id,
+            fromName: deviceName(connection.fromDevice),
+            toName: deviceName(connection.toDevice),
+            cableType: connection.cableType,
+            label: connection.label,
+          }))}
+        />
+      </div>
     </main>
   );
 }

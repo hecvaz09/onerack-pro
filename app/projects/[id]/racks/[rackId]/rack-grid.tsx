@@ -35,7 +35,7 @@ export function RackGrid({ heightRU, devices }: { heightRU: number; devices: Rac
   const ruSlots = Array.from({ length: heightRU }, (_, i) => heightRU - i);
 
   return (
-    <div className="w-full max-w-sm rounded-lg border-2 border-border bg-muted/40 p-2">
+    <div className="w-full max-w-sm rounded-lg border border-border bg-muted/50 p-2">
       <div
         className="grid gap-x-2"
         style={{
@@ -101,7 +101,7 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
       data-device-block
       title={`${name} — ${device.catalogDevice.vendor} ${device.catalogDevice.model} (RU ${device.startRU}–${topRU})`}
       className={[
-        "m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border border-black/20 px-2 text-center text-xs leading-tight font-medium text-neutral-900",
+        "m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border border-black/10 px-2 text-center text-xs leading-tight font-medium text-zinc-700",
         isDragging && "relative z-20 cursor-grabbing opacity-70 shadow-lg",
       ]
         .filter(Boolean)
@@ -116,7 +116,7 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
       <span className="w-full truncate">{name}</span>
       {/* 1U blocks only have room for the name. */}
       {device.catalogDevice.heightRU >= 2 && (
-        <span className="w-full truncate text-[10px] font-normal text-neutral-900/70 tabular-nums">
+        <span className="w-full truncate text-[10px] font-normal text-zinc-700/70 tabular-nums">
           RU {device.startRU}–{topRU}
         </span>
       )}

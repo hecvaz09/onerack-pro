@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { createConnection, deleteConnection } from "./actions";
@@ -24,10 +25,12 @@ type FormState = { error: string; values: FormValues } | { ok: true } | null;
 
 export function ConnectionsPanel({
   rackId,
+  matrixHref,
   devices,
   connections,
 }: {
   rackId: string;
+  matrixHref: string;
   devices: ConnectionDevice[];
   connections: ConnectionRow[];
 }) {
@@ -58,7 +61,12 @@ export function ConnectionsPanel({
 
   return (
     <section>
-      <h2 className="mt-8 mb-3 text-lg font-semibold">Connections</h2>
+      <div className="mt-8 mb-3 flex items-baseline justify-between gap-4">
+        <h2 className="text-lg font-semibold">Connections</h2>
+        <Link href={matrixHref} className="text-sm text-muted-foreground hover:underline">
+          View matrix →
+        </Link>
+      </div>
 
       {devices.length < 2 ? (
         <p className="mb-4 text-sm text-muted-foreground">

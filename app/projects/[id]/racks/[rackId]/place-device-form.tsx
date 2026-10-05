@@ -3,9 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { placeDevice, type PlaceDeviceState } from "./actions";
-
-const inputClassName =
-  "h-8 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+import { inputClassName } from "./styles";
 
 type CatalogOption = {
   id: string;
@@ -33,9 +31,9 @@ export function PlaceDeviceForm({
   const values = state && "error" in state ? state.values : null;
 
   return (
-    <div className="mb-2">
+    <div>
       {error && (
-        <p role="alert" className="mb-2 text-sm text-destructive">
+        <p role="alert" className="mb-3 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -80,7 +78,7 @@ export function PlaceDeviceForm({
           placeholder="Label (optional)"
           className={`${inputClassName} w-full sm:w-36`}
         />
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" size="lg" disabled={isPending} className="px-4">
           {isPending ? "Placing…" : "Place device"}
         </Button>
       </form>
