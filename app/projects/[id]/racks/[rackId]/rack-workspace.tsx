@@ -10,14 +10,27 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { startTransition, useOptimistic, useRef, useState, useTransition } from "react";
+import { startTransition, useOptimistic, useRef, useState } from "react";
 import { moveDevice, placeDevice, removeDevice } from "./actions";
 import { CatalogPalette, type CatalogItem } from "./catalog-palette";
 import { RackGrid, type RackGridDevice } from "./rack-grid";
 
 // Where the dragged device would land if dropped now: the hovered slot, adjusted by the
 // grab offset for moves. movingId is the device being moved (null for catalog drags).
-type DropPreview = { startRU: number; heightRU: number; movingId: string | null };
+type DropPreview = {
+  startRU: number;
+  heightRU: number;
+  category: string | null;
+  movingId: string | null;
+};
+
+type OptimisticChange =
+  | { type: "move"; deviceId: string; startRU: number }
+  | { type: "insert"; device: RackGridDevice };
+
+// Devices placed optimistically get a temporary id until the server's copy arrives.
+const TEMP_ID_PREFIX = "temp-";
+const isTempDevice = (deviceId: string) => deviceId.startsWith(TEMP_ID_PREFIX);
 
 export function RackWorkspace({
   rackId,
@@ -33,18 +46,19 @@ export function RackWorkspace({
   // A small activation distance keeps a click from starting a drag.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  // Moves show instantly; if the server rejects one, React drops it when the transition ends.
-  const [optimisticDevices, applyMove] = useOptimistic(
+  // Moves and new placements show instantly. When the transition ends, React swaps in the
+  // server's data: a confirmed change is there for real, a rejected one simply disappears.
+  const [optimisticDevices, applyOptimistic] = useOptimistic(
     devices,
-    (current, move: { deviceId: string; startRU: number }) =>
-      current.map((device) =>
-        device.id === move.deviceId ? { ...device, startRU: move.startRU } : device,
-      ),
+    (current, change: OptimisticChange) =>
+      change.type === "insert"
+        ? [...current, change.device]
+        : current.map((device) =>
+            device.id === change.deviceId ? { ...device, startRU: change.startRU } : device,
+          ),
   );
   // One message line for both moves and placements; cleared by the next success.
   const [actionError, setActionError] = useState<string | null>(null);
-  // New devices wait for the server, so show that a placement is in flight.
-  const [isPlacing, startPlacing] = useTransition();
   // How many RUs above its bottom RU a placed device was grabbed, so it lands under the pointer.
   const grabOffsetRef = useRef(0);
   const [dropPreview, setDropPreview] = useState<DropPreview | null>(null);
@@ -71,15 +85,23 @@ export function RackWorkspace({
     }
     const toRU = Number(String(event.over.id).replace("ru-", ""));
     // Same landing rule as handleDragEnd, so the preview shows exactly where it will drop.
-    setDropPreview(
-      data.kind === "placed"
-        ? {
-            startRU: Math.max(1, toRU - grabOffsetRef.current),
-            heightRU: data.heightRU,
-            movingId: String(event.active.id),
-          }
-        : { startRU: toRU, heightRU: data.heightRU, movingId: null },
-    );
+    if (data.kind === "placed") {
+      const deviceId = String(event.active.id);
+      const moving = optimisticDevices.find((device) => device.id === deviceId);
+      setDropPreview({
+        startRU: Math.max(1, toRU - grabOffsetRef.current),
+        heightRU: data.heightRU,
+        category: moving?.catalogDevice.category ?? null,
+        movingId: deviceId,
+      });
+    } else {
+      setDropPreview({
+        startRU: toRU,
+        heightRU: data.heightRU,
+        category: data.category ?? null,
+        movingId: null,
+      });
+    }
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -96,21 +118,41 @@ export function RackWorkspace({
 
     if (data?.kind === "placed") {
       const deviceId = String(event.active.id);
+      // A device still waiting for the server has no real id to move yet.
+      if (isTempDevice(deviceId)) return;
       // A drop too low to fit the grabbed offset means "put it at the bottom".
       const toStartRU = Math.max(1, toRU - grabOffsetRef.current);
       if (toStartRU === data.startRU) return;
 
       startTransition(async () => {
-        applyMove({ deviceId, startRU: toStartRU });
+        applyOptimistic({ type: "move", deviceId, startRU: toStartRU });
         const result = await moveDevice(rackId, deviceId, toStartRU);
         setActionError(result.ok ? null : result.error);
       });
     } else if (data?.kind === "catalog") {
+      const item = catalog.find((entry) => entry.id === data.catalogDeviceId);
+      if (!item) return;
+
       const formData = new FormData();
-      formData.set("catalogDeviceId", data.catalogDeviceId);
+      formData.set("catalogDeviceId", item.id);
       formData.set("startRU", String(toRU));
 
-      startPlacing(async () => {
+      // Same shape as a real block, so the placeholder renders identically until the
+      // server's copy (with its real id) replaces it.
+      const placeholder: RackGridDevice = {
+        id: `${TEMP_ID_PREFIX}${crypto.randomUUID()}`,
+        startRU: toRU,
+        label: null,
+        catalogDevice: {
+          model: item.model,
+          vendor: item.vendor,
+          heightRU: item.heightRU,
+          category: item.category,
+        },
+      };
+
+      startTransition(async () => {
+        applyOptimistic({ type: "insert", device: placeholder });
         const result = await placeDevice(rackId, null, formData);
         setActionError(result && "error" in result ? result.error : null);
       });
@@ -118,6 +160,7 @@ export function RackWorkspace({
   }
 
   function handleRemove(deviceId: string) {
+    if (isTempDevice(deviceId)) return;
     startTransition(async () => {
       const result = await removeDevice(deviceId, rackId);
       setActionError(result.ok ? null : result.error);
@@ -139,7 +182,6 @@ export function RackWorkspace({
           {actionError}
         </p>
       )}
-      {isPlacing && <p className="mb-2 text-sm text-muted-foreground">Placing device…</p>}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <CatalogPalette catalog={catalog} />

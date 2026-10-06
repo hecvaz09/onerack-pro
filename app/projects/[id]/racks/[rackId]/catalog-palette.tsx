@@ -35,7 +35,12 @@ function CatalogChip({ item }: { item: CatalogItem }) {
   // pointer, so it isn't clipped by this list's scroll container.
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `catalog-${item.id}`,
-    data: { kind: "catalog", catalogDeviceId: item.id, heightRU: item.heightRU },
+    data: {
+      kind: "catalog",
+      catalogDeviceId: item.id,
+      heightRU: item.heightRU,
+      category: item.category,
+    },
   });
 
   return (

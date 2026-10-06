@@ -19,7 +19,12 @@ export type RackGridDevice = {
 const ROW_HEIGHT = "1.375rem"; // 22px: a 48U rack fits with less scrolling
 
 // Presentational: the DndContext lives in RackWorkspace, which owns the drag handling.
-export type RackGridPreview = { startRU: number; heightRU: number; valid: boolean };
+export type RackGridPreview = {
+  startRU: number;
+  heightRU: number;
+  category: string | null;
+  valid: boolean;
+};
 
 export function RackGrid({
   heightRU,
@@ -100,7 +105,8 @@ function RuSlot({ ru, row, isEmpty }: { ru: number; row: number; isEmpty: boolea
   );
 }
 
-// The RUs the dragged device would occupy: the theme accent if it fits, red if it doesn't.
+// The RUs the dragged device would occupy: in its own category colors if it fits, red if
+// it doesn't.
 function FootprintPreview({
   preview,
   rackHeightRU,
@@ -116,8 +122,12 @@ function FootprintPreview({
   const span = topRU - preview.startRU + 1;
   if (span < 1) return null;
 
-  // var(--primary) follows the chosen accent; color-mix gives it a ~15% fill.
-  const color = preview.valid ? "var(--primary)" : "#f87171";
+  // The category fills are deep tints that barely show as a thin dashed line on the dark
+  // card, so a valid footprint is outlined in the category's lighter hairline color and
+  // filled with its tint at 50%.
+  const borderColor = preview.valid ? borderForCategory(preview.category) : "#f87171";
+  const fillColor = preview.valid ? colorForCategory(preview.category) : "#f87171";
+  const fillPercent = preview.valid ? 50 : 15;
 
   return (
     <div
@@ -126,8 +136,8 @@ function FootprintPreview({
       style={{
         gridColumn: 2,
         gridRow: `${rowFor(topRU)} / span ${span}`,
-        borderColor: color,
-        backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+        borderColor,
+        backgroundColor: `color-mix(in srgb, ${fillColor} ${fillPercent}%, transparent)`,
       }}
     />
   );
