@@ -2,7 +2,7 @@
 
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { colorForCategory } from "./device-colors";
+import { borderForCategory, colorForCategory } from "./device-colors";
 
 export type RackGridDevice = {
   id: string;
@@ -19,7 +19,19 @@ export type RackGridDevice = {
 const ROW_HEIGHT = "1.375rem"; // 22px: a 48U rack fits with less scrolling
 
 // Presentational: the DndContext lives in RackWorkspace, which owns the drag handling.
-export function RackGrid({ heightRU, devices }: { heightRU: number; devices: RackGridDevice[] }) {
+export type RackGridPreview = { startRU: number; heightRU: number; valid: boolean };
+
+export function RackGrid({
+  heightRU,
+  devices,
+  onRemove,
+  preview,
+}: {
+  heightRU: number;
+  devices: RackGridDevice[];
+  onRemove: (deviceId: string) => void;
+  preview: RackGridPreview | null;
+}) {
   // 0U devices (PDUs, twin nodes) have no RU span to draw.
   const placed = devices.filter((device) => device.catalogDevice.heightRU >= 1);
 
@@ -59,32 +71,77 @@ export function RackGrid({ heightRU, devices }: { heightRU: number; devices: Rac
 
         {placed.map((device) => {
           const topRU = device.startRU + device.catalogDevice.heightRU - 1;
-          return <DeviceBlock key={device.id} device={device} row={rowFor(topRU)} />;
+          return (
+            <DeviceBlock
+              key={device.id}
+              device={device}
+              row={rowFor(topRU)}
+              onRemove={() => onRemove(device.id)}
+            />
+          );
         })}
+
+        {preview && <FootprintPreview preview={preview} rackHeightRU={heightRU} rowFor={rowFor} />}
       </div>
     </div>
   );
 }
 
+// Each RU is a drop target; the footprint preview, not the slot, shows where a drop lands.
 function RuSlot({ ru, row, isEmpty }: { ru: number; row: number; isEmpty: boolean }) {
-  const { setNodeRef, isOver } = useDroppable({ id: `ru-${ru}` });
+  const { setNodeRef } = useDroppable({ id: `ru-${ru}` });
 
   return (
     <div
       ref={setNodeRef}
-      className={[
-        isEmpty && "border-b border-dashed border-border bg-background/60",
-        // Raised above device blocks so the highlight shows on occupied RUs too.
-        isOver && "pointer-events-none z-10 bg-primary/15 ring-2 ring-primary ring-inset",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={isEmpty ? "border-b border-dashed border-border bg-background/60" : undefined}
       style={{ gridColumn: 2, gridRow: row }}
     />
   );
 }
 
-function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
+// The RUs the dragged device would occupy: the theme accent if it fits, red if it doesn't.
+function FootprintPreview({
+  preview,
+  rackHeightRU,
+  rowFor,
+}: {
+  preview: RackGridPreview;
+  rackHeightRU: number;
+  rowFor: (ru: number) => number;
+}) {
+  // A device too tall for the spot would run past the top of the rack; draw only the part
+  // inside the rack so the grid never grows extra rows (it's red either way).
+  const topRU = Math.min(preview.startRU + preview.heightRU - 1, rackHeightRU);
+  const span = topRU - preview.startRU + 1;
+  if (span < 1) return null;
+
+  // var(--primary) follows the chosen accent; color-mix gives it a ~15% fill.
+  const color = preview.valid ? "var(--primary)" : "#f87171";
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none z-[5] m-px rounded-sm border-2 border-dashed"
+      style={{
+        gridColumn: 2,
+        gridRow: `${rowFor(topRU)} / span ${span}`,
+        borderColor: color,
+        backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+      }}
+    />
+  );
+}
+
+function DeviceBlock({
+  device,
+  row,
+  onRemove,
+}: {
+  device: RackGridDevice;
+  row: number;
+  onRemove: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: device.id,
     data: { kind: "placed", startRU: device.startRU, heightRU: device.catalogDevice.heightRU },
@@ -101,7 +158,7 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
       data-device-block
       title={`${name} — ${device.catalogDevice.vendor} ${device.catalogDevice.model} (RU ${device.startRU}–${topRU})`}
       className={[
-        "m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border border-black/10 px-2 text-center text-xs leading-tight font-medium text-zinc-700",
+        "group relative m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border px-2 text-center text-xs leading-tight font-medium text-zinc-100",
         isDragging && "relative z-20 cursor-grabbing opacity-70 shadow-lg",
       ]
         .filter(Boolean)
@@ -110,15 +167,36 @@ function DeviceBlock({ device, row }: { device: RackGridDevice; row: number }) {
         gridColumn: 2,
         gridRow: `${row} / span ${device.catalogDevice.heightRU}`,
         backgroundColor: colorForCategory(device.catalogDevice.category),
+        borderColor: borderForCategory(device.catalogDevice.category),
         transform: CSS.Translate.toString(transform),
       }}
     >
       <span className="w-full truncate">{name}</span>
       {/* 1U blocks only have room for the name. */}
       {device.catalogDevice.heightRU >= 2 && (
-        <span className="w-full truncate text-[10px] font-normal text-zinc-700/70 tabular-nums">
+        <span className="w-full truncate text-[10px] font-normal text-zinc-100/70 tabular-nums">
           RU {device.startRU}–{topRU}
         </span>
+      )}
+
+      {!isDragging && (
+        <button
+          type="button"
+          aria-label={`Remove ${name}`}
+          title={`Remove ${name}`}
+          // The block's drag listeners are React handlers on the parent, so stopping the
+          // pointerdown here keeps dnd-kit from ever seeing it: a click on ✕ deletes
+          // instead of grabbing the block. Keydown is stopped for the same reason.
+          onPointerDown={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemove();
+          }}
+          className="absolute top-0.5 right-0.5 flex size-3.5 cursor-pointer items-center justify-center rounded-sm text-[10px] leading-none text-zinc-100/80 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/30 hover:text-white focus-visible:opacity-100"
+        >
+          ✕
+        </button>
       )}
     </div>
   );

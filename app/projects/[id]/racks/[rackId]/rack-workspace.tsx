@@ -2,18 +2,22 @@
 
 import {
   DndContext,
-  DragOverlay,
   PointerSensor,
   pointerWithin,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { startTransition, useOptimistic, useRef, useState, useTransition } from "react";
-import { moveDevice, placeDevice } from "./actions";
-import { CatalogChipBody, CatalogPalette, type CatalogItem } from "./catalog-palette";
+import { moveDevice, placeDevice, removeDevice } from "./actions";
+import { CatalogPalette, type CatalogItem } from "./catalog-palette";
 import { RackGrid, type RackGridDevice } from "./rack-grid";
+
+// Where the dragged device would land if dropped now: the hovered slot, adjusted by the
+// grab offset for moves. movingId is the device being moved (null for catalog drags).
+type DropPreview = { startRU: number; heightRU: number; movingId: string | null };
 
 export function RackWorkspace({
   rackId,
@@ -41,22 +45,50 @@ export function RackWorkspace({
   const [actionError, setActionError] = useState<string | null>(null);
   // New devices wait for the server, so show that a placement is in flight.
   const [isPlacing, startPlacing] = useTransition();
-  const [activeCatalogItem, setActiveCatalogItem] = useState<CatalogItem | null>(null);
   // How many RUs above its bottom RU a placed device was grabbed, so it lands under the pointer.
   const grabOffsetRef = useRef(0);
+  const [dropPreview, setDropPreview] = useState<DropPreview | null>(null);
+
+  // Mirrors the server's fit and overlap rules, only to color the preview; the server
+  // still validates the actual move or placement.
+  const previewValid = (() => {
+    if (!dropPreview) return false;
+    const { startRU, heightRU: height, movingId } = dropPreview;
+    const endRU = startRU + height - 1;
+    if (startRU < 1 || endRU > heightRU) return false;
+    return !optimisticDevices.some((device) => {
+      if (device.id === movingId || device.catalogDevice.heightRU < 1) return false;
+      const deviceEnd = device.startRU + device.catalogDevice.heightRU - 1;
+      return startRU <= deviceEnd && device.startRU <= endRU;
+    });
+  })();
+
+  function handleDragOver(event: DragOverEvent) {
+    const data = event.active.data.current;
+    if (!event.over || !data) {
+      setDropPreview(null);
+      return;
+    }
+    const toRU = Number(String(event.over.id).replace("ru-", ""));
+    // Same landing rule as handleDragEnd, so the preview shows exactly where it will drop.
+    setDropPreview(
+      data.kind === "placed"
+        ? {
+            startRU: Math.max(1, toRU - grabOffsetRef.current),
+            heightRU: data.heightRU,
+            movingId: String(event.active.id),
+          }
+        : { startRU: toRU, heightRU: data.heightRU, movingId: null },
+    );
+  }
 
   function handleDragStart(event: DragStartEvent) {
     const data = event.active.data.current;
     grabOffsetRef.current = data?.kind === "placed" ? measureGrabOffset(event, data.heightRU) : 0;
-    setActiveCatalogItem(
-      data?.kind === "catalog"
-        ? (catalog.find((item) => item.id === data.catalogDeviceId) ?? null)
-        : null,
-    );
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    setActiveCatalogItem(null);
+    setDropPreview(null);
     if (!event.over) return;
 
     const data = event.active.data.current;
@@ -85,14 +117,22 @@ export function RackWorkspace({
     }
   }
 
+  function handleRemove(deviceId: string) {
+    startTransition(async () => {
+      const result = await removeDevice(deviceId, rackId);
+      setActionError(result.ok ? null : result.error);
+    });
+  }
+
   return (
     <DndContext
       id="rack-workspace"
       sensors={sensors}
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setActiveCatalogItem(null)}
+      onDragCancel={() => setDropPreview(null)}
     >
       {actionError && (
         <p role="alert" className="mb-2 text-sm text-destructive">
@@ -103,16 +143,13 @@ export function RackWorkspace({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <CatalogPalette catalog={catalog} />
-        <RackGrid heightRU={heightRU} devices={optimisticDevices} />
+        <RackGrid
+          heightRU={heightRU}
+          devices={optimisticDevices}
+          onRemove={handleRemove}
+          preview={dropPreview && { ...dropPreview, valid: previewValid }}
+        />
       </div>
-
-      <DragOverlay dropAnimation={null}>
-        {activeCatalogItem && (
-          <div className="w-56 shadow-lg">
-            <CatalogChipBody item={activeCatalogItem} />
-          </div>
-        )}
-      </DragOverlay>
     </DndContext>
   );
 }

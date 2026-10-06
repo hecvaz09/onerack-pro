@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ThemePicker } from "@/app/theme-picker";
 import { ConnectionsPanel } from "./connections-panel";
 import { PlaceDeviceForm } from "./place-device-form";
 import { RackWorkspace } from "./rack-workspace";
+import { RemoveDeviceButton } from "./remove-device-button";
 import { cardClassName, listRowClassName, sectionLabelClassName } from "./styles";
 
 export default async function RackPage({ params }: PageProps<"/projects/[id]/racks/[rackId]">) {
@@ -45,6 +47,11 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-16">
+      {/* Temporary home for the theme picker until the app shell exists. */}
+      <div className="mb-10 rounded-xl border border-border/60 bg-card px-4 py-2 backdrop-blur-md">
+        <ThemePicker />
+      </div>
+
       <header className="mb-10">
         <Link
           href={`/projects/${id}`}
@@ -106,8 +113,11 @@ export default async function RackPage({ params }: PageProps<"/projects/[id]/rac
                         {device.catalogDevice.vendor} / {device.catalogDevice.model}
                       </p>
                     </div>
-                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                      RU {device.startRU}–{endRU}
+                    <span className="flex shrink-0 items-center gap-3">
+                      <span className="font-mono text-xs text-muted-foreground">
+                        RU {device.startRU}–{endRU}
+                      </span>
+                      <RemoveDeviceButton deviceId={device.id} rackId={rackId} />
                     </span>
                   </li>
                 );

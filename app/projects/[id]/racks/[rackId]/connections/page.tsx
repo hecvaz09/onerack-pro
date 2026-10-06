@@ -68,7 +68,7 @@ export default async function ConnectionMatrixPage({
             <table className="border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 bg-background" />
+                  <th className="sticky left-0 z-10 bg-card backdrop-blur-md" />
                   {devices.map((device) => (
                     <th
                       key={device.id}
@@ -87,7 +87,7 @@ export default async function ConnectionMatrixPage({
                     <th
                       scope="row"
                       title={rowDevice.name}
-                      className="sticky left-0 z-10 max-w-56 truncate border-t border-border bg-background px-3 text-left font-medium"
+                      className="sticky left-0 z-10 max-w-56 truncate border-t border-border bg-card px-3 text-left font-medium backdrop-blur-md"
                     >
                       {rowDevice.name}
                     </th>

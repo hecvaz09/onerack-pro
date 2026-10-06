@@ -1,7 +1,7 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { colorForCategory } from "./device-colors";
+import { borderForCategory, colorForCategory } from "./device-colors";
 
 export type CatalogItem = {
   id: string;
@@ -49,8 +49,11 @@ export function CatalogChipBody({ item }: { item: CatalogItem }) {
   return (
     <div
       title={`${item.vendor} — ${item.model} (${item.heightRU}U)`}
-      className="cursor-grab touch-none truncate rounded-md border border-black/10 px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-xs transition-shadow hover:shadow-sm"
-      style={{ backgroundColor: colorForCategory(item.category) }}
+      className="cursor-grab touch-none truncate rounded-md border px-2.5 py-1.5 text-xs font-medium text-zinc-100 shadow-xs transition-shadow hover:shadow-sm"
+      style={{
+        backgroundColor: colorForCategory(item.category),
+        borderColor: borderForCategory(item.category),
+      }}
     >
       {item.vendor} — {item.model} ({item.heightRU}U)
     </div>

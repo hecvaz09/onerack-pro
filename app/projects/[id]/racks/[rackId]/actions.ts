@@ -143,6 +143,29 @@ export async function moveDevice(
   }
 }
 
+export type RemoveDeviceResult = { ok: true } | { ok: false; error: string };
+
+export async function removeDevice(deviceId: string, rackId: string): Promise<RemoveDeviceResult> {
+  try {
+    const device = await prisma.deviceInstance.findUnique({
+      where: { id: deviceId },
+      select: { rackId: true, rack: { select: { projectId: true } } },
+    });
+    if (!device || device.rackId !== rackId) {
+      return { ok: false, error: "Device not found in this rack." };
+    }
+
+    // The device's connections are removed with it (onDelete: Cascade in the schema).
+    await prisma.deviceInstance.delete({ where: { id: deviceId } });
+
+    revalidatePath(`/projects/${device.rack.projectId}/racks/${rackId}`);
+    return { ok: true };
+  } catch (error) {
+    console.error("removeDevice failed", error);
+    return { ok: false, error: "Couldn't remove the device. Please try again." };
+  }
+}
+
 export type ConnectionResult = { ok: true } | { ok: false; error: string };
 
 export async function createConnection(

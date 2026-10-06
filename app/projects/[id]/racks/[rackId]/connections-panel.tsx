@@ -4,9 +4,7 @@ import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { createConnection, deleteConnection } from "./actions";
-
-const inputClassName =
-  "h-8 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+import { cardClassName, inputClassName, sectionLabelClassName } from "./styles";
 
 const CABLE_TYPES = ["DAC", "Fiber (SFP28/QSFP28)", "Cat6/Cat6a", "Breakout", "Power", "Other"];
 
@@ -60,9 +58,9 @@ export function ConnectionsPanel({
   const values = state && "error" in state ? state.values : null;
 
   return (
-    <section>
-      <div className="mt-8 mb-3 flex items-baseline justify-between gap-4">
-        <h2 className="text-lg font-semibold">Connections</h2>
+    <section className={cardClassName}>
+      <div className="mb-4 flex items-baseline justify-between gap-4">
+        <h2 className={sectionLabelClassName}>Connections</h2>
         <Link href={matrixHref} className="text-sm text-muted-foreground hover:underline">
           View matrix →
         </Link>
@@ -118,7 +116,12 @@ export function ConnectionsPanel({
               placeholder="Label (optional)"
               className={inputClassName}
             />
-            <Button type="submit" disabled={isPending} className="sm:col-span-2 sm:justify-self-start">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isPending}
+              className="px-4 sm:col-span-2 sm:justify-self-start"
+            >
               {isPending ? "Adding…" : "Add connection"}
             </Button>
           </form>

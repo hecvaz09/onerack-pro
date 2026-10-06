@@ -85,24 +85,26 @@
   --sidebar-ring: #4f46e5;
 }
 
+/* Frosted Carbon: graphite canvas, slightly lifted card surfaces, Apple's dark-mode blue. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --background: #1c1c1e;
+  --foreground: #f2f2f7;
+  /* Translucent so the page gradient bleeds through; cards add a backdrop blur. */
+  --card: rgba(41, 41, 44, 0.72);
+  --card-foreground: #f2f2f7;
+  --popover: rgba(41, 41, 44, 0.72);
+  --popover-foreground: #f2f2f7;
   --primary: #0a84ff;
   --primary-foreground: #ffffff;
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --secondary: #38383c;
+  --secondary-foreground: #f2f2f7;
+  --muted: #38383c;
+  --muted-foreground: #aaaab2;
+  --accent: #2a2a2e;
+  --accent-foreground: #f2f2f7;
+  --destructive: #ff453a;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #3d3d42;
   --ring: #0a84ff;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -117,6 +119,100 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ---------------------------------------------------------------------------
+   Theme layer: html[data-bg] picks the page gradient, html[data-accent] the
+   accent. The no-flash script in layout.tsx sets both before first paint; the
+   :not() selectors cover the defaults (warm, apple) if it hasn't run.
+   The --theme-* values are also used by the theme picker's swatches.
+   --------------------------------------------------------------------------- */
+:root {
+  --theme-bg-warm: radial-gradient(ellipse at 5% 15%, #85735d 0, transparent 48%),
+    radial-gradient(ellipse at 95% 65%, #42596b 0, transparent 55%),
+    radial-gradient(ellipse at 48% 100%, #675647 0, transparent 48%), #1b2028;
+  --theme-bg-blue: radial-gradient(ellipse at 8% 10%, #36669b 0, transparent 55%),
+    radial-gradient(ellipse at 95% 90%, #35466d 0, transparent 60%), #101c30;
+  --theme-bg-aurora: radial-gradient(ellipse at 5% 20%, #316c65 0, transparent 50%),
+    radial-gradient(ellipse at 90% 65%, #634c84 0, transparent 55%), #15282b;
+  --theme-bg-plum: radial-gradient(ellipse at 10% 5%, #77536d 0, transparent 55%),
+    radial-gradient(ellipse at 95% 90%, #393759 0, transparent 65%), #251d2c;
+  --theme-bg-graphite: radial-gradient(ellipse at 12% 8%, #555b64 0, transparent 55%),
+    radial-gradient(ellipse at 95% 95%, #31353c 0, transparent 60%), #14171c;
+  --theme-bg-ember: radial-gradient(ellipse at 5% 10%, #925a43 0, transparent 55%),
+    radial-gradient(ellipse at 95% 85%, #594134 0, transparent 65%), #251d1a;
+
+  --theme-accent-champagne: #d7c3a4;
+  --theme-accent-apple: #64adff;
+  --theme-accent-mint: #78d8bd;
+  --theme-accent-lavender: #bca5ff;
+  --theme-accent-rose: #f2a9c1;
+  --theme-accent-amber: #f0bd69;
+}
+
+/* Fixed so the gradient stays put while the page scrolls. */
+html body {
+  background: var(--theme-bg-warm);
+  background-attachment: fixed;
+}
+html[data-bg="blue"] body {
+  background: var(--theme-bg-blue);
+  background-attachment: fixed;
+}
+html[data-bg="aurora"] body {
+  background: var(--theme-bg-aurora);
+  background-attachment: fixed;
+}
+html[data-bg="plum"] body {
+  background: var(--theme-bg-plum);
+  background-attachment: fixed;
+}
+html[data-bg="graphite"] body {
+  background: var(--theme-bg-graphite);
+  background-attachment: fixed;
+}
+html[data-bg="ember"] body {
+  background: var(--theme-bg-ember);
+  background-attachment: fixed;
+}
+
+/* html[...] outranks the .dark block, so these win over its --primary/--ring. */
+html.dark,
+html[data-accent="apple"] {
+  --primary: var(--theme-accent-apple);
+  --primary-foreground: #0b213d;
+  --ring: var(--theme-accent-apple);
+  --accent-foreground: var(--theme-accent-apple);
+}
+html[data-accent="champagne"] {
+  --primary: var(--theme-accent-champagne);
+  --primary-foreground: #211c15;
+  --ring: var(--theme-accent-champagne);
+  --accent-foreground: var(--theme-accent-champagne);
+}
+html[data-accent="mint"] {
+  --primary: var(--theme-accent-mint);
+  --primary-foreground: #0b2a22;
+  --ring: var(--theme-accent-mint);
+  --accent-foreground: var(--theme-accent-mint);
+}
+html[data-accent="lavender"] {
+  --primary: var(--theme-accent-lavender);
+  --primary-foreground: #1e1733;
+  --ring: var(--theme-accent-lavender);
+  --accent-foreground: var(--theme-accent-lavender);
+}
+html[data-accent="rose"] {
+  --primary: var(--theme-accent-rose);
+  --primary-foreground: #3a1420;
+  --ring: var(--theme-accent-rose);
+  --accent-foreground: var(--theme-accent-rose);
+}
+html[data-accent="amber"] {
+  --primary: var(--theme-accent-amber);
+  --primary-foreground: #2a1c05;
+  --ring: var(--theme-accent-amber);
+  --accent-foreground: var(--theme-accent-amber);
 }
 
 @layer base {
