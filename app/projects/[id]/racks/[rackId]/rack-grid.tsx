@@ -26,17 +26,28 @@ export type RackGridPreview = {
   valid: boolean;
 };
 
+export type RackFace = "front" | "rear";
+
 export function RackGrid({
   heightRU,
   devices,
   onRemove,
   preview,
+  face = "front",
 }: {
   heightRU: number;
   devices: RackGridDevice[];
   onRemove: (deviceId: string) => void;
   preview: RackGridPreview | null;
+  face?: RackFace;
 }) {
+  // Placeholder rear view: mirror the layout by moving the RU labels to the other side.
+  // Swapping columns (rather than a CSS flip) keeps text readable and leaves the drag
+  // math, which is vertical only, untouched.
+  const isRear = face === "rear";
+  const labelColumn = isRear ? 2 : 1;
+  const deviceColumn = isRear ? 1 : 2;
+
   // 0U devices (PDUs, twin nodes) have no RU span to draw.
   const placed = devices.filter((device) => device.catalogDevice.heightRU >= 1);
 
@@ -56,22 +67,30 @@ export function RackGrid({
       <div
         className="grid gap-x-2"
         style={{
-          gridTemplateColumns: "2rem 1fr",
+          gridTemplateColumns: isRear ? "1fr 2rem" : "2rem 1fr",
           gridTemplateRows: `repeat(${heightRU}, ${ROW_HEIGHT})`,
         }}
       >
         {ruSlots.map((ru) => (
           <span
             key={`label-${ru}`}
-            className="flex items-center justify-end text-[11px] leading-none font-medium text-muted-foreground tabular-nums"
-            style={{ gridColumn: 1, gridRow: rowFor(ru) }}
+            className={`flex items-center text-[11px] leading-none font-medium text-muted-foreground tabular-nums ${
+              isRear ? "justify-start" : "justify-end"
+            }`}
+            style={{ gridColumn: labelColumn, gridRow: rowFor(ru) }}
           >
             {ru}
           </span>
         ))}
 
         {ruSlots.map((ru) => (
-          <RuSlot key={`slot-${ru}`} ru={ru} row={rowFor(ru)} isEmpty={!occupied.has(ru)} />
+          <RuSlot
+            key={`slot-${ru}`}
+            ru={ru}
+            row={rowFor(ru)}
+            column={deviceColumn}
+            isEmpty={!occupied.has(ru)}
+          />
         ))}
 
         {placed.map((device) => {
@@ -81,26 +100,44 @@ export function RackGrid({
               key={device.id}
               device={device}
               row={rowFor(topRU)}
+              column={deviceColumn}
               onRemove={() => onRemove(device.id)}
             />
           );
         })}
 
-        {preview && <FootprintPreview preview={preview} rackHeightRU={heightRU} rowFor={rowFor} />}
+        {preview && (
+          <FootprintPreview
+            preview={preview}
+            rackHeightRU={heightRU}
+            rowFor={rowFor}
+            column={deviceColumn}
+          />
+        )}
       </div>
     </div>
   );
 }
 
 // Each RU is a drop target; the footprint preview, not the slot, shows where a drop lands.
-function RuSlot({ ru, row, isEmpty }: { ru: number; row: number; isEmpty: boolean }) {
+function RuSlot({
+  ru,
+  row,
+  column,
+  isEmpty,
+}: {
+  ru: number;
+  row: number;
+  column: number;
+  isEmpty: boolean;
+}) {
   const { setNodeRef } = useDroppable({ id: `ru-${ru}` });
 
   return (
     <div
       ref={setNodeRef}
       className={isEmpty ? "border-b border-dashed border-border bg-background/60" : undefined}
-      style={{ gridColumn: 2, gridRow: row }}
+      style={{ gridColumn: column, gridRow: row }}
     />
   );
 }
@@ -111,10 +148,12 @@ function FootprintPreview({
   preview,
   rackHeightRU,
   rowFor,
+  column,
 }: {
   preview: RackGridPreview;
   rackHeightRU: number;
   rowFor: (ru: number) => number;
+  column: number;
 }) {
   // A device too tall for the spot would run past the top of the rack; draw only the part
   // inside the rack so the grid never grows extra rows (it's red either way).
@@ -134,7 +173,7 @@ function FootprintPreview({
       aria-hidden="true"
       className="pointer-events-none z-[5] m-px rounded-sm border-2 border-dashed"
       style={{
-        gridColumn: 2,
+        gridColumn: column,
         gridRow: `${rowFor(topRU)} / span ${span}`,
         borderColor,
         backgroundColor: `color-mix(in srgb, ${fillColor} ${fillPercent}%, transparent)`,
@@ -146,10 +185,12 @@ function FootprintPreview({
 function DeviceBlock({
   device,
   row,
+  column,
   onRemove,
 }: {
   device: RackGridDevice;
   row: number;
+  column: number;
   onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -174,7 +215,7 @@ function DeviceBlock({
         .filter(Boolean)
         .join(" ")}
       style={{
-        gridColumn: 2,
+        gridColumn: column,
         gridRow: `${row} / span ${device.catalogDevice.heightRU}`,
         backgroundColor: colorForCategory(device.catalogDevice.category),
         borderColor: borderForCategory(device.catalogDevice.category),

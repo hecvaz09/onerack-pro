@@ -13,7 +13,7 @@ import {
 import { startTransition, useOptimistic, useRef, useState } from "react";
 import { moveDevice, placeDevice, removeDevice } from "./actions";
 import { CatalogPalette, type CatalogItem } from "./catalog-palette";
-import { RackGrid, type RackGridDevice } from "./rack-grid";
+import { RackGrid, type RackFace, type RackGridDevice } from "./rack-grid";
 
 // Where the dragged device would land if dropped now: the hovered slot, adjusted by the
 // grab offset for moves. movingId is the device being moved (null for catalog drags).
@@ -37,11 +37,13 @@ export function RackWorkspace({
   heightRU,
   devices,
   catalog,
+  face = "front",
 }: {
   rackId: string;
   heightRU: number;
   devices: RackGridDevice[];
   catalog: CatalogItem[];
+  face?: RackFace;
 }) {
   // A small activation distance keeps a click from starting a drag.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -190,6 +192,7 @@ export function RackWorkspace({
           devices={optimisticDevices}
           onRemove={handleRemove}
           preview={dropPreview && { ...dropPreview, valid: previewValid }}
+          face={face}
         />
       </div>
     </DndContext>
