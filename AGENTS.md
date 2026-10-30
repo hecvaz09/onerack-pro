@@ -16,3 +16,9 @@ This block is written and re-added by `next dev` â€” verify at `node_module
 - Follow `docs/DEPLOYMENT.md`. Keep production credentials, saved records and private recovery artifacts outside Git/build contexts. Never migrate or seed production to test a code change.
 - Read `docs/live-source-baseline.json` as source provenance, not as proof that a historical image was built from a Git commit.
 - CI validates source only. Deployment and activation of new automatic deployment services require explicit user approval.
+
+## Equipment Library visual review
+
+- Check front and rear references in the Equipment Library before describing a hardware addition as complete. Verify exact model identity, proportions, readable labels and connector placement against manufacturer references.
+- Preserve original artwork and already-correct rack layouts. Never borrow a different model's drawing to fill a missing reference.
+- Test both desktop and narrow layouts. Distinguish actual rendered visual inspection from source/markup checks, and explicitly report missing artwork or blocked visual verification.

@@ -9,6 +9,12 @@ export function artworkUrl(profile:CatalogProfile,face:'front'|'rear',sku?:strin
  return `/equipment-artwork/${profile.key}-${face}.svg`;
 }
 
+// These existing SVGs deliberately stretch inside rack panels. Library previews
+// must instead reserve the source viewBox proportions without editing shared art.
+export function catalogReferenceDimensions(profile:CatalogProfile,face:'front'|'rear'){
+ return profile.key==='smc-as8126'?{width:800,height:face==='front'?640:440}:undefined;
+}
+
 // Passive main-bay 1U cover only; never infer blanking hardware from a label.
 export function isBlankingPanel(sku:string|null|undefined,model:string,heightRU:number,pocket=false){
  return !pocket&&heightRU===1&&catalogProfile(sku||'',model)?.key==='blank-1u';
