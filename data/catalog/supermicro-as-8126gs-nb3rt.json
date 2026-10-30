@@ -1,0 +1,79 @@
+{
+  "sku": "AS-8126GS-NB3RT",
+  "vendor": "Supermicro",
+  "model": "AS-8126GS-NB3RT",
+  "heightRU": 8,
+  "category": "chassis",
+  "specs": {
+    "version": 1,
+    "description": "Air-cooled, dual-socket AMD HGX B300 platform with eight GPUs and front I/O. Model reference; select the actual installed configuration separately.",
+    "sourceUrl": "https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt",
+    "status": "draft",
+    "notes": "Manufacturer-sourced capabilities, not an installed BOM or measurement. RAM, storage, optional DPUs, active fabric mode, optics and electrical inlet details remain unselected. This is not AS-8126GS-TNMR or the old NVIDIA-B300-4U placeholder. No exact-model artwork is assigned. Reviewed 2026-10-30.",
+    "components": [
+      {
+        "id": "smc-b300-nb3rt-cpu",
+        "kind": "cpu",
+        "manufacturer": "AMD",
+        "model": "EPYC 9005 / 9004 family support; exact processor unselected",
+        "quantity": 2,
+        "attributes": { "socket": "SP5" },
+        "notes": "Dual-socket capability; no specific CPU, core count or configured TDP selected. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+      },
+      {
+        "id": "smc-b300-nb3rt-gpu",
+        "kind": "gpu",
+        "manufacturer": "NVIDIA",
+        "model": "HGX B300 SXM GPU",
+        "quantity": 8,
+        "attributes": { "memoryGB": "288", "interface": "SXM / HGX B300" },
+        "notes": "Platform specification: eight GPUs, 288 GB HBM3e each; NVLink 5 with NVSwitch. GPU memory is separate from host RAM. No workload demand is inferred. Source: https://www.supermicro.com/datasheet/datasheet_SuperCluster_B300_Front_IO.pdf"
+      },
+      {
+        "id": "smc-b300-nb3rt-cx8",
+        "kind": "network",
+        "manufacturer": "NVIDIA",
+        "model": "Integrated ConnectX-8 SuperNIC / OSFP",
+        "quantity": 8,
+        "attributes": { "ports": "1", "connector": "OSFP", "protocol": "Other", "slot": "Integrated front I/O" },
+        "notes": "Eight physical OSFP ports, capability up to 800 Gb/s. The product page lists 800GbE and the cluster datasheet permits Ethernet/InfiniBand fabrics. Select the actual protocol and configured link rate before cabling; neither is assumed here. Optics are not implied. Source: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt"
+      },
+      {
+        "id": "smc-b300-nb3rt-lan",
+        "kind": "network",
+        "manufacturer": "Intel",
+        "model": "X710 onboard LAN",
+        "quantity": 1,
+        "attributes": { "ports": "2", "speedGbps": "10", "connector": "RJ45", "protocol": "Ethernet", "slot": "Onboard" },
+        "notes": "Two 10 GbE interfaces. Capability does not establish a negotiated link or installed cable. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+      },
+      {
+        "id": "smc-b300-nb3rt-bmc",
+        "kind": "network",
+        "manufacturer": "Supermicro",
+        "model": "Dedicated IPMI management LAN",
+        "quantity": 1,
+        "attributes": { "ports": "1", "connector": "RJ45", "protocol": "Ethernet", "slot": "MGMT" },
+        "notes": "Management is separate from data LAN. Speed remains unspecified. USB, VGA and mini-DP are not network ports. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+      },
+      {
+        "id": "smc-b300-nb3rt-psu",
+        "kind": "psu",
+        "manufacturer": "Supermicro",
+        "model": "PWS-5K26G-2R redundant supply module",
+        "quantity": 6,
+        "attributes": { "outputWatts": "6600", "redundancy": "3+3; depends on configuration and application load", "efficiency": "Titanium Level (96%)" },
+        "notes": "6.6 kW is the maximum module rating, not chassis AC consumption. Manufacturer capacity tiers depend on supply voltage. Equipment inlet, cord limits and usable AC budget are not established here. Source: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt ; module reference: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+      }
+    ],
+    "custom": [
+      { "name": "Platform and cooling", "value": "8U air-cooled HGX B300. Not a liquid-cooled 4U variant.\nSource: https://www.supermicro.com/datasheet/datasheet_SuperCluster_B300_Front_IO.pdf" },
+      { "name": "Host memory capability", "value": "24 ECC DDR5 DIMM slots, up to 6 TB. EPYC 9005: up to 6400 MT/s; EPYC 9004: up to 4800 MT/s. Installed DIMM quantities/capacities remain unknown.\nSource: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm" },
+      { "name": "Storage capacity, not installed drives", "value": "Eight front E1.S NVMe bays and two M-key 22110 M.2 NVMe slots. Drives and capacities unselected.\nSource: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm" },
+      { "name": "Optional expansion", "value": "Two PCIe 5.0 x16 FHHL slots; up to two dual-port BlueField-3 DPUs. Optional DPUs are not created as installed network endpoints.\nSource: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt" },
+      { "name": "Manufacturer enclosure dimensions", "value": "356 H x 449 W x 950 D mm; CSE-GP807TS-R000NP. Catalog placement is 8U; dimensions do not alter rack geometry.\nSource: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm" },
+      { "name": "Power input review required", "value": "Manufacturer module capacity tiers: 5900 W at 200–207.9 V; 6000 W at 208–219.9 V; 6300 W at 220–229.9 V; 6500 W at 230–238.9 V; 6600 W at 239–240 V. Verify the actual module label and installation. These are capacity references, not system AC demand.\nSource: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt" },
+      { "name": "Installation values still required", "value": "Whole-system AC demand, power factor, cord/inlet compatibility, configured fabric mode/rate and installed options are not established by this model entry. No measured values or rack assignments are created." }
+    ]
+  }
+}
