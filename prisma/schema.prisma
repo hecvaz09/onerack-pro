@@ -13,6 +13,7 @@ datasource db {
 }
 
 model Project {
+  trashedAt DateTime?
   id        String   @id @default(cuid())
   name      String
   customer  String?
@@ -24,14 +25,24 @@ model Project {
 }
 
 model Rack {
+  trashedAt DateTime?
   id        String   @id @default(cuid())
   name      String
   heightRU  Int      @default(42)
+  configuration Json @default("{}")
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   devices   DeviceInstance[]
+  history   RackHistory?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model RackHistory {
+  rackId    String @id
+  rack      Rack @relation(fields: [rackId], references: [id], onDelete: Cascade)
+  snapshots Json
+  cursor    Int @default(0)
 }
 
 model CatalogDevice {
@@ -50,6 +61,8 @@ model DeviceInstance {
   id              String   @id @default(cuid())
   label           String?
   startRU         Int
+  mounting        String   @default("front")
+  details         Json     @default("{}")
   rackId          String
   rack            Rack          @relation(fields: [rackId], references: [id], onDelete: Cascade)
   catalogDeviceId String
@@ -61,12 +74,17 @@ model DeviceInstance {
 }
 
 model Connection {
+  lengthValue Float?
+  lengthUnit String?
   id           String   @id @default(cuid())
   cableType    String?
   label        String?
+  fromPort     String?
+  toPort       String?
   fromDeviceId String
-  toDeviceId   String
+  toDeviceId   String?
+  external     Json?
   fromDevice   DeviceInstance @relation("FromDevice", fields: [fromDeviceId], references: [id], onDelete: Cascade)
-  toDevice     DeviceInstance @relation("ToDevice", fields: [toDeviceId], references: [id], onDelete: Cascade)
+  toDevice     DeviceInstance? @relation("ToDevice", fields: [toDeviceId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
 }

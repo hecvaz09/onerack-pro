@@ -1,0 +1,20 @@
+.trigger {display:inline-flex;align-items:center;gap:4px;border:0;padding:4px 0;background:transparent;color:var(--muted-foreground);font:inherit;font-size:12px;cursor:pointer;border-radius:4px;}
+.trigger:hover {color:var(--foreground);}
+.trigger:focus-visible {outline:2px solid var(--primary);outline-offset:4px;}
+.chevron {display:inline-block;}
+.trigger[data-popup-open] .chevron {transform:rotate(180deg);}
+/* This is a body-level portal, above the workspace's z-index:1 context. */
+.positioner {z-index:80;max-width:calc(100vw - 32px);}
+/* Keep the existing .appearance-menu>div frosted material. Override only its
+   old absolute offsets and content-box size, including the mobile left:0 rule. */
+.positioner > .panel {
+  position:relative;
+  inset:auto;
+  z-index:auto;
+  box-sizing:border-box;
+  width:min(600px,calc(100vw - 32px),var(--available-width,600px));
+  max-height:var(--available-height,calc(100dvh - 32px));
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+@media print {.positioner {display:none;}}

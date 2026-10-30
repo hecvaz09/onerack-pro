@@ -1,0 +1,547 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1464" height="278" viewBox="0 0 1464 278">
+<defs>
+  <linearGradient id="metal" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#e8ecef"/>
+    <stop offset="35%" stop-color="#b5bdc4"/>
+    <stop offset="65%" stop-color="#f2f4f5"/>
+    <stop offset="100%" stop-color="#a7adb3"/>
+  </linearGradient>
+  <linearGradient id="darkBay" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#2b2d2f"/>
+    <stop offset="45%" stop-color="#090a0b"/>
+    <stop offset="100%" stop-color="#232528"/>
+  </linearGradient>
+  <linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#ffb23d"/>
+    <stop offset="100%" stop-color="#f58220"/>
+  </linearGradient>
+  <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.45"/>
+  </filter>
+  <pattern id="topSlots" width="18" height="8" patternUnits="userSpaceOnUse">
+    <rect x="2" y="2" width="12" height="3" rx="1" fill="#1b1d1f"/>
+  </pattern>
+  <pattern id="meshDots" width="22" height="18" patternUnits="userSpaceOnUse">
+    <circle cx="6" cy="6" r="3.6" fill="#0a0b0c"/>
+    <circle cx="17" cy="14" r="3.6" fill="#0a0b0c"/>
+  </pattern>
+</defs>
+<rect width="1464" height="278" fill="#f6f7f8"/>
+<rect x="5" y="15" width="1454" height="246" rx="4" fill="url(#metal)" stroke="#8e969d" stroke-width="2" />
+<rect x="55" y="16" width="1355" height="242" rx="2" fill="#131416" stroke="#3a3d40" stroke-width="2" />
+<rect x="70" y="18" width="1319" height="18" rx="1" fill="url(#topSlots)" stroke="#9ea5aa" stroke-width="1" />
+<rect x="70" y="239" width="1319" height="14" rx="1" fill="url(#topSlots)" stroke="#9ea5aa" stroke-width="1" />
+<line x1="55" y1="138" x2="1410" y2="138" stroke="#c7cbd0" stroke-width="4" />
+<line x1="55" y1="140" x2="1410" y2="140" stroke="#54575a" stroke-width="1" />
+<rect x="7" y="22" width="38" height="82" rx="4" fill="#8c9399" stroke="#6e747a" stroke-width="1" />
+<rect x="7" y="143" width="38" height="92" rx="4" fill="#8c9399" stroke="#6e747a" stroke-width="1" />
+<circle cx="26" cy="43" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="26" cy="43" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="26" cy="82" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="26" cy="82" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="26" cy="164" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="26" cy="164" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="26" cy="207" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="26" cy="207" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="26" cy="248" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="26" cy="248" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<rect x="1418" y="22" width="38" height="82" rx="4" fill="#8c9399" stroke="#6e747a" stroke-width="1" />
+<rect x="1418" y="143" width="38" height="92" rx="4" fill="#8c9399" stroke="#6e747a" stroke-width="1" />
+<circle cx="1437" cy="43" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="1437" cy="43" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="1437" cy="82" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="1437" cy="82" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="1437" cy="164" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="1437" cy="164" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="1437" cy="207" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="1437" cy="207" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<circle cx="1437" cy="248" r="8" fill="#dce1e4" stroke="#737980" stroke-width="2" />
+<circle cx="1437" cy="248" r="3" fill="#8a9096" stroke="#60666b" stroke-width="1" />
+<line x1="15" y1="112" x2="45" y2="109" stroke="#b7f4d8" stroke-width="3" />
+<line x1="15" y1="124" x2="45" y2="121" stroke="#b7f4d8" stroke-width="3" />
+<line x1="15" y1="136" x2="45" y2="133" stroke="#b7f4d8" stroke-width="3" />
+<rect x="727" y="19" width="13" height="237" rx="0" fill="#d4d9dc" stroke="#747a80" stroke-width="1" />
+<line x1="733" y1="24" x2="733" y2="250" stroke="#4b4f52" stroke-width="2" />
+<rect x="64" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="72" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="77" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="98" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="103" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="109" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="127" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="145" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="163" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="181" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="214" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="226" y1="36" x2="226" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="224" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="242" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="242" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="226" y1="44" x2="258" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="265" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="64" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="72" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="77" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="98" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="103" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="109" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="127" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="145" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="163" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="181" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="214" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="226" y1="90" x2="226" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="224" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="242" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="242" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="226" y1="98" x2="258" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="265" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="64" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="72" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="77" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="98" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="103" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="109" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="127" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="145" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="163" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="181" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="214" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="226" y1="156" x2="226" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="224" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="242" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="242" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="226" y1="164" x2="258" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="265" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="64" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="72" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="77" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="98" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="103" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="109" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="127" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="145" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="163" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="181" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="214" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="226" y1="210" x2="226" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="224" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="242" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="242" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="226" y1="218" x2="258" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="265" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="287" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="295" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="300" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="321" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="326" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="332" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="350" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="368" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="386" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="404" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="437" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="449" y1="36" x2="449" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="447" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="465" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="465" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="449" y1="44" x2="481" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="488" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="287" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="295" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="300" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="321" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="326" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="332" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="350" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="368" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="386" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="404" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="437" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="449" y1="90" x2="449" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="447" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="465" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="465" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="449" y1="98" x2="481" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="488" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="287" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="295" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="300" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="321" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="326" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="332" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="350" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="368" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="386" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="404" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="437" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="449" y1="156" x2="449" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="447" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="465" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="465" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="449" y1="164" x2="481" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="488" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="287" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="295" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="300" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="321" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="326" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="332" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="350" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="368" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="386" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="404" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="437" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="449" y1="210" x2="449" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="447" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="465" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="465" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="449" y1="218" x2="481" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="488" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="510" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="518" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="523" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="544" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="549" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="555" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="573" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="591" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="609" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="627" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="660" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="672" y1="36" x2="672" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="670" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="688" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="688" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="672" y1="44" x2="704" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="711" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="510" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="518" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="523" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="544" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="549" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="555" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="573" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="591" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="609" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="627" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="660" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="672" y1="90" x2="672" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="670" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="688" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="688" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="672" y1="98" x2="704" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="711" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="510" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="518" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="523" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="544" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="549" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="555" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="573" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="591" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="609" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="627" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="660" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="672" y1="156" x2="672" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="670" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="688" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="688" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="672" y1="164" x2="704" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="711" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="510" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="518" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="523" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="544" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="549" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="555" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="573" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="591" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="609" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="627" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="660" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="672" y1="210" x2="672" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="670" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="688" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="688" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="672" y1="218" x2="704" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="711" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="760" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="768" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="773" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="794" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="799" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="805" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="823" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="841" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="859" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="877" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="910" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="922" y1="36" x2="922" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="920" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="938" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="938" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="922" y1="44" x2="954" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="961" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="760" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="768" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="773" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="794" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="799" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="805" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="823" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="841" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="859" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="877" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="910" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="922" y1="90" x2="922" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="920" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="938" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="938" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="922" y1="98" x2="954" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="961" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="760" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="768" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="773" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="794" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="799" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="805" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="823" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="841" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="859" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="877" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="910" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="922" y1="156" x2="922" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="920" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="938" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="938" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="922" y1="164" x2="954" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="961" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="760" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="768" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="773" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="794" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="799" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="805" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="823" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="841" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="859" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="877" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="910" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="922" y1="210" x2="922" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="920" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="938" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="938" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="922" y1="218" x2="954" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="961" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="983" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="991" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="996" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1017" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1022" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1028" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1046" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1064" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1082" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1100" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1133" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1145" y1="36" x2="1145" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="1143" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1161" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1161" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1145" y1="44" x2="1177" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="1184" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="983" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="991" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="996" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1017" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1022" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1028" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1046" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1064" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1082" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1100" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1133" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1145" y1="90" x2="1145" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="1143" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1161" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1161" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1145" y1="98" x2="1177" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="1184" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="983" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="991" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="996" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1017" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1022" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1028" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1046" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1064" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1082" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1100" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1133" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1145" y1="156" x2="1145" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="1143" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1161" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1161" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1145" y1="164" x2="1177" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="1184" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="983" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="991" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="996" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1017" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1022" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1028" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1046" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1064" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1082" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1100" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1133" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1145" y1="210" x2="1145" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="1143" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1161" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1161" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1145" y1="218" x2="1177" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="1184" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="1206" y="31" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="1214" y="36" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="1219" y="38" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1240" y="38" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1245" y="42" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1251" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1269" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1287" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1305" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1323" cy="56.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1356" y="34" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1368" y1="36" x2="1368" y2="76" stroke="#44474a" stroke-width="2" />
+<rect x="1366" y="39" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1384" cy="56.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1384" cy="56.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1368" y1="44" x2="1400" y2="44" stroke="#ffc16a" stroke-width="1" />
+<rect x="1407" y="36" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="1206" y="85" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="1214" y="90" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="1219" y="92" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1240" y="92" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1245" y="96" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1251" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1269" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1287" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1305" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1323" cy="110.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1356" y="88" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1368" y1="90" x2="1368" y2="130" stroke="#44474a" stroke-width="2" />
+<rect x="1366" y="93" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1384" cy="110.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1384" cy="110.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1368" y1="98" x2="1400" y2="98" stroke="#ffc16a" stroke-width="1" />
+<rect x="1407" y="90" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="1206" y="151" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="1214" y="156" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="1219" y="158" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1240" y="158" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1245" y="162" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1251" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1269" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1287" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1305" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1323" cy="176.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1356" y="154" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1368" y1="156" x2="1368" y2="196" stroke="#44474a" stroke-width="2" />
+<rect x="1366" y="159" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1384" cy="176.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1384" cy="176.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1368" y1="164" x2="1400" y2="164" stroke="#ffc16a" stroke-width="1" />
+<rect x="1407" y="156" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<rect x="1206" y="205" width="210" height="50" rx="1" fill="#050606" stroke="#4b4f52" stroke-width="1" filter="url(#softShadow)"/>
+<rect x="1214" y="210" width="195" height="40" rx="1" fill="url(#darkBay)" stroke="#24272b" stroke-width="1" />
+<rect x="1219" y="212" width="18" height="36" rx="1" fill="#1b1e21" stroke="#070707" stroke-width="1" />
+<rect x="1240" y="212" width="112" height="36" rx="1" fill="#111315" stroke="#040404" stroke-width="1" />
+<rect x="1245" y="216" width="100" height="28" rx="0" fill="url(#meshDots)" stroke="#2a2c30" stroke-width="0.5" />
+<circle cx="1251" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1269" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1287" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1305" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<circle cx="1323" cy="230.0" r="5.5" fill="none" stroke="#383b3e" stroke-width="1" />
+<rect x="1356" y="208" width="12" height="44" rx="0" fill="#222529" stroke="#060606" stroke-width="1" />
+<line x1="1368" y1="210" x2="1368" y2="250" stroke="#44474a" stroke-width="2" />
+<rect x="1366" y="213" width="36" height="34" rx="2" fill="url(#orange)" stroke="#b75b0e" stroke-width="1.5" />
+<circle cx="1384" cy="230.0" r="6" fill="#c9c9c9" stroke="#6e6e6e" stroke-width="1.2" />
+<circle cx="1384" cy="230.0" r="2.2" fill="#565656" stroke="#222" stroke-width="1" />
+<line x1="1368" y1="218" x2="1400" y2="218" stroke="#ffc16a" stroke-width="1" />
+<rect x="1407" y="210" width="6" height="40" rx="0" fill="#050505" stroke="#000" stroke-width="0.5" />
+<line x1="56" y1="23" x2="56" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="58" y1="23" x2="58" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="277" y1="23" x2="277" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="279" y1="23" x2="279" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="500" y1="23" x2="500" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="502" y1="23" x2="502" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="724" y1="23" x2="724" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="726" y1="23" x2="726" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="752" y1="23" x2="752" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="754" y1="23" x2="754" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="973" y1="23" x2="973" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="975" y1="23" x2="975" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="1196" y1="23" x2="1196" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="1198" y1="23" x2="1198" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="1410" y1="23" x2="1410" y2="256" stroke="#cfd4d7" stroke-width="2" />
+<line x1="1412" y1="23" x2="1412" y2="256" stroke="#4f5357" stroke-width="1" />
+<line x1="55" y1="28" x2="1410" y2="28" stroke="#e7ebee" stroke-width="2" />
+<line x1="55" y1="135" x2="1410" y2="135" stroke="#e7ebee" stroke-width="3" />
+<line x1="55" y1="147" x2="1410" y2="147" stroke="#e7ebee" stroke-width="3" />
+<line x1="55" y1="256" x2="1410" y2="256" stroke="#dfe3e5" stroke-width="2" />
+<rect x="63" y="126" width="673" height="136" rx="5" fill="none" stroke="#ffd400" stroke-width="5" stroke-dasharray="24 14"/>
+<line x1="-8" y1="152" x2="65" y2="152" stroke="#ffd400" stroke-width="5" stroke-dasharray="20 12"/>
+<line x1="-8" y1="169" x2="65" y2="169" stroke="#ffd400" stroke-width="5" stroke-dasharray="20 12"/>
+<line x1="-8" y1="190" x2="65" y2="190" stroke="#ffd400" stroke-width="5" stroke-dasharray="20 12"/>
+<line x1="737" y1="129" x2="737" y2="263" stroke="#ffd400" stroke-width="5" stroke-dasharray="24 13"/>
+<circle cx="178" cy="174" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="178" y="175" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A1</text>
+<circle cx="178" cy="226" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="178" y="227" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A0</text>
+<circle cx="402" cy="174" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="402" y="175" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A3</text>
+<circle cx="402" cy="226" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="402" y="227" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A2</text>
+<circle cx="625" cy="174" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="625" y="175" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A5</text>
+<circle cx="625" cy="226" r="21" fill="#ffd400" stroke="#b48700" stroke-width="3" filter="url(#softShadow)"/>
+<text x="625" y="227" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" >A4</text>
+<circle cx="90" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="132" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="174" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="216" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="258" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="300" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="342" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="384" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="426" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="468" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="510" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="552" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="594" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="636" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="678" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="720" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="762" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="804" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="846" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="888" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="930" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="972" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1014" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1056" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1098" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1140" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1182" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1224" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1266" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1308" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<circle cx="1350" cy="27" r="2.2" fill="#d9dde0" stroke="#7b8084" stroke-width="0.5" />
+<rect x="42" y="120" width="14" height="3" rx="1" fill="#7df0d8" stroke="none" stroke-width="0" />
+<rect x="42" y="128" width="14" height="3" rx="1" fill="#c4baff" stroke="none" stroke-width="0" />
+<rect x="42" y="136" width="14" height="3" rx="1" fill="#7df0d8" stroke="none" stroke-width="0" />
+<rect x="1407" y="120" width="14" height="3" rx="1" fill="#7df0d8" stroke="none" stroke-width="0" />
+<rect x="1407" y="128" width="14" height="3" rx="1" fill="#c4baff" stroke="none" stroke-width="0" />
+<rect x="1407" y="136" width="14" height="3" rx="1" fill="#7df0d8" stroke="none" stroke-width="0" />
+</svg>

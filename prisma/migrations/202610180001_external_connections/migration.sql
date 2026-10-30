@@ -1,0 +1,2 @@
+ALTER TABLE "Connection" ALTER COLUMN "toDeviceId" DROP NOT NULL;
+ALTER TABLE "Connection" ADD COLUMN IF NOT EXISTS "external" JSONB;

@@ -41,3 +41,24 @@ yarn-error.log*
 next-env.d.ts
 
 /generated
+
+# Private runtime and recovery data never belongs in source control.
+!.env.example
+.research-cache/
+work/
+outputs/
+tmp/
+recovery/
+release-artifacts/
+*.log
+*.dump
+*.sql.gz
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.db
+*.sqlite*
+*.pfx
+*.p12
+*.key

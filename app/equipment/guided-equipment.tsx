@@ -1,0 +1,22 @@
+'use client';
+import {useState} from 'react';
+import {CATEGORIES,type CatalogInput} from '@/lib/system-specs';
+import {prepareGuidedEquipment,type GuidedEquipmentAnswers} from '@/lib/guided-equipment';
+export function GuidedEquipment({current,onApply}:{current:CatalogInput;onApply:(draft:CatalogInput)=>void}){
+  const [answers,setAnswers]=useState<GuidedEquipmentAnswers>({vendor:current.vendor,model:current.model,sku:current.sku,category:current.category,heightRU:'',psuModel:'',psuQuantity:''});
+  const [step,setStep]=useState(0),[proposal,setProposal]=useState<CatalogInput|null>(null),[baseline,setBaseline]=useState(''),[message,setMessage]=useState('');
+  function change(key:keyof GuidedEquipmentAnswers,value:string){setAnswers(a=>({...a,[key]:value}));setProposal(null);setMessage('');}
+  function review(){try{setProposal(prepareGuidedEquipment(current,answers));setBaseline(JSON.stringify(current));setMessage('');}catch(e){setMessage(e instanceof Error?e.message:'Check your answers.');}}
+  const input=(key:keyof GuidedEquipmentAnswers,label:string,type='text')=><label className="block">{label}<input type={type} maxLength={200} value={answers[key]} onChange={e=>change(key,e.target.value)} className="mt-2 block w-full rounded-lg border border-border bg-background px-3 py-2"/></label>;
+  return <details id="guided-equipment" className="spec-section border-primary/30" open onKeyDown={e=>{if(e.key==='Enter'&&e.target instanceof HTMLInputElement)e.preventDefault();}}><summary className="cursor-pointer font-semibold text-primary">Guided equipment setup</summary><p className="mt-3 text-sm text-muted-foreground">Answer a few questions to prepare this form. Unknown electrical specifications stay blank. You review and save separately.</p>
+    <div className="my-4 space-y-4" aria-live="polite">
+      <p className="text-xs text-muted-foreground">Step {step+1} of 3</p>
+      {step===0&&<>{input('vendor','Who manufactures the equipment?')}{input('model','What is the exact model or configuration name?')}{input('sku','What unique SKU should identify this configuration?')}</>}
+      {step===1&&<><label className="block">What type of equipment is it?<select className="mt-2 block w-full rounded-lg border border-border bg-background px-3 py-2" value={answers.category} onChange={e=>change('category',e.target.value)}>{CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}</select></label>{input('heightRU','How many rack units does it occupy? (0 only for a vertical PDU or chassis node)','number')}</>}
+      {step===2&&<><p>Do you know the installed PSU model and quantity? Leave both blank if unavailable.</p>{input('psuModel','Exact installed PSU model / part number')}{input('psuQuantity','PSUs per device','number')}<p className="text-sm text-muted-foreground">Actual measured consumption is entered for the installed device in Power Calculator. PSU capacity is a separate specification; this guide does not invent either value.</p></>}
+    </div>
+    <div className="flex gap-3">{step>0&&<button type="button" onClick={()=>{setStep(s=>s-1);setProposal(null);}} className="rounded-lg border border-border px-4 py-2">Back</button>}{step<2?<button type="button" onClick={()=>setStep(s=>s+1)} className="rounded-lg bg-primary px-4 py-2 text-primary-foreground">Continue</button>:<button type="button" onClick={review} className="rounded-lg bg-primary px-4 py-2 text-primary-foreground">Review draft</button>}</div>
+    {message&&<p role="status" className="mt-3 text-sm text-primary">{message}</p>}
+    {proposal&&<div className="mt-4 space-y-3 rounded-lg border border-border p-4"><h3 className="font-semibold">Review before applying</h3><p>{proposal.vendor} · {proposal.model} · {proposal.heightRU}U · {proposal.category}</p><p className="text-sm">SKU: {proposal.sku}</p><p className="text-sm">{answers.psuModel?`${answers.psuQuantity} × ${answers.psuModel}; electrical ratings remain pending.`:'No PSU specifications added.'} Existing component rows are retained.</p><button type="button" className="rounded-lg bg-primary px-4 py-2 text-primary-foreground" onClick={()=>{if(JSON.stringify(current)!==baseline){setProposal(null);setMessage('The form changed after this preview. Review the draft again before applying.');return;}onApply(proposal);setProposal(null);setMessage('Draft applied to the form. Review the fields below and choose Save equipment to keep it.');}}>Apply draft to form</button></div>}
+  </details>;
+}

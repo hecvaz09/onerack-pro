@@ -1,0 +1,111 @@
+{
+  "sku": "DCS-7010TX-48-R",
+  "vendor": "Arista",
+  "model": "DCS-7010TX-48-R",
+  "heightRU": 1,
+  "category": "switch",
+  "specs": {
+    "version": 1,
+    "description": "1U 7010X management/access switch: 48 copper Gigabit Ethernet ports and four 1/10/25GbE SFP28 uplinks. R ordering variant; confirm the installed reversible fan orientation.",
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7010TX-Datasheet.pdf",
+    "status": "draft",
+    "notes": "Manufacturer-backed model reference. Supported components and ordered default quantities do not verify an installed deployment. No measured power or saved rack budgets are created. R variant uses a reversible fan; verify actual orientation.",
+    "components": [
+      {
+        "id": "arista7010tx-copper",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "Fixed 10/100/1000BASE-T ports 1–48",
+        "quantity": 1,
+        "attributes": {
+          "ports": "48",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": "Model capability: 10/100/1000 Mb/s; negotiated link rate is not recorded here. Source: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "id": "arista7010tx-uplinks",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "SFP28 uplink cages 49–52",
+        "quantity": 1,
+        "attributes": {
+          "ports": "4",
+          "speedGbps": "25",
+          "connector": "SFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "49"
+        },
+        "notes": "Supports 1/10/25 GbE with appropriate optics/cables and configuration. Cages do not imply installed transceivers. Source: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "id": "arista7010tx-mgmt",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "Dedicated management Ethernet",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": "Management is separate from numbered data ports. Console serial and USB are not network endpoints. Source: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-front-panel"
+      },
+      {
+        "id": "arista7010tx-psu",
+        "kind": "psu",
+        "manufacturer": "Arista",
+        "model": "Internal redundant AC supplies",
+        "quantity": 2,
+        "attributes": {
+          "inlet": "C14",
+          "inputVoltage": "100–240 VAC",
+          "redundancy": "1+1"
+        },
+        "notes": "Two internal load-sharing supplies, not hot-swappable PSU modules. Exact DC output/derated AC capacity is not asserted. Source: https://www.arista.com/en/products/7010x-series"
+      }
+    ],
+    "custom": [
+      {
+        "name": "Copper interfaces",
+        "value": "48 × RJ45, 10/100/1000 Mb/s; physical ports 1–48.\nSource: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "name": "Uplinks",
+        "value": "4 × SFP28 cages, 1/10/25 GbE; physical ports 49–52. Optics are separate.\nSource: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "name": "Management and console",
+        "value": "Dedicated Ethernet management, RJ45 serial console and USB on front.\nSource: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "name": "Power design",
+        "value": "Two internal AC supplies, 100–240 VAC, 1+1 redundancy. PSU output capacity remains unspecified.\nSource: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "name": "Ordered airflow variant",
+        "value": "DCS-7010TX-48-R: rear-to-front airflow and dual AC power; fan module is field reversible. Confirm installed orientation.\nSource: https://www.arista.com/assets/data/pdf/Datasheets/7010TX-Datasheet.pdf"
+      },
+      {
+        "name": "Cooling",
+        "value": "One reversible field-replaceable module with two fans; verify actual airflow orientation.\nSource: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "483 × 44 × 258 mm including rack mounting width, per Quick Start Guide.\nSource: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-overview"
+      },
+      {
+        "name": "Manufacturer demand reference",
+        "value": "75 W typical / 100 W maximum per Quick Start Guide. Reference only: not an installed measurement or selected rack budget.\nSource: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-overview"
+      }
+    ]
+  }
+}

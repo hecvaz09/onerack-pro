@@ -1,59 +1,22 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useTransition, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { RACK_PROFILES } from "@/lib/rack-config";
 import { createRack } from "./actions";
-
-const inputClassName =
-  "h-8 rounded-lg border border-input bg-card px-2.5 text-sm outline-none backdrop-blur-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
-
-const STANDARD_HEIGHTS = [25, 42, 48, 50, 60];
-const DEFAULT_HEIGHT = "48";
-
-export function RackForm({ projectId }: { projectId: string }) {
-  const [heightChoice, setHeightChoice] = useState(DEFAULT_HEIGHT);
-
-  return (
-    <form
-      action={createRack.bind(null, projectId)}
-      // React resets the form after the action runs; keep the custom input in sync.
-      onReset={() => setHeightChoice(DEFAULT_HEIGHT)}
-      className="mb-6 flex flex-col gap-2 sm:flex-row"
-    >
-      <input
-        type="text"
-        name="name"
-        required
-        placeholder="Rack name"
-        className={`${inputClassName} flex-1`}
-      />
-      <select
-        name="heightChoice"
-        defaultValue={DEFAULT_HEIGHT}
-        onChange={(event) => setHeightChoice(event.target.value)}
-        aria-label="Rack height"
-        className={`${inputClassName} w-full sm:w-28`}
-      >
-        {STANDARD_HEIGHTS.map((height) => (
-          <option key={height} value={height}>
-            {height}U
-          </option>
-        ))}
-        <option value="other">Other…</option>
-      </select>
-      {heightChoice === "other" && (
-        <input
-          type="number"
-          name="customHeight"
-          required
-          min={1}
-          max={60}
-          placeholder="Custom U"
-          aria-label="Custom height (RU)"
-          className={`${inputClassName} w-full sm:w-24`}
-        />
-      )}
-      <Button type="submit">Add rack</Button>
-    </form>
-  );
+const inputClassName = "h-9 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring";
+export function RackForm({projectId}:{projectId:string}) {
+  const [profile,setProfile]=useState("rnr-60-pockets");
+  const [error,setError]=useState("");
+  const [pending,startTransition]=useTransition();
+  const formRef=useRef<HTMLFormElement>(null);
+  return <form ref={formRef} className="mb-6 space-y-2" onSubmit={event=>{
+    event.preventDefault();const data=new FormData(event.currentTarget);
+    startTransition(async()=>{setError("");const result=await createRack(projectId,data);if(result.ok){formRef.current?.reset();setProfile("rnr-60-pockets");}else setError(result.error);});
+  }}><fieldset disabled={pending} className="flex flex-wrap gap-2">
+    <input type="text" name="name" required maxLength={200} placeholder="Rack name" aria-label="Rack name" className={inputClassName+" flex-1"}/>
+    <select name="profile" aria-label="Rack profile" value={profile} onChange={e=>setProfile(e.target.value)} className={inputClassName}>{RACK_PROFILES.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>
+    {profile==="custom"&&<input name="heightRU" type="number" min={1} max={60} step={1} required defaultValue={48} aria-label="Custom height (RU)" className={inputClassName+" w-24"}/>}
+    <input type="hidden" name="pduA" value="on"/><input type="hidden" name="pduB" value="on"/>
+    <Button type="submit">{pending?"Adding…":"Add rack"}</Button>
+  </fieldset>{error&&<p role="alert" className="text-sm text-destructive">{error}</p>}</form>;
 }

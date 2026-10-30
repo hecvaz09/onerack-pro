@@ -1,26 +1,17 @@
 "use server";
-
 import { revalidatePath } from "next/cache";
+import {requireActiveProject} from "@/lib/project-lifecycle";
 import { prisma } from "@/lib/prisma";
-
-export async function createRack(projectId: string, formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim();
-  const heightChoice = String(formData.get("heightChoice") ?? "");
-
-  let heightRU: number;
-  if (heightChoice === "other") {
-    const customHeight = Number.parseInt(String(formData.get("customHeight") ?? ""), 10);
-    heightRU = Number.isNaN(customHeight) || customHeight < 1 || customHeight > 60 ? 42 : customHeight;
-  } else {
-    heightRU = Number.parseInt(heightChoice, 10);
-  }
-  if (Number.isNaN(heightRU) || heightRU < 1 || heightRU > 60) heightRU = 48;
-
-  if (!name) return;
-
-  await prisma.rack.create({
-    data: { name, heightRU, projectId },
-  });
-
-  revalidatePath(`/projects/${projectId}`);
+import { rackSettingsFromForm } from "@/lib/rack-config";
+export async function createRack(projectId: string, formData: FormData): Promise<{ok:true}|{ok:false;error:string}> {
+  const settings = rackSettingsFromForm(formData);
+  if ("error" in settings) return {ok:false,error:settings.error!};
+  try {
+    await prisma.$transaction(async tx=>{
+      await requireActiveProject(tx,projectId);
+      await tx.rack.create({data:{...settings,projectId}});
+    },{maxWait:10000,timeout:30000});
+    revalidatePath(`/projects/${projectId}`);
+    return {ok:true};
+  } catch { return {ok:false,error:"Could not create the rack. Please try again."}; }
 }

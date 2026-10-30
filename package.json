@@ -1,12 +1,14 @@
 {
-  "name": "onerack-pro",
+  "name": "onerack-pro-codex",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3001",
     "lint": "eslint",
+    "test": "node --import tsx --test --experimental-test-isolation=none tests/*.test.ts tests/*.test.tsx",
+    "typecheck": "next typegen && tsc --noEmit",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "dotenv": "^18.0.5",
     "lucide-react": "^1.50.0",
     "next": "16.3.8",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",

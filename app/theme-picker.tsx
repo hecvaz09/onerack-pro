@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   ACCENT_STORAGE_KEY,
   ACCENTS,
@@ -33,31 +33,48 @@ function store(key: string, value: string) {
   }
 }
 
+function subscribeTheme(notify: () => void) {
+  function storageChanged(event: StorageEvent) {
+    if (event.storageArea !== localStorage) return;
+    if (event.key === BG_STORAGE_KEY || event.key === null) {
+      document.documentElement.setAttribute("data-bg", readStored(BG_STORAGE_KEY, BACKGROUNDS, DEFAULT_BACKGROUND));
+    }
+    if (event.key === ACCENT_STORAGE_KEY || event.key === null) {
+      document.documentElement.setAttribute("data-accent", readStored(ACCENT_STORAGE_KEY, ACCENTS, DEFAULT_ACCENT));
+    }
+    if (event.key !== null && event.key !== BG_STORAGE_KEY && event.key !== ACCENT_STORAGE_KEY) return;
+    notify();
+  }
+  window.addEventListener("onerack:theme", notify);
+  window.addEventListener("storage", storageChanged);
+  return () => {
+    window.removeEventListener("onerack:theme", notify);
+    window.removeEventListener("storage", storageChanged);
+  };
+}
+
+function changeTheme(attribute: string, storageKey: string, value: string) {
+  document.documentElement.setAttribute(attribute, value);
+  store(storageKey, value);
+  window.dispatchEvent(new Event("onerack:theme"));
+}
+
+const serverTheme = () => null;
+const backgroundSnapshot = () => document.documentElement.getAttribute("data-bg") || DEFAULT_BACKGROUND;
+const accentSnapshot = () => document.documentElement.getAttribute("data-accent") || DEFAULT_ACCENT;
+
 export function ThemePicker() {
   // Null until mounted: the server can't know the saved theme, so nothing is marked
   // active on the first render (avoids a hydration mismatch).
-  const [bg, setBg] = useState<ThemeBackground | null>(null);
-  const [accent, setAccent] = useState<ThemeAccent | null>(null);
-
-  useEffect(() => {
-    const savedBg = readStored(BG_STORAGE_KEY, BACKGROUNDS, DEFAULT_BACKGROUND);
-    const savedAccent = readStored(ACCENT_STORAGE_KEY, ACCENTS, DEFAULT_ACCENT);
-    document.documentElement.dataset.bg = savedBg;
-    document.documentElement.dataset.accent = savedAccent;
-    setBg(savedBg);
-    setAccent(savedAccent);
-  }, []);
+  const bg = useSyncExternalStore(subscribeTheme, backgroundSnapshot, serverTheme);
+  const accent = useSyncExternalStore(subscribeTheme, accentSnapshot, serverTheme);
 
   function chooseBg(value: ThemeBackground) {
-    document.documentElement.dataset.bg = value;
-    store(BG_STORAGE_KEY, value);
-    setBg(value);
+    changeTheme("data-bg", BG_STORAGE_KEY, value);
   }
 
   function chooseAccent(value: ThemeAccent) {
-    document.documentElement.dataset.accent = value;
-    store(ACCENT_STORAGE_KEY, value);
-    setAccent(value);
+    changeTheme("data-accent", ACCENT_STORAGE_KEY, value);
   }
 
   return (
@@ -76,7 +93,7 @@ export function ThemePicker() {
               className="size-3.5 rounded-full border border-white/20"
               style={{ background: `var(--theme-bg-${value})` }}
             />
-            {value}
+            {value === "silver" ? "Etched Silver" : value === "sage" ? "Sage Channels" : value === "mesh" ? "Champagne Mesh" : value === "silicon" ? "Silicon Ice" : value === "datacenter" ? "Data center" : value}
           </button>
         ))}
       </PickerRow>

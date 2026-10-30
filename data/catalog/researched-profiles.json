@@ -1,0 +1,1467 @@
+[
+  {
+    "key": "arista-7050cx3",
+    "skus": [
+      "DCS-7050CX3-32S"
+    ],
+    "label": "Arista 7050CX3-32S",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf",
+    "description": "1U Ethernet switch with QSFP100 data ports and SFP+ interfaces.",
+    "facts": [
+      {
+        "name": "Data interfaces",
+        "value": "32 × QSFP100; 2 × SFP+ (operating mode/software restrictions require review)"
+      },
+      {
+        "name": "Power options",
+        "value": "Two 500W AC or DC supplies; 1+1 redundancy. Exact module and airflow suffix required."
+      },
+      {
+        "name": "Cooling",
+        "value": "Four hot-swappable fans; intake/exhaust variants"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "440 × 44 × 406.4 mm"
+      },
+      {
+        "name": "Weight",
+        "value": "9.1 kg"
+      },
+      {
+        "name": "Power reference",
+        "value": "Datasheet lists 168W typical / 343W maximum, excluding transceivers; other Arista documents differ. Do not use as a measured rack budget."
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-data",
+        "kind": "network",
+        "model": "QSFP100 data ports",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "32",
+          "speedGbps": "100",
+          "connector": "QSFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-sfp",
+        "kind": "network",
+        "model": "SFP+ ports",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "speedGbps": "10",
+          "connector": "SFP+",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "33"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Management Ethernet",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 2,
+        "attributes": {
+          "outputWatts": "500",
+          "redundancy": "1+1"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed PSU AC/DC type, airflow suffix and optics",
+      "Port 34 availability depends on operating mode; confirm EOS/DMF configuration"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 34,
+      "fans": 4,
+      "psus": 2,
+      "reference": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf",
+      "audit": "Numbered port groups and management face reviewed. Optical cages do not imply installed transceivers. PSU details depend on ordered variant."
+    }
+  },
+  {
+    "key": "cisco-92348",
+    "skus": [
+      "N9K-C92348GC-X"
+    ],
+    "label": "Cisco Nexus 92348GC-X",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/hw/n92348gc-x-hig/b_n92348GC-X-nxos-hardware-installation-guide/b_n9248GC-FX-nxos-hardware-installation-guide_chapter_01.html",
+    "description": "1U Ethernet switch with copper access ports and separate SFP28/QSFP28 uplinks.",
+    "facts": [
+      {
+        "name": "Port groups",
+        "value": "P1–48: 100M/1G RJ45; P49–52: 1/10/25G SFP28; P53–54: 40/100G QSFP28"
+      },
+      {
+        "name": "Management",
+        "value": "RJ45 or SFP management connector; one logical management interface. Console is serial, not a data port."
+      },
+      {
+        "name": "Power options",
+        "value": "Two matching supplies, 1+1. 400W AC, DC or 500W high-voltage options; installed type not established."
+      },
+      {
+        "name": "Cooling",
+        "value": "Three fan modules; port-side intake/exhaust variants"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-data",
+        "kind": "network",
+        "model": "Copper access ports",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "48",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-sfp",
+        "kind": "network",
+        "model": "SFP28 uplinks",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "4",
+          "speedGbps": "25",
+          "connector": "SFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "49"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-qsfp",
+        "kind": "network",
+        "model": "QSFP28 uplinks",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "speedGbps": "100",
+          "connector": "QSFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "53"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Management Ethernet (RJ45 selected)",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 2,
+        "attributes": {
+          "redundancy": "1+1"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed PSU part number, airflow direction and optics",
+      "Use either RJ45 or SFP for management; this profile selects RJ45"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 54,
+      "fans": 3,
+      "psus": 2,
+      "reference": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/hw/n92348gc-x-hig/b_n92348GC-X-nxos-hardware-installation-guide/b_n9248GC-FX-nxos-hardware-installation-guide_chapter_01.html",
+      "audit": "Numbered port groups and management face reviewed. Optical cages do not imply installed transceivers. PSU details depend on ordered variant."
+    }
+  },
+  {
+    "key": "cisco-9336",
+    "skus": [
+      "N9K-C9336C-FX2"
+    ],
+    "label": "Cisco Nexus 9336C-FX2",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/hw/n9336cfx2_hig/guide/b_n9336cFX2_nxos_hardware_installation_guide/b_n9336cFX2_nxos_hardware_installation_guide_chapter_01.html",
+    "description": "1U Ethernet switch with 36 QSFP28 data ports.",
+    "facts": [
+      {
+        "name": "Data interfaces",
+        "value": "36 × 40/100GbE QSFP28; breakout and QSA modes require explicit configuration"
+      },
+      {
+        "name": "Management",
+        "value": "RJ45 or SFP management connector; console is serial"
+      },
+      {
+        "name": "Power options",
+        "value": "Two matching supplies, 1+1. 750W AC and 1100W AC/DC/HV variants exist. Installed PSU model is required."
+      },
+      {
+        "name": "Cooling",
+        "value": "Three fan modules; intake/exhaust airflow variants"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-data",
+        "kind": "network",
+        "model": "QSFP28 data ports",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "36",
+          "speedGbps": "100",
+          "connector": "QSFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Management Ethernet (RJ45 selected)",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 2,
+        "attributes": {
+          "redundancy": "1+1"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed PSU part number, airflow direction and optics",
+      "Use either RJ45 or SFP for management; this profile selects RJ45"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 36,
+      "fans": 3,
+      "psus": 2,
+      "reference": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/hw/n9336cfx2_hig/guide/b_n9336cFX2_nxos_hardware_installation_guide/b_n9336cFX2_nxos_hardware_installation_guide_chapter_01.html",
+      "audit": "Numbered port groups and management face reviewed. Optical cages do not imply installed transceivers. PSU details depend on ordered variant."
+    }
+  },
+  {
+    "key": "nvidia-qm8700",
+    "skus": [
+      "QM8700",
+      "UNC-MQM8700-HS2F",
+      "MQM8700-HS2F"
+    ],
+    "label": "NVIDIA QM8700",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://networking-docs.nvidia.com/qm87xx/public-view/specifications",
+    "description": "Managed 1U HDR InfiniBand switch; not an Ethernet production switch.",
+    "facts": [
+      {
+        "name": "Data interfaces",
+        "value": "40 × QSFP56; QDR/FDR/EDR/HDR up to 200Gb/s"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "433.2 × 43.6 × 590.6 mm"
+      },
+      {
+        "name": "Weight",
+        "value": "12.488 kg with two PSUs"
+      },
+      {
+        "name": "Input range",
+        "value": "100–127 VAC or 200–240 VAC, 50/60Hz"
+      },
+      {
+        "name": "Management",
+        "value": "RJ45 10/100/1000 Ethernet, RS232 console, micro-USB"
+      },
+      {
+        "name": "Airflow",
+        "value": "P2C or C2P according to full ordering code"
+      },
+      {
+        "name": "Power budget",
+        "value": "Full power specifications require NVIDIA document 1080832 (partner portal); user AC demand still required"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-data",
+        "kind": "network",
+        "model": "HDR InfiniBand ports",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "40",
+          "speedGbps": "200",
+          "connector": "QSFP56",
+          "protocol": "InfiniBand",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Management Ethernet",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 2,
+        "attributes": {
+          "inputVoltage": "100–127 / 200–240 VAC"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Full MQM8700 ordering code, PSU rating/connector and airflow",
+      "Installed transceivers and system AC demand"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 40,
+      "psus": 2,
+      "fans": 6,
+      "reference": "https://networking-docs.nvidia.com/qm87xx/public-view/specifications",
+      "audit": "Numbered port groups and management face reviewed. Optical cages do not imply installed transceivers. PSU details depend on ordered variant."
+    }
+  },
+  {
+    "key": "smc-510p",
+    "skus": [
+      "SYS-510P-WTR"
+    ],
+    "label": "Supermicro SYS-510P-WTR",
+    "category": "chassis",
+    "heightRU": 1,
+    "source": "https://www.supermicro.com/en/products/system/up/1u/sys-510p-wtr",
+    "description": "1U single-socket WIO server; capacities below describe supported hardware, not installed options.",
+    "facts": [
+      {
+        "name": "Motherboard",
+        "value": "X12SPW-TF"
+      },
+      {
+        "name": "CPU support",
+        "value": "One LGA4189 socket; third-generation Xeon Scalable, up to 270W TDP"
+      },
+      {
+        "name": "Memory capacity",
+        "value": "Eight DDR4 DIMM slots; up to 2TB at 3200MT/s"
+      },
+      {
+        "name": "Storage bays",
+        "value": "Four front 3.5-inch hybrid bays; one M.2 slot. SAS/NVMe may need controller/cables."
+      },
+      {
+        "name": "Expansion",
+        "value": "Three PCIe 4.0 x16 slots: two FHFL and one low-profile"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "437 × 43 × 650 mm"
+      },
+      {
+        "name": "Weight",
+        "value": "10.89 kg net"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-lan",
+        "kind": "network",
+        "model": "Intel X550 onboard LAN",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "speedGbps": "10",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Onboard",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Dedicated BMC management",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "BMC",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "PWS-504P-1R",
+        "manufacturer": "",
+        "quantity": 2,
+        "attributes": {
+          "outputWatts": "500",
+          "inputVoltage": "100–240 VAC",
+          "redundancy": "1+1",
+          "efficiency": "Platinum"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed CPU, DIMM, drive and adapter part numbers/quantities",
+      "Total system AC demand; PSU rating is not power consumption",
+      "Exact PSU inlet/cord and installed airflow configuration"
+    ],
+    "drawing": {
+      "kind": "server",
+      "bays": 4,
+      "psus": 2,
+      "slots": 3,
+      "reference": "https://www.supermicro.com/manuals/superserver/1U/MNL-2266.pdf",
+      "audit": "Four horizontal front drive trays. Rear PSU2/PSU1 left, management/LAN/service I/O, then slots 3, 1 and 2."
+    }
+  },
+  {
+    "key": "smc-420gp",
+    "skus": [
+      "SYS-420GP-TNR"
+    ],
+    "label": "Supermicro SYS-420GP-TNR",
+    "category": "chassis",
+    "heightRU": 4,
+    "source": "https://www.supermicro.com/en/products/system/datasheet/sys-420gp-tnr",
+    "description": "4U dual-socket PCIe GPU server; installed accelerator and storage choices are configuration-dependent.",
+    "facts": [
+      {
+        "name": "CPU support",
+        "value": "Two LGA4189 sockets; third-generation Xeon Scalable"
+      },
+      {
+        "name": "Memory capacity",
+        "value": "32 DDR4 DIMM slots; up to 8TB DRAM"
+      },
+      {
+        "name": "GPU support",
+        "value": "Up to ten double-width PCIe GPUs; exact installed models unknown"
+      },
+      {
+        "name": "Storage bays",
+        "value": "24 front 2.5-inch bays: default eight NVMe and sixteen SAS/SATA; two M.2 boot slots"
+      },
+      {
+        "name": "Expansion",
+        "value": "Twelve PCIe 4.0 x16 FHFL slots; AIOM support"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "437 × 178 × 737 mm"
+      },
+      {
+        "name": "Cooling",
+        "value": "Eight heavy-duty hot-swap fans"
+      },
+      {
+        "name": "Motherboard / chassis",
+        "value": "X12DPG-OA6 / CSE-418G2TS-R4016BP"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-lan",
+        "kind": "network",
+        "model": "Intel I350 onboard LAN",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Onboard",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 4,
+        "attributes": {
+          "outputWatts": "2000",
+          "efficiency": "Titanium",
+          "redundancy": "2+2"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Dedicated IPMI management",
+        "manufacturer": "Supermicro",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "protocol": "Ethernet",
+          "connector": "RJ45",
+          "slot": "BMC"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed CPU, DIMM, drive and adapter part numbers/quantities",
+      "Total system AC demand; PSU rating is not power consumption",
+      "Exact PSU inlet/cord and installed airflow configuration"
+    ],
+    "drawing": {
+      "kind": "server",
+      "bays": 24,
+      "psus": 4,
+      "slots": 12,
+      "reference": "https://www.supermicro.com/manuals/superserver/4U/MNL-2389.pdf",
+      "audit": "24 vertical front drive bays. Rear slots 12–1 above the I/O panel, two PSUs on each side, separate AIOM position."
+    }
+  },
+  {
+    "key": "smc-821gv",
+    "skus": [
+      "SYS-821GV-TNR"
+    ],
+    "label": "Supermicro SYS-821GV-TNR",
+    "category": "chassis",
+    "heightRU": 8,
+    "source": "https://www.supermicro.com/manuals/superserver/8U/MNL-2637.pdf",
+    "description": "8U Intel PVC GPU platform. This is a different model from AS-8126GS-TNMR.",
+    "facts": [
+      {
+        "name": "Motherboard / chassis",
+        "value": "X13DEG-PVC / CSE-GP801TS"
+      },
+      {
+        "name": "CPU support",
+        "value": "Two LGA4677 sockets; fourth-generation Xeon Scalable, up to 350W TDP"
+      },
+      {
+        "name": "Memory capacity",
+        "value": "32 DDR5 DIMM slots; up to 8TB, 4800MT/s at 1DPC"
+      },
+      {
+        "name": "GPU platform",
+        "value": "Intel PVC OAM with XeLink; installed accelerator SKU needs confirmation"
+      },
+      {
+        "name": "Storage bays",
+        "value": "Nineteen front 2.5-inch bays: sixteen NVMe and three SATA; some positions require optional kit"
+      },
+      {
+        "name": "Expansion",
+        "value": "Twelve PCIe 5.0 slots including optional kit positions"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "437 × 356 × 843 mm"
+      },
+      {
+        "name": "Onboard data LAN",
+        "value": "Optional X550-AT2, not assumed installed"
+      },
+      {
+        "name": "Physical I/O location",
+        "value": "Dedicated BMC management, USB and VGA are on the FRONT I/O panel (manual pages 10–11). Rear PCIe slot positions: 8→1 across center; 9/10 left; 11/12 right."
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Dedicated BMC management",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "BMC",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 6,
+        "attributes": {
+          "outputWatts": "3000",
+          "efficiency": "Titanium",
+          "redundancy": "3+3"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed CPU, DIMM, drive and adapter part numbers/quantities",
+      "Total system AC demand; PSU rating is not power consumption",
+      "Exact PSU inlet/cord and installed airflow configuration"
+    ],
+    "drawing": {
+      "kind": "server",
+      "bays": 19,
+      "psus": 6,
+      "slots": 12,
+      "reference": "https://www.supermicro.com/manuals/superserver/8U/MNL-2637.pdf",
+      "audit": "MNL-2637: front management I/O and 19 drive bays; distinct from the AMD AS-8126 rear layout."
+    }
+  },
+  {
+    "key": "smc-as8126",
+    "skus": [
+      "AS-8126GS-TNMR-2CX8-IB-DRAFT"
+    ],
+    "label": "Supermicro AS-8126GS-TNMR",
+    "category": "chassis",
+    "heightRU": 8,
+    "source": "https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-tnmr",
+    "description": "8U AMD GPU platform. Two requested ConnectX-8 adapters remain pending exact adapter SKU and compatibility.",
+    "facts": [
+      {
+        "name": "Motherboard / chassis",
+        "value": "H14DSG-OD / CSE-GP805TS-R000NPF"
+      },
+      {
+        "name": "CPU support",
+        "value": "Two SP5 sockets; AMD EPYC 9005/9004, up to 500W TDP"
+      },
+      {
+        "name": "Memory capacity",
+        "value": "24 DDR5 DIMM slots; up to 6TB; speed depends on processor"
+      },
+      {
+        "name": "GPU platform",
+        "value": "Eight AMD Instinct MI325X or MI350X OAM positions; confirm installed variant"
+      },
+      {
+        "name": "Storage bays",
+        "value": "Eight front NVMe and two SATA 2.5-inch bays; two M.2 slots"
+      },
+      {
+        "name": "Expansion",
+        "value": "Eight low-profile and two FHHL PCIe 5.0 x16 slots"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "447 × 356 × 843 mm"
+      },
+      {
+        "name": "PSU reference",
+        "value": "Six 5250W Titanium supplies, 3+3; manufacturer listing differs from earlier synthetic 3500W assumptions"
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-lan",
+        "kind": "network",
+        "model": "X710 onboard LAN",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "speedGbps": "10",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Onboard",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-mgmt",
+        "kind": "network",
+        "model": "Dedicated BMC management LAN",
+        "manufacturer": "",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "BMC",
+          "startPort": "1"
+        },
+        "notes": ""
+      },
+      {
+        "id": "ref-psu",
+        "kind": "psu",
+        "model": "Power supply — exact installed part number pending",
+        "manufacturer": "",
+        "quantity": 6,
+        "attributes": {
+          "outputWatts": "5250",
+          "inputVoltage": "200–240 VAC",
+          "efficiency": "Titanium",
+          "redundancy": "3+3"
+        },
+        "notes": ""
+      }
+    ],
+    "unknowns": [
+      "Installed CPU, DIMM, drive and adapter part numbers/quantities",
+      "Total system AC demand; PSU rating is not power consumption",
+      "Exact PSU inlet/cord and installed airflow configuration",
+      "ConnectX-8 exact SKU, per-card ports, connector and validated server compatibility; requested Slot1/Slot2 are logical labels until mapped"
+    ],
+    "drawing": {
+      "kind": "as8126",
+      "bays": 10,
+      "psus": 6,
+      "slots": 10,
+      "reference": "https://www.supermicro.com/manuals/superserver/8U/MNL-2832.pdf",
+      "audit": "Existing model-specific interactive panel retained. Installed adapter ports come from the configuration."
+    }
+  },
+  {
+    "key": "smc-grandtwin",
+    "skus": [
+      "SYS-211GT-HNTR-CU1-TT019",
+      "SYS-211GT-HNTR-CK2-TT019"
+    ],
+    "label": "Supermicro SYS-211GT-HNTR family",
+    "category": "chassis",
+    "heightRU": 2,
+    "source": "https://www.supermicro.com/QuickRefs/superserver/2U/QRG-2513.pdf",
+    "description": "2U four-node GrandTwin platform; CU1/CK2/TT019 custom build contents are not publicly established.",
+    "facts": [
+      {
+        "name": "Base platform",
+        "value": "SYS-211GT-HNTR; four independent hot-plug nodes with shared chassis power/cooling"
+      },
+      {
+        "name": "Per-node CPU support",
+        "value": "One LGA4677 socket; fourth/fifth-generation Xeon Scalable"
+      },
+      {
+        "name": "Per-node memory",
+        "value": "16 DDR5 DIMM slots; up to 4TB"
+      },
+      {
+        "name": "Per-node storage",
+        "value": "Six front 2.5-inch NVMe/SATA bays and two M.2 slots"
+      },
+      {
+        "name": "Per-node network",
+        "value": "One dedicated 1GbE BMC RJ45; data ports depend on selected AIOM"
+      },
+      {
+        "name": "Per-node expansion",
+        "value": "Two PCIe 5.0 x16 AIOM/OCP 3.0 positions"
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "449 × 88 × 711.2 mm"
+      },
+      {
+        "name": "Power reference",
+        "value": "Shared 2200W Titanium supply platform; voltage-dependent derating. Exact custom build PSU count requires BOM."
+      },
+      {
+        "name": "Physical node layout",
+        "value": "Front B/D above A/C; rear D/B above C/A. Dedicated BMC per node; shared VGA/USB for A/B and C/D pairs. PSU2 left, PSU1 right."
+      }
+    ],
+    "components": [
+      {
+        "id": "ref-grandtwin-A-bmc",
+        "kind": "network",
+        "manufacturer": "Supermicro",
+        "model": "Node A dedicated BMC",
+        "quantity": 1,
+        "attributes": {
+          "node": "A",
+          "slot": "MGMT",
+          "ports": "1",
+          "protocol": "Ethernet",
+          "connector": "RJ45",
+          "speedGbps": "1"
+        },
+        "notes": "Dedicated port for this node; QRG-2513 rear layout."
+      },
+      {
+        "id": "ref-grandtwin-A-aiom1",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node A AIOM1 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "A",
+          "slot": "AIOM1"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-A-aiom2",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node A AIOM2 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "A",
+          "slot": "AIOM2"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-B-bmc",
+        "kind": "network",
+        "manufacturer": "Supermicro",
+        "model": "Node B dedicated BMC",
+        "quantity": 1,
+        "attributes": {
+          "node": "B",
+          "slot": "MGMT",
+          "ports": "1",
+          "protocol": "Ethernet",
+          "connector": "RJ45",
+          "speedGbps": "1"
+        },
+        "notes": "Dedicated port for this node; QRG-2513 rear layout."
+      },
+      {
+        "id": "ref-grandtwin-B-aiom1",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node B AIOM1 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "B",
+          "slot": "AIOM1"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-B-aiom2",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node B AIOM2 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "B",
+          "slot": "AIOM2"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-C-bmc",
+        "kind": "network",
+        "manufacturer": "Supermicro",
+        "model": "Node C dedicated BMC",
+        "quantity": 1,
+        "attributes": {
+          "node": "C",
+          "slot": "MGMT",
+          "ports": "1",
+          "protocol": "Ethernet",
+          "connector": "RJ45",
+          "speedGbps": "1"
+        },
+        "notes": "Dedicated port for this node; QRG-2513 rear layout."
+      },
+      {
+        "id": "ref-grandtwin-C-aiom1",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node C AIOM1 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "C",
+          "slot": "AIOM1"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-C-aiom2",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node C AIOM2 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "C",
+          "slot": "AIOM2"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-D-bmc",
+        "kind": "network",
+        "manufacturer": "Supermicro",
+        "model": "Node D dedicated BMC",
+        "quantity": 1,
+        "attributes": {
+          "node": "D",
+          "slot": "MGMT",
+          "ports": "1",
+          "protocol": "Ethernet",
+          "connector": "RJ45",
+          "speedGbps": "1"
+        },
+        "notes": "Dedicated port for this node; QRG-2513 rear layout."
+      },
+      {
+        "id": "ref-grandtwin-D-aiom1",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node D AIOM1 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "D",
+          "slot": "AIOM1"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      },
+      {
+        "id": "ref-grandtwin-D-aiom2",
+        "kind": "network",
+        "manufacturer": "",
+        "model": "Node D AIOM2 — adapter not specified",
+        "quantity": 1,
+        "attributes": {
+          "node": "D",
+          "slot": "AIOM2"
+        },
+        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+      }
+    ],
+    "unknowns": [
+      "CU1/CK2/TT019 build-specific BOM and per-node labels",
+      "Per-node CPU, RAM, drives and AIOM part numbers",
+      "Shared PSU inventory and supply voltage; do not multiply shared PSU ratings by four"
+    ],
+    "drawing": {
+      "kind": "twin",
+      "bays": 24,
+      "nodes": 4,
+      "reference": "https://www.supermicro.com/QuickRefs/superserver/2U/QRG-2513.pdf",
+      "audit": "Four independent nodes A–D; six bays per node; eight AIOM positions; four dedicated BMC ports; two shared PSUs. AIOM face connectors depend on the installed card."
+    }
+  },
+  {
+    "key": "smc-grandtwin-node",
+    "skus": [
+      "SYS-211GT-CU1-NODE"
+    ],
+    "label": "GrandTwin node (configuration pending)",
+    "category": "node",
+    "heightRU": 0,
+    "source": "https://www.supermicro.com/en/products/system/GrandTwin/2U/SYS-211GT-HNTR",
+    "description": "Logical node placeholder associated with a GrandTwin chassis; not a separately rack-mounted system.",
+    "facts": [
+      {
+        "name": "Reference platform",
+        "value": "SYS-211GT-HNTR family only; exact node assembly SKU not established"
+      },
+      {
+        "name": "Power accounting",
+        "value": "Uses shared chassis power; do not add a duplicate independent chassis PSU"
+      },
+      {
+        "name": "Network configuration",
+        "value": "AIOM model and management mapping must be assigned to the parent node identity"
+      }
+    ],
+    "components": [],
+    "unknowns": [
+      "Exact node assembly SKU, parent chassis and node position",
+      "Installed components and per-node network adapter BOM"
+    ],
+    "drawing": {
+      "kind": "unknown",
+      "reference": "https://www.supermicro.com/en/products/system/GrandTwin/2U/SYS-211GT-HNTR",
+      "audit": "Generic or unidentified item: exact physical layout cannot be established from this catalog SKU."
+    }
+  },
+  {
+    "key": "raritan-px3",
+    "skus": [
+      "PX3-4068YV-V2-K1",
+      "PX3-4068YV-V2-K2"
+    ],
+    "label": "Raritan PX3-4068YV-V2",
+    "category": "pdu",
+    "heightRU": 0,
+    "source": "https://www.raritan.com/assets/ram/documents/Raritan-Data-Center-Power-Distribution-Catalog-V1247R1.pdf",
+    "description": "Vertical three-phase PDU; numbered K1/K2 outlet map remains the supplied build-document profile.",
+    "facts": [
+      {
+        "name": "Base input rating",
+        "value": "415V three-phase, 80A, 57.5kVA"
+      },
+      {
+        "name": "Receptacles",
+        "value": "51 total: 36 C13 + 15 C19"
+      },
+      {
+        "name": "Base inlet",
+        "value": "AC terminal, bottom-end entry"
+      },
+      {
+        "name": "Controller",
+        "value": "iX7; inlet/outlet/branch metering, SecureLock"
+      },
+      {
+        "name": "Circuit mapping",
+        "value": "Existing SO949293 workbook profile: 15 branches; numbered outlets, phases and breakers preserved"
+      },
+      {
+        "name": "Custom suffix",
+        "value": "K1/K2-specific cord/entry modifications must be checked against label/build drawing"
+      }
+    ],
+    "components": [
+      {
+        "id": "raritan-mgmt",
+        "kind": "network",
+        "manufacturer": "Raritan",
+        "model": "Controller Ethernet",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "connector": "RJ45",
+          "slot": "MGMT",
+          "protocol": "Ethernet"
+        },
+        "notes": "ETH1/ETH2 on user-supplied PX3 controller reference. USB, sensor and console are not Ethernet endpoints. Negotiated speeds not specified."
+      }
+    ],
+    "unknowns": [
+      "Actual facility voltage, upstream continuous capacity and independent A/B feeds",
+      "K1/K2 whip details and nameplate confirmation"
+    ],
+    "drawing": {
+      "kind": "pdu",
+      "outlets": 51,
+      "reference": "https://www.raritan.com/assets/ram/documents/Raritan-Data-Center-Power-Distribution-Catalog-V1247R1.pdf",
+      "audit": "51-outlet build-document numbering retained; 36 C13 and 15 C19. K1/K2 entry hardware requires the build drawing."
+    }
+  },
+  {
+    "key": "blank-1u",
+    "skus": [
+      "BLANK-1U"
+    ],
+    "label": "1U blanking panel",
+    "category": "accessory",
+    "heightRU": 1,
+    "source": "",
+    "description": "Passive 1U blanking panel; generic schematic.",
+    "facts": [
+      {
+        "name": "Power",
+        "value": "Passive; no power cords"
+      },
+      {
+        "name": "Network",
+        "value": "No network ports"
+      }
+    ],
+    "components": [],
+    "unknowns": [],
+    "drawing": {
+      "kind": "blank",
+      "reference": "",
+      "audit": "Generic or unidentified item: exact physical layout cannot be established from this catalog SKU."
+    }
+  },
+  {
+    "key": "cable-manager",
+    "skus": [
+      "SWE-SLB5-1UBK"
+    ],
+    "label": "1U cable manager",
+    "category": "accessory",
+    "heightRU": 1,
+    "source": "",
+    "description": "Passive cable manager; dimensions beyond 1U and exact finger design unconfirmed.",
+    "facts": [
+      {
+        "name": "Power",
+        "value": "Passive; no power cords"
+      },
+      {
+        "name": "Network",
+        "value": "Cable routing accessory; no active ports"
+      }
+    ],
+    "components": [],
+    "unknowns": [
+      "Manufacturer drawing for SWE-SLB5-1UBK"
+    ],
+    "drawing": {
+      "kind": "cable-manager",
+      "reference": "",
+      "audit": "Generic or unidentified item: exact physical layout cannot be established from this catalog SKU."
+    }
+  },
+  {
+    "key": "b300-pending",
+    "skus": [
+      "NVIDIA-B300-4U"
+    ],
+    "label": "HGX B300 4U LC — model pending",
+    "category": "chassis",
+    "heightRU": 4,
+    "source": "",
+    "description": "Placeholder only. A GPU platform name does not identify a server chassis or its port locations.",
+    "facts": [],
+    "components": [],
+    "unknowns": [
+      "Exact Supermicro server SKU",
+      "Chassis height, PSU specification, cooling connections and installed components",
+      "Manufacturer front/rear drawing"
+    ],
+    "drawing": {
+      "kind": "unknown",
+      "reference": "",
+      "audit": "Generic or unidentified item: exact physical layout cannot be established from this catalog SKU."
+    }
+  },
+  {
+    "key": "asus-esc8000a",
+    "skus": [
+      "UNC-ESC8000A-E12-26W10G",
+      "ESC8000A-E12-26W10G"
+    ],
+    "label": "ASUS ESC8000A-E12",
+    "category": "chassis",
+    "heightRU": 4,
+    "source": "https://dlcdnets.asus.com/pub/ASUS/server/ESC8000A-E12/Manual/E22384_ESC8000A-E12_UM_V4_WEB.pdf",
+    "description": "UNC build reference artwork",
+    "facts": [],
+    "components": [],
+    "unknowns": [
+      "Exact installed option positions require physical confirmation"
+    ],
+    "drawing": {
+      "kind": "server",
+      "ports": 0,
+      "psus": 4,
+      "bays": 8,
+      "slots": 0,
+      "reference": "https://dlcdnets.asus.com/pub/ASUS/server/ESC8000A-E12/Manual/E22384_ESC8000A-E12_UM_V4_WEB.pdf",
+      "audit": "Manual page 1-7 and workbook rear image. Four PSUs. User-supplied annotated UNC rear image locates NIC1 / Slot1-P1 at the far-left expansion position; the QSFP port is drawn there."
+    }
+  },
+  {
+    "key": "smc-641e",
+    "skus": [
+      "UNC-SSG-641E-E1CR36L",
+      "SSG-641E-E1CR36L"
+    ],
+    "label": "Supermicro SSG-641E-E1CR36L",
+    "category": "chassis",
+    "heightRU": 4,
+    "source": "https://www.supermicro.com/manuals/superstorage/MNL-2619.pdf",
+    "description": "UNC build reference artwork",
+    "facts": [],
+    "components": [],
+    "unknowns": [
+      "Exact installed option positions require physical confirmation"
+    ],
+    "drawing": {
+      "kind": "server",
+      "ports": 0,
+      "psus": 2,
+      "bays": 24,
+      "slots": 6,
+      "reference": "https://www.supermicro.com/manuals/superstorage/MNL-2619.pdf",
+      "audit": "Manual pages 10 and 13 and user annotated UNC rear photograph. 24 front bays, 12 rear bays plus two 2.5-inch positions. PSU1 below PSU2. Installed Slot4 single-port QSFP and Slot3 quad 1Gb RJ45 (P0–P3) follow the supplied rear reference; unlabeled blank expansion positions are not assigned inferred slot numbers."
+    }
+  },
+  {
+    "key": "fs-s3900",
+    "skus": [
+      "UNC-FS-S3900-48T6S-R",
+      "S3900-48T6S-R"
+    ],
+    "label": "FS S3900-48T6S-R",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://resource.fs.com/mall/resource/s3900-r-series-switches-data-sheet.pdf",
+    "description": "UNC build reference artwork",
+    "facts": [],
+    "components": [],
+    "unknowns": [
+      "Exact installed option positions require physical confirmation"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 54,
+      "psus": 2,
+      "bays": 8,
+      "slots": 0,
+      "reference": "https://resource.fs.com/mall/resource/s3900-r-series-switches-data-sheet.pdf",
+      "audit": "Manufacturer front diagram and workbook rear photo. 48 RJ45, six SFP+ and console; two rear AC inlets."
+    }
+  },
+  {
+    "key": "apc-apdu10151",
+    "skus": [
+      "UNC-APDU10151ME",
+      "APDU10151ME"
+    ],
+    "label": "APC APDU10151ME",
+    "category": "pdu",
+    "heightRU": 0,
+    "source": "https://www.se.com/us/en/product/APDU10151ME/apc-netshelter-rack-pdu-advanced-metered-5-0kw-1phase-208v-30a-l630p-40-outlet/",
+    "description": "UNC build reference artwork",
+    "facts": [],
+    "components": [
+      {
+        "id": "pdu-mgmt",
+        "kind": "network",
+        "manufacturer": "APC",
+        "model": "Dual Ethernet management",
+        "quantity": 1,
+        "attributes": {
+          "ports": "2",
+          "connector": "RJ45",
+          "slot": "MGMT",
+          "protocol": "Ethernet"
+        },
+        "notes": "Two Ethernet network ports. Second port supports 10/100 and cascading; negotiated speeds should be confirmed. Source: Schneider Electric APDU10151ME product documentation."
+      }
+    ],
+    "unknowns": [
+      "Exact installed option positions require physical confirmation"
+    ],
+    "drawing": {
+      "kind": "pdu",
+      "ports": 2,
+      "psus": 2,
+      "bays": 8,
+      "slots": 0,
+      "reference": "https://www.se.com/us/en/product/APDU10151ME/apc-netshelter-rack-pdu-advanced-metered-5-0kw-1phase-208v-30a-l630p-40-outlet/",
+      "audit": "Workbook PDU photograph and outlet schedule: 40 numbered outlets; odd C13/C15, even universal. Branch mapping not validated. Mounting back shown schematically."
+    }
+  },
+  {
+    "key": "arista-7010tx",
+    "skus": [
+      "DCS-7010TX-48-R"
+    ],
+    "label": "Arista DCS-7010TX-48-R",
+    "category": "switch",
+    "heightRU": 1,
+    "source": "https://www.arista.com/assets/data/pdf/Datasheets/7010TX-Datasheet.pdf",
+    "description": "1U 7010X management/access switch: 48 copper Gigabit Ethernet ports and four 1/10/25GbE SFP28 uplinks. R ordering variant; confirm the installed reversible fan orientation.",
+    "facts": [
+      {
+        "name": "Copper interfaces",
+        "value": "48 × RJ45, 10/100/1000 Mb/s; physical ports 1–48."
+      },
+      {
+        "name": "Uplinks",
+        "value": "4 × SFP28 cages, 1/10/25 GbE; physical ports 49–52. Optics are separate."
+      },
+      {
+        "name": "Management and console",
+        "value": "Dedicated Ethernet management, RJ45 serial console and USB on front."
+      },
+      {
+        "name": "Power design",
+        "value": "Two internal AC supplies, 100–240 VAC, 1+1 redundancy. PSU output capacity remains unspecified."
+      },
+      {
+        "name": "Ordered airflow variant",
+        "value": "DCS-7010TX-48-R: rear-to-front airflow and dual AC power; fan module is field reversible. Confirm installed orientation."
+      },
+      {
+        "name": "Cooling",
+        "value": "One reversible field-replaceable module with two fans; verify actual airflow orientation."
+      },
+      {
+        "name": "Dimensions (W × H × D)",
+        "value": "483 × 44 × 258 mm including rack mounting width, per Quick Start Guide."
+      },
+      {
+        "name": "Manufacturer demand reference",
+        "value": "75 W typical / 100 W maximum per Quick Start Guide. Reference only: not an installed measurement or selected rack budget."
+      }
+    ],
+    "components": [
+      {
+        "id": "arista7010tx-copper",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "Fixed 10/100/1000BASE-T ports 1–48",
+        "quantity": 1,
+        "attributes": {
+          "ports": "48",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "1"
+        },
+        "notes": "Model capability: 10/100/1000 Mb/s; negotiated link rate is not recorded here. Source: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "id": "arista7010tx-uplinks",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "SFP28 uplink cages 49–52",
+        "quantity": 1,
+        "attributes": {
+          "ports": "4",
+          "speedGbps": "25",
+          "connector": "SFP28",
+          "protocol": "Ethernet",
+          "slot": "Front",
+          "startPort": "49"
+        },
+        "notes": "Supports 1/10/25 GbE with appropriate optics/cables and configuration. Cages do not imply installed transceivers. Source: https://www.arista.com/en/products/7010x-series"
+      },
+      {
+        "id": "arista7010tx-mgmt",
+        "kind": "network",
+        "manufacturer": "Arista",
+        "model": "Dedicated management Ethernet",
+        "quantity": 1,
+        "attributes": {
+          "ports": "1",
+          "speedGbps": "1",
+          "connector": "RJ45",
+          "protocol": "Ethernet",
+          "slot": "MGMT",
+          "startPort": "1"
+        },
+        "notes": "Management is separate from numbered data ports. Console serial and USB are not network endpoints. Source: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-front-panel"
+      },
+      {
+        "id": "arista7010tx-psu",
+        "kind": "psu",
+        "manufacturer": "Arista",
+        "model": "Internal redundant AC supplies",
+        "quantity": 2,
+        "attributes": {
+          "inlet": "C14",
+          "inputVoltage": "100–240 VAC",
+          "redundancy": "1+1"
+        },
+        "notes": "Two internal load-sharing supplies, not hot-swappable PSU modules. Exact DC output/derated AC capacity is not asserted. Source: https://www.arista.com/en/products/7010x-series"
+      }
+    ],
+    "unknowns": [
+      "Installed SFP/SFP+/SFP28 optics or DAC part numbers, reach and configured link rates",
+      "Actual reversible-fan orientation and installed hardware condition",
+      "Whole-system measured AC demand and power factor for the installed device",
+      "PSU rated output/derated AC budget per supply, which is not inferred from the 100 W system demand reference"
+    ],
+    "drawing": {
+      "kind": "switch",
+      "ports": 52,
+      "fans": 2,
+      "psus": 2,
+      "reference": "https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-front-panel",
+      "audit": "7010TX-48 official front: four banks of 12 RJ45 ports, 2×2 SFP28 uplinks 49–52, MGMT/CON/USB at right. AC rear: two internal-supply C14 inlets, one reversible two-fan module. Rear layout source: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-rear-panel. No installed optics or connection completion implied."
+    }
+  }
+]

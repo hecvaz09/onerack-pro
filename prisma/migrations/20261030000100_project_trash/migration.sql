@@ -1,0 +1,1 @@
+ALTER TABLE "Project" ADD COLUMN "trashedAt" TIMESTAMP(3);

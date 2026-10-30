@@ -1,0 +1,3 @@
+# Preserve the verified deployed source bytes, including Prisma migration checksums.
+# Line-ending normalization must be a separately reviewed change.
+* -text

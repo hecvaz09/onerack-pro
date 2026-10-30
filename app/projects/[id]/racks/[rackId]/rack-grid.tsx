@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { borderForCategory, colorForCategory } from "./device-colors";
+import { colorForCategory } from "./device-colors";
 
 export type RackGridDevice = {
   id: string;
+  pending?: boolean;
   startRU: number;
+  mounting: string;
   label: string | null;
   catalogDevice: {
     model: string;
@@ -16,39 +18,19 @@ export type RackGridDevice = {
   };
 };
 
-const ROW_HEIGHT = "1.375rem"; // 22px: a 48U rack fits with less scrolling
-
 // Presentational: the DndContext lives in RackWorkspace, which owns the drag handling.
-export type RackGridPreview = {
-  startRU: number;
-  heightRU: number;
-  category: string | null;
-  valid: boolean;
-};
-
-export type RackFace = "front" | "rear";
-
-export function RackGrid({
-  heightRU,
-  devices,
-  onRemove,
-  preview,
-  face = "front",
-}: {
-  heightRU: number;
-  devices: RackGridDevice[];
-  onRemove: (deviceId: string) => void;
-  preview: RackGridPreview | null;
-  face?: RackFace;
+export function RackGrid({ heightRU, devices, preview, disabled = false, rear = false, onSelect, selectedId, onRemove, draggingId }: {
+  heightRU: number; devices: RackGridDevice[]; disabled?: boolean;
+  rear?: boolean;
+  draggingId?: string | null;
+  onSelect?: (id: string) => void;
+  onRemove?: (id: string) => void;
+  selectedId?: string | null;
+  preview?: { startRU: number; heightRU: number; error: string | null } | null;
 }) {
-  // Placeholder rear view: mirror the layout by moving the RU labels to the other side.
-  // Swapping columns (rather than a CSS flip) keeps text readable and leaves the drag
-  // math, which is vertical only, untouched.
-  const isRear = face === "rear";
-  const labelColumn = isRear ? 2 : 1;
-  const deviceColumn = isRear ? 1 : 2;
-
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   // 0U devices (PDUs, twin nodes) have no RU span to draw.
+  const face = rear ? "rear" : "front";
   const placed = devices.filter((device) => device.catalogDevice.heightRU >= 1);
 
   const occupied = new Set<number>();
@@ -63,139 +45,79 @@ export function RackGrid({
   const ruSlots = Array.from({ length: heightRU }, (_, i) => heightRU - i);
 
   return (
-    <div className="w-full max-w-sm rounded-lg border border-border bg-muted/50 p-2">
+    <div onPointerMove={event => { if (draggingId) return; const item = (event.target as Element).closest("[data-device-id]"); setHoveredId(item?.getAttribute("data-device-id") ?? null); }} onPointerLeave={() => setHoveredId(null)} className={`elevation-assembly ${rear ? "rear-assembly" : "front-assembly"}`}>
+    {rear && <Rail side="rear-left" devices={devices} onSelect={disabled ? undefined : onSelect} selectedId={selectedId} onRemove={disabled ? undefined : onRemove} />}
+    <div data-rack-scroll="" aria-label={rear ? "Rear rack map" : "Front rack map"} className={`rack-frame ${rear ? "rear-frame" : "front-frame"}`}>
       <div
-        className="grid gap-x-2"
+        className="elevation-grid grid gap-x-2"
         style={{
-          gridTemplateColumns: isRear ? "1fr 2rem" : "2rem 1fr",
-          gridTemplateRows: `repeat(${heightRU}, ${ROW_HEIGHT})`,
+          gridTemplateColumns: "2rem 1fr",
+          gridTemplateRows: `repeat(${heightRU}, minmax(0, 1fr))`,
+          minHeight: `${heightRU * 7}px`,
+          height: `var(--rack-fit-height, ${heightRU * 34}px)`,
         }}
       >
         {ruSlots.map((ru) => (
           <span
             key={`label-${ru}`}
-            className={`flex items-center text-[11px] leading-none font-medium text-muted-foreground tabular-nums ${
-              isRear ? "justify-start" : "justify-end"
-            }`}
-            style={{ gridColumn: labelColumn, gridRow: rowFor(ru) }}
+            className="flex items-center justify-end text-[10px] leading-none font-medium text-muted-foreground tabular-nums"
+            style={{ gridColumn: 1, gridRow: rowFor(ru) }}
           >
             {ru}
           </span>
         ))}
 
         {ruSlots.map((ru) => (
-          <RuSlot
-            key={`slot-${ru}`}
-            ru={ru}
-            row={rowFor(ru)}
-            column={deviceColumn}
-            isEmpty={!occupied.has(ru)}
-          />
+          <RuSlot key={`slot-${ru}`} mounting={face} ru={ru} row={rowFor(ru)} isEmpty={!occupied.has(ru)} />
         ))}
 
         {placed.map((device) => {
           const topRU = device.startRU + device.catalogDevice.heightRU - 1;
-          return (
-            <DeviceBlock
-              key={device.id}
-              device={device}
-              row={rowFor(topRU)}
-              column={deviceColumn}
-              onRemove={() => onRemove(device.id)}
-            />
-          );
+          return device.mounting !== face ? <div key={device.id} data-device-id={device.id} className="rear-device" hidden={draggingId === device.id} data-selected={selectedId === device.id} role={onSelect ? "button" : undefined} tabIndex={onSelect && !disabled ? 0 : undefined} onClick={() => { if (!disabled) onSelect?.(device.id); }} onKeyDown={event => { if (!disabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect?.(device.id); } }} title={`${device.label || device.catalogDevice.model} · Opposite-face footprint · RU ${device.startRU}–${topRU}`} style={{ gridColumn: 2, gridRow: `${rowFor(topRU)} / span ${device.catalogDevice.heightRU}` }}><span>{device.label || device.catalogDevice.model}</span>{device.catalogDevice.heightRU >= 4 && <small>RU {device.startRU}–{topRU}</small>}</div> : <DeviceBlock key={device.id} device={device} row={rowFor(topRU)} disabled={disabled || !!device.pending} onSelect={onSelect} selectedId={selectedId} />;
         })}
-
-        {preview && (
-          <FootprintPreview
-            preview={preview}
-            rackHeightRU={heightRU}
-            rowFor={rowFor}
-            column={deviceColumn}
-          />
+        {onRemove && placed.filter(device => device.id !== draggingId).map(device => <div key={`remove-${device.id}`} className="device-remove-layer" data-device-id={device.id} data-hovered={hoveredId === device.id} style={{gridColumn:2,gridRow:`${rowFor(device.startRU + device.catalogDevice.heightRU - 1)} / span ${device.catalogDevice.heightRU}`}}><button type="button" className="device-remove-dot" disabled={disabled || device.pending} aria-label={`Remove ${device.label || device.catalogDevice.model} at RU ${device.startRU} from rack`} title="Remove from rack (both views)" onPointerDown={event=>event.stopPropagation()} onClick={()=>onRemove(device.id)}>×</button></div>)}
+        {preview && preview.startRU >= 1 && preview.startRU + preview.heightRU - 1 <= heightRU && (
+          <div data-placement-preview className={`pointer-events-none z-30 flex items-center justify-center rounded-sm border-2 text-center text-[10px] font-semibold shadow-lg  ${preview.error ? "border-red-400 bg-red-950 text-red-100" : "border-primary bg-primary/10 text-primary"}`}
+            style={{ gridColumn: 2, gridRow: `${rowFor(preview.startRU + preview.heightRU - 1)} / span ${preview.heightRU}` }}>
+            {preview.error ? "Blocked · " : "Place · "}RU {preview.startRU}–{preview.startRU + preview.heightRU - 1}
+          </div>
         )}
       </div>
+    </div>
+    {rear && <Rail side="rear-right" devices={devices} onSelect={disabled ? undefined : onSelect} selectedId={selectedId} onRemove={disabled ? undefined : onRemove} />}
     </div>
   );
 }
 
-// Each RU is a drop target; the footprint preview, not the slot, shows where a drop lands.
-function RuSlot({
-  ru,
-  row,
-  column,
-  isEmpty,
-}: {
-  ru: number;
-  row: number;
-  column: number;
-  isEmpty: boolean;
-}) {
-  const { setNodeRef } = useDroppable({ id: `ru-${ru}` });
+function Rail({ side, devices, onSelect, selectedId, onRemove }: { side: string; devices: RackGridDevice[]; onSelect?: (id: string) => void; selectedId?: string | null; onRemove?: (id: string) => void }) {
+  const { setNodeRef, isOver } = useDroppable({ id: side, data: { ru: 1, mounting: side } });
+  const pdu = devices.find(d => d.mounting === side && d.catalogDevice.heightRU === 0);
+  return <div ref={setNodeRef} data-mounting={side} data-selected={pdu?.id === selectedId} role={pdu && onSelect ? "button" : undefined} tabIndex={pdu && onSelect ? 0 : undefined} onClick={() => { if (pdu) onSelect?.(pdu.id); }} onKeyDown={event => { if (pdu && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect?.(pdu.id); } }} className={`pdu-rail ${pdu ? "rail-installed" : ""} ${isOver ? "rail-over" : ""}`} title={pdu ? pdu.label || pdu.catalogDevice.model : side.replace("-", " ") + " · Drop vertical PDU"}><>{pdu && onRemove && <button type="button" className="device-remove-dot" disabled={pdu.pending} aria-label={`Remove ${pdu.label || pdu.catalogDevice.model} from ${side}`} onPointerDown={event=>event.stopPropagation()} onKeyDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onRemove(pdu.id);}}>×</button>}<span>{pdu ? pdu.label || pdu.catalogDevice.model : side === "rear-left" ? "LEFT · 0U PDU" : "RIGHT · 0U PDU"}</span></></div>;
+}
+
+function RuSlot({ ru, row, isEmpty, mounting }: { ru: number; row: number; isEmpty: boolean; mounting: string }) {
+  const { setNodeRef } = useDroppable({ id: `${mounting}-ru-${ru}`, data: { ru, mounting } });
 
   return (
     <div
       ref={setNodeRef}
-      className={isEmpty ? "border-b border-dashed border-border bg-background/60" : undefined}
-      style={{ gridColumn: column, gridRow: row }}
+      data-rack-ru={ru}
+      className={[
+        isEmpty && "border-b border-dashed border-border bg-background/60",
+        // Raised above device blocks so the highlight shows on occupied RUs too.
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={{ gridColumn: 2, gridRow: row }}
     />
   );
 }
 
-// The RUs the dragged device would occupy: in its own category colors if it fits, red if
-// it doesn't.
-function FootprintPreview({
-  preview,
-  rackHeightRU,
-  rowFor,
-  column,
-}: {
-  preview: RackGridPreview;
-  rackHeightRU: number;
-  rowFor: (ru: number) => number;
-  column: number;
-}) {
-  // A device too tall for the spot would run past the top of the rack; draw only the part
-  // inside the rack so the grid never grows extra rows (it's red either way).
-  const topRU = Math.min(preview.startRU + preview.heightRU - 1, rackHeightRU);
-  const span = topRU - preview.startRU + 1;
-  if (span < 1) return null;
-
-  // The category fills are deep tints that barely show as a thin dashed line on the dark
-  // card, so a valid footprint is outlined in the category's lighter hairline color and
-  // filled with its tint at 50%.
-  const borderColor = preview.valid ? borderForCategory(preview.category) : "#f87171";
-  const fillColor = preview.valid ? colorForCategory(preview.category) : "#f87171";
-  const fillPercent = preview.valid ? 50 : 15;
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none z-[5] m-px rounded-sm border-2 border-dashed"
-      style={{
-        gridColumn: column,
-        gridRow: `${rowFor(topRU)} / span ${span}`,
-        borderColor,
-        backgroundColor: `color-mix(in srgb, ${fillColor} ${fillPercent}%, transparent)`,
-      }}
-    />
-  );
-}
-
-function DeviceBlock({
-  device,
-  row,
-  column,
-  onRemove,
-}: {
-  device: RackGridDevice;
-  row: number;
-  column: number;
-  onRemove: () => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+function DeviceBlock({ device, row, disabled, onSelect, selectedId }: { device: RackGridDevice; row: number; disabled: boolean; onSelect?: (id: string) => void; selectedId?: string | null }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: device.id,
-    data: { kind: "placed", startRU: device.startRU, heightRU: device.catalogDevice.heightRU },
+    disabled,
+    data: { kind: "placed", mounting: device.mounting, startRU: device.startRU, heightRU: device.catalogDevice.heightRU },
   });
 
   const topRU = device.startRU + device.catalogDevice.heightRU - 1;
@@ -206,20 +128,23 @@ function DeviceBlock({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      data-device-id={device.id}
       data-device-block
+      data-selected={selectedId === device.id}
+      onClick={() => { if (!disabled && !isDragging) onSelect?.(device.id); }}
+      onKeyDown={event => { if (!disabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect?.(device.id); } }}
       title={`${name} — ${device.catalogDevice.vendor} ${device.catalogDevice.model} (RU ${device.startRU}–${topRU})`}
       className={[
-        "group relative m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border px-2 text-center text-xs leading-tight font-medium text-zinc-100",
-        isDragging && "relative z-20 cursor-grabbing opacity-70 shadow-lg",
+        "rack-device m-px flex cursor-grab touch-none flex-col items-center justify-center overflow-hidden rounded-sm border border-white/10 px-2 text-center text-xs leading-tight font-medium text-zinc-100",
+        "transition-opacity duration-150 motion-reduce:transition-none",
+        isDragging && "invisible",
       ]
         .filter(Boolean)
         .join(" ")}
       style={{
-        gridColumn: column,
+        gridColumn: 2,
         gridRow: `${row} / span ${device.catalogDevice.heightRU}`,
         backgroundColor: colorForCategory(device.catalogDevice.category),
-        borderColor: borderForCategory(device.catalogDevice.category),
-        transform: CSS.Translate.toString(transform),
       }}
     >
       <span className="w-full truncate">{name}</span>
@@ -228,26 +153,6 @@ function DeviceBlock({
         <span className="w-full truncate text-[10px] font-normal text-zinc-100/70 tabular-nums">
           RU {device.startRU}–{topRU}
         </span>
-      )}
-
-      {!isDragging && (
-        <button
-          type="button"
-          aria-label={`Remove ${name}`}
-          title={`Remove ${name}`}
-          // The block's drag listeners are React handlers on the parent, so stopping the
-          // pointerdown here keeps dnd-kit from ever seeing it: a click on ✕ deletes
-          // instead of grabbing the block. Keydown is stopped for the same reason.
-          onPointerDown={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            onRemove();
-          }}
-          className="absolute top-0.5 right-0.5 flex size-3.5 cursor-pointer items-center justify-center rounded-sm text-[10px] leading-none text-zinc-100/80 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/30 hover:text-white focus-visible:opacity-100"
-        >
-          ✕
-        </button>
       )}
     </div>
   );

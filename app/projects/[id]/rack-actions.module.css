@@ -1,0 +1,5 @@
+.actions {opacity:1;}
+@media (hover:hover) and (pointer:fine) {
+ .actions {opacity:0;}
+ .row:hover .actions,.row:focus-within .actions,.actions:has([aria-expanded="true"]),.actions[data-open="true"] {opacity:1;}
+}

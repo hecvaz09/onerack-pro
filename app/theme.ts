@@ -1,16 +1,17 @@
 // Shared by the theme picker (client) and the no-flash script in the root layout (server),
 // so it must not be a "use client" module.
 
-export const BACKGROUNDS = ["warm", "blue", "aurora", "plum", "graphite", "ember"] as const;
-export const ACCENTS = ["champagne", "apple", "mint", "lavender", "rose", "amber"] as const;
+export const BACKGROUNDS = ["silicon", "silver", "sage", "mesh", "frost", "datacenter", "midnight", "warm", "blue", "aurora", "plum", "graphite", "ember"] as const;
+export const ACCENTS = ["champagne", "apple", "mint", "lavender", "rose", "amber", "onerack"] as const;
 
 export type ThemeBackground = (typeof BACKGROUNDS)[number];
 export type ThemeAccent = (typeof ACCENTS)[number];
 
-export const DEFAULT_BACKGROUND: ThemeBackground = "warm";
+export const DEFAULT_BACKGROUND: ThemeBackground = "silicon";
 export const DEFAULT_ACCENT: ThemeAccent = "apple";
 
-export const BG_STORAGE_KEY = "onerack-bg";
+// New visual baseline; previous background choices remain available in Appearance.
+export const BG_STORAGE_KEY = "onerack-bg-frost-v2";
 export const ACCENT_STORAGE_KEY = "onerack-accent";
 
 // Runs inline in <head> before first paint, so the saved theme applies without a flash

@@ -1,0 +1,125 @@
+/* Persistent root backdrop: no negative stacking, body propagation, or fixed attachment. */
+:root {--theme-bg-datacenter:linear-gradient(135deg,#8aafa6,#1a3038);--theme-bg-silicon:linear-gradient(135deg,#eef3f6,#9eb6c8);}
+.workspace-background {display:none;position:fixed;inset:0;z-index:0;pointer-events:none;background-position:center;background-size:cover;background-repeat:no-repeat;}
+.workspace-content {position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+html.dark[data-bg="datacenter"] body,html.dark:is([data-bg="silicon"],[data-bg="silver"],[data-bg="sage"],[data-bg="mesh"]) body {background:#bdccd5;isolation:isolate;}
+html.dark[data-bg="datacenter"] .workspace-background {display:block;background-image:linear-gradient(#0b171d30,#0b171d30),url('/backgrounds/datacenter-clean-traces.png?v=548455a3');}
+html.dark[data-bg="silicon"] .workspace-background {display:block;background-image:url('/backgrounds/silicon-ice-v1.png');}
+html.dark:is([data-bg="silicon"],[data-bg="silver"],[data-bg="sage"],[data-bg="mesh"]) {--glass-surface:linear-gradient(135deg,#ffffff20,#ffffff05),#20313dc9;--glass-edge:#f0f7ff66;}
+html.dark:is([data-bg="silicon"],[data-bg="silver"],[data-bg="sage"],[data-bg="mesh"]) .workspace-page > header {background:linear-gradient(115deg,#ffffff18,#ffffff05),#20313dc9;}
+html.dark[data-bg="datacenter"] {--glass-surface:linear-gradient(135deg,#ffffff24,#ffffff08 50%,#ffffff04),#1c2b2d80;--glass-edge:#e6fff14a;}
+@media print {.workspace-background {display:none!important;}html.dark[data-bg="datacenter"] body,html.dark:is([data-bg="silicon"],[data-bg="silver"],[data-bg="sage"],[data-bg="mesh"]) body {background:white;}}
+html.dark {
+  --theme-bg-frost:
+    radial-gradient(ellipse 55% 42% at 8% 3%, #c6c7b861, transparent 75%),
+    radial-gradient(ellipse 38% 48% at 93% 35%, #9caf9d38, transparent 75%),
+    radial-gradient(ellipse 58% 28% at 48% 96%, #a5a0953b, transparent 80%),
+    linear-gradient(115deg, transparent 14%, #ccd1bf16 22%, transparent 36%, #080f132b 57%, transparent 70%),
+    linear-gradient(145deg, #454c49, #242e2e 48%, #161e23 78%, #39423f);
+  --glass-surface:linear-gradient(135deg,#ffffff20,#ffffff07 42%,#ffffff03),#202b2b99;
+  --glass-edge:#edf4eb3b;
+  --glass-shadow:inset 0 1px 0 #ffffff50,inset 1px 0 0 #ffffff14,0 12px 36px #08101126;
+  --muted-foreground:#d1d9d5;
+}
+html.dark :is(.bg-card,.spec-section,.power-planner,.rack-status-pane,.rack-navigation,.login-card,.cable-matrix-section,.cable-matrix-toolbar) {
+  background:var(--glass-surface);
+  border:1px solid var(--glass-edge);
+  box-shadow:var(--glass-shadow);
+}
+html.dark :is(.bg-card,.spec-section,.power-planner,.login-card,.cable-matrix-section,.cable-matrix-toolbar) {border-radius:22px;}
+html.dark .workspace-page > header {
+  padding:22px 24px;
+  border:1px solid var(--glass-edge);
+  border-radius:22px;
+  background:linear-gradient(115deg,#ffffff1c,#ffffff05),#25303099;
+  box-shadow:var(--glass-shadow);
+}
+html.dark :is(.equipment-dialog,.rack-context,.appearance-menu>div) {
+  background:linear-gradient(130deg,#ffffff19,#ffffff04),#24302fe8;
+  border-color:#f0f6eb47;
+  box-shadow:inset 0 1px 0 #ffffff4d,0 24px 80px #050d135e;
+  border-radius:22px;
+}
+html.dark .equipment-dialog::backdrop {background:#0d171b80;}
+html.dark .bg-card .bg-card {background:#15212052;box-shadow:inset 0 1px 0 #ffffff0d;}
+html.dark .projects-overview > section {min-width:0;}
+html.dark :is(.power-table-scroll,.cable-matrix-section .overflow-x-auto) {
+  background:#111e22a6;border-radius:12px;border:1px solid #ffffff1a;
+}
+html.dark :is(.power-table,.cable-matrix-section table) th {background:#283735;color:#f2f6f3;}
+/* Inventory rows need a continuous reading surface over photographic themes. */
+html.dark [role="region"][aria-label="Equipment inventory"] {
+  background:#142226f2;
+  border-color:#ffffff26;
+  border-radius:12px;
+  color:#f2f6f3;
+}
+html.dark [aria-label="Equipment inventory"] tbody {background:transparent;}
+html.dark [aria-label="Equipment inventory"] thead.bg-card {
+  background:#283735;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+html.dark [aria-label="Equipment inventory"] tbody tr:is(:hover,:focus-within) {background:#ffffff0d;}
+@media(prefers-reduced-transparency:reduce) {
+  html.dark [role="region"][aria-label="Equipment inventory"] {background:#142226;}
+}
+html.dark :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]),select,textarea) {
+  background-color:#101c21a6;border-color:#dde8e038;color:#f6f8f6;
+}
+html.dark :is(input,textarea)::placeholder {color:#b9c6c1;}
+html.dark .project-cards > li {transition:border-color .18s ease,background-color .18s ease;}
+html.dark .project-cards > li:hover {border-color:#e4f4e96e;background-color:#3f55504d;}
+html.dark .rack-navigation a[aria-current="page"] {
+  background:linear-gradient(150deg,#ffffff25,#ffffff0c);
+  border-color:#ecf8ef60;box-shadow:inset 0 1px 0 #ffffff38;
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  html.dark :is(.bg-card:not(.bg-card .bg-card),.spec-section,.power-planner,.rack-status-pane,.rack-navigation,.login-card,.cable-matrix-section,.cable-matrix-toolbar,.workspace-page > header) {
+    backdrop-filter:blur(24px) saturate(115%);
+    -webkit-backdrop-filter:blur(24px) saturate(115%);
+  }
+  html.dark :is(.equipment-dialog,.rack-context,.appearance-menu>div) {
+    backdrop-filter:blur(28px) saturate(110%);
+    -webkit-backdrop-filter:blur(28px) saturate(110%);
+  }
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  html.dark :is(.bg-card,.spec-section,.power-planner,.rack-status-pane,.rack-navigation,.login-card,.cable-matrix-section,.cable-matrix-toolbar,.workspace-page > header,.equipment-dialog,.rack-context,.appearance-menu>div) {background:#2c3938;}
+}
+@media(max-width:760px) {
+  html.dark .workspace-page > header {padding:18px;border-radius:18px;}
+  html.dark :is(.bg-card,.spec-section,.power-planner,.login-card,.cable-matrix-section,.cable-matrix-toolbar) {border-radius:18px;}
+  html.dark :is(.bg-card,.spec-section,.power-planner,.workspace-page > header) {backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+}
+@media(prefers-reduced-transparency:reduce) {
+  html.dark :is(.bg-card,.spec-section,.power-planner,.rack-status-pane,.rack-navigation,.login-card,.cable-matrix-section,.cable-matrix-toolbar,.workspace-page > header,.equipment-dialog,.rack-context,.appearance-menu>div) {
+    background:#2c3938;backdrop-filter:none;-webkit-backdrop-filter:none;
+  }
+}
+@media(prefers-reduced-motion:reduce) {html.dark .project-cards > li {transition:none;}}
+@media print {
+  html.dark :is(.bg-card,.spec-section,.power-planner,.rack-status-pane,.rack-navigation,.login-card,.cable-matrix-section,.cable-matrix-toolbar,.workspace-page > header,.equipment-dialog) {
+    background:white;color:black;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  }
+}
+
+/* Shared Cable Matrix glass, including external and unmapped cable sections. */
+html.dark .cable-matrix-toolbar {padding:16px 20px;}
+html.dark .cable-matrix-section .overflow-x-auto {
+  background:#101c224d;border:0;border-top:1px solid #ffffff24;border-radius:0;
+}
+html.dark .cable-matrix-section table th {background:#233237d9;color:#f2f6f3;}
+html.dark .cable-matrix-section tbody tr:is(:hover,:focus-within) {background:#ffffff0d;}
+@media print {
+  html.dark .cable-matrix-section .overflow-x-auto,
+  html.dark .cable-matrix-section table th {background:white;color:black;}
+}
+
+/* Material studies share the proven root layer and readable frosted surfaces. */
+:root {--theme-bg-silver:linear-gradient(135deg,#e4e7e9,#a7b0b7);--theme-bg-sage:linear-gradient(135deg,#e5e9df,#aab5a4);--theme-bg-mesh:linear-gradient(135deg,#f1e4cd,#b09c7e);}
+html.dark[data-bg="silver"] .workspace-background {display:block;background-image:url('/backgrounds/etched-silver-v1.png');}
+html.dark[data-bg="sage"] .workspace-background {display:block;background-image:url('/backgrounds/sage-channels-v1.png');}
+html.dark[data-bg="mesh"] .workspace-background {display:block;background-image:url('/backgrounds/champagne-mesh-v1.png');}

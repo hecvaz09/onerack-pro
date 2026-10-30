@@ -8,7 +8,7 @@ export const sectionLabelClassName =
   "text-xs font-semibold tracking-wider text-muted-foreground uppercase";
 
 export const inputClassName =
-  "h-9 rounded-lg border border-input bg-card px-3 text-sm shadow-xs outline-none backdrop-blur-sm transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20";
+  "h-9 rounded-lg border border-input bg-card px-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20";
 
 export const listRowClassName =
   "flex items-center justify-between gap-4 rounded-md px-3 py-2.5 transition-colors hover:bg-muted/60";

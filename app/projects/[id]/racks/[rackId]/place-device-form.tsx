@@ -42,14 +42,14 @@ export function PlaceDeviceForm({
       <form
         key={values ? JSON.stringify(values) : "empty"}
         action={formAction}
-        className="flex flex-col gap-2 sm:flex-row"
+        className="flex flex-col gap-2 lg:flex-row lg:flex-wrap"
       >
         <select
           name="catalogDeviceId"
           required
           defaultValue={values?.catalogDeviceId ?? ""}
           aria-label="Catalog device"
-          className={`${inputClassName} min-w-0 flex-1`}
+          className={`${inputClassName} min-w-0 shrink-0 lg:flex-1`}
         >
           <option value="" disabled>
             Choose a device…
@@ -60,13 +60,14 @@ export function PlaceDeviceForm({
             </option>
           ))}
         </select>
+        <select name="mounting" aria-label="Mounting position" defaultValue={values?.mounting ?? "front"} className={inputClassName}><option value="front">Front face</option><option value="rear">Rear face</option><option value="rear-left">Rear left rail · PDU</option><option value="rear-right">Rear right rail · A1</option><option value="rear-left-2">Rear left second rail · B2</option><option value="rear-right-2">Rear right second rail · A2</option></select>
         <input
           type="number"
           name="startRU"
           required
           min={1}
           max={rackHeightRU}
-          defaultValue={values?.startRU ?? ""}
+          defaultValue={values?.startRU ?? "1"}
           placeholder="Start RU"
           aria-label="Start RU"
           className={`${inputClassName} w-full sm:w-24`}
