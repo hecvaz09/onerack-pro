@@ -47,7 +47,7 @@ test('memory bays and optional parts are capabilities, not invented installed co
 });
 
 test('B300 does not inherit different-model B200 or unverified 4U placeholder artwork',()=>{
- assert.equal(catalogProfile(entry.sku,entry.model),undefined);
+ assert.equal(catalogProfile(entry.sku,entry.model)!.key,'smc-b3008u');
  assert.equal(catalogProfile('AS-8126GS-TNMR-2CX8-IB-DRAFT')!.key,'smc-as8126');
  assert.equal(catalogProfile('NVIDIA-B300-4U')!.key,'b300-pending');
 });

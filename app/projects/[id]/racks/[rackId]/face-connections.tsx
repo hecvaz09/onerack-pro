@@ -1,5 +1,6 @@
 'use client';
 import {arista7010NetworkBox,arista7010PsuBoxes} from '@/lib/arista-7010tx-layout';
+import {b300NetworkBox} from '@/lib/b300-network-layout';
 import type {CatalogProfile} from '@/lib/catalog-artwork';
 import type {NetworkPort} from '@/lib/network-ports';
 
@@ -7,6 +8,7 @@ type Box={x:number;y:number;w:number;h:number};
 export function FaceConnections({profile,face,ports=[],connected=[],psus=[],psuDescription,href,deviceId,vertical=false}:{profile:CatalogProfile;face:'front'|'rear';ports?:NetworkPort[];connected?:string[];psus?:number[];psuDescription?:(inlet:number)=>string;href?:string;deviceId:string;vertical?:boolean}){
  const key=profile.key;
  function portBox(p:NetworkPort):Box|undefined{
+  if(key==='smc-b3008u')return face==='front'?b300NetworkBox(p):undefined;
   if(key==='arista-7010tx')return face==='front'?arista7010NetworkBox(p.position,p.number):undefined;
   if(key==='asus-esc8000a'&&face==='rear'){
    if(p.position==='mgmt')return {x:564,y:221,w:25,h:20};

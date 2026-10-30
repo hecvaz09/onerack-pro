@@ -12,6 +12,7 @@ export function artworkUrl(profile:CatalogProfile,face:'front'|'rear',sku?:strin
 // These existing SVGs deliberately stretch inside rack panels. Library previews
 // must instead reserve the source viewBox proportions without editing shared art.
 export function catalogReferenceDimensions(profile:CatalogProfile,face:'front'|'rear'){
+ if(profile.key==='smc-b3008u')return {width:800,height:640};
  return profile.key==='smc-as8126'?{width:800,height:face==='front'?640:440}:undefined;
 }
 

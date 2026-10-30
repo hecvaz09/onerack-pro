@@ -61,5 +61,6 @@ test('any future catalog SVG that disables intrinsic proportions must declare a 
 test('new B300 model does not acquire the different TNMR reference through this display fix',async()=>{
  const {CatalogVisuals}=await visuals();
  const html=renderToStaticMarkup(createElement(CatalogVisuals,{sku:'AS-8126GS-NB3RT',model:'AS-8126GS-NB3RT'}));
- assert.equal(html,'');
+ assert.ok(html.includes('smc-b3008u-front.svg')&&html.includes('smc-b3008u-rear.svg'));
+ assert.ok(!html.includes('smc-as8126-'));
 });

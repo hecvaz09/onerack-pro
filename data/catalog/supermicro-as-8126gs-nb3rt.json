@@ -9,7 +9,7 @@
     "description": "Air-cooled, dual-socket AMD HGX B300 platform with eight GPUs and front I/O. Model reference; select the actual installed configuration separately.",
     "sourceUrl": "https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt",
     "status": "draft",
-    "notes": "Manufacturer-sourced capabilities, not an installed BOM or measurement. RAM, storage, optional DPUs, active fabric mode, optics and electrical inlet details remain unselected. This is not AS-8126GS-TNMR or the old NVIDIA-B300-4U placeholder. No exact-model artwork is assigned. Reviewed 2026-10-30.",
+    "notes": "Manufacturer-sourced capabilities, not an installed BOM or measurement. RAM, storage, optional DPUs, active fabric mode, optics and exact PSU FRU remain unselected. This is not AS-8126GS-TNMR or the old NVIDIA-B300-4U placeholder. Front/rear artwork is a reference, not installed-part validation. Each illustrated PSU has paired AC inputs; the current visual power mapper does not validate that topology. Reviewed 2026-10-30.",
     "components": [
       {
         "id": "smc-b300-nb3rt-cpu",
@@ -60,7 +60,7 @@
         "id": "smc-b300-nb3rt-psu",
         "kind": "psu",
         "manufacturer": "Supermicro",
-        "model": "PWS-5K26G-2R redundant supply module",
+        "model": "6600W redundant supply module; confirm exact installed FRU",
         "quantity": 6,
         "attributes": { "outputWatts": "6600", "redundancy": "3+3; depends on configuration and application load", "efficiency": "Titanium Level (96%)" },
         "notes": "6.6 kW is the maximum module rating, not chassis AC consumption. Manufacturer capacity tiers depend on supply voltage. Equipment inlet, cord limits and usable AC budget are not established here. Source: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt ; module reference: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"

@@ -1463,5 +1463,122 @@
       "reference": "https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-front-panel",
       "audit": "7010TX-48 official front: four banks of 12 RJ45 ports, 2×2 SFP28 uplinks 49–52, MGMT/CON/USB at right. AC rear: two internal-supply C14 inlets, one reversible two-fan module. Rear layout source: https://www.arista.com/en/qsg-7010-series-1ru/7010-series-1ru-rear-panel. No installed optics or connection completion implied."
     }
+  },
+{
+  "key": "smc-b3008u",
+  "skus": [
+    "AS-8126GS-NB3RT"
+  ],
+  "label": "Supermicro AS-8126GS-NB3RT (HGX B300)",
+  "category": "chassis",
+  "heightRU": 8,
+  "source": "https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt",
+  "description": "Air-cooled, dual-socket AMD HGX B300 platform with eight GPUs and front I/O. Model reference; select the actual installed configuration separately.",
+  "facts": [
+    {
+      "name": "Front I/O",
+      "value": "Eight ConnectX-8 OSFP cages, two onboard RJ45 LAN ports and dedicated IPMI. Configured protocol/rate and installed optics remain separate."
+    },
+    {
+      "name": "Paired power inputs",
+      "value": "Rear illustration has six PSU modules and two AC inputs per module. Paired-input topology is not supported by the existing single-input visual power mapper; rear power click targets are intentionally absent."
+    }
+  ],
+  "components": [
+    {
+      "id": "smc-b300-nb3rt-cpu",
+      "kind": "cpu",
+      "manufacturer": "AMD",
+      "model": "EPYC 9005 / 9004 family support; exact processor unselected",
+      "quantity": 2,
+      "attributes": {
+        "socket": "SP5"
+      },
+      "notes": "Dual-socket capability; no specific CPU, core count or configured TDP selected. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+    },
+    {
+      "id": "smc-b300-nb3rt-gpu",
+      "kind": "gpu",
+      "manufacturer": "NVIDIA",
+      "model": "HGX B300 SXM GPU",
+      "quantity": 8,
+      "attributes": {
+        "memoryGB": "288",
+        "interface": "SXM / HGX B300"
+      },
+      "notes": "Platform specification: eight GPUs, 288 GB HBM3e each; NVLink 5 with NVSwitch. GPU memory is separate from host RAM. No workload demand is inferred. Source: https://www.supermicro.com/datasheet/datasheet_SuperCluster_B300_Front_IO.pdf"
+    },
+    {
+      "id": "smc-b300-nb3rt-cx8",
+      "kind": "network",
+      "manufacturer": "NVIDIA",
+      "model": "Integrated ConnectX-8 SuperNIC / OSFP",
+      "quantity": 8,
+      "attributes": {
+        "ports": "1",
+        "connector": "OSFP",
+        "protocol": "Other",
+        "slot": "Integrated front I/O"
+      },
+      "notes": "Eight physical OSFP ports, capability up to 800 Gb/s. The product page lists 800GbE and the cluster datasheet permits Ethernet/InfiniBand fabrics. Select the actual protocol and configured link rate before cabling; neither is assumed here. Optics are not implied. Source: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt"
+    },
+    {
+      "id": "smc-b300-nb3rt-lan",
+      "kind": "network",
+      "manufacturer": "Intel",
+      "model": "X710 onboard LAN",
+      "quantity": 1,
+      "attributes": {
+        "ports": "2",
+        "speedGbps": "10",
+        "connector": "RJ45",
+        "protocol": "Ethernet",
+        "slot": "Onboard"
+      },
+      "notes": "Two 10 GbE interfaces. Capability does not establish a negotiated link or installed cable. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+    },
+    {
+      "id": "smc-b300-nb3rt-bmc",
+      "kind": "network",
+      "manufacturer": "Supermicro",
+      "model": "Dedicated IPMI management LAN",
+      "quantity": 1,
+      "attributes": {
+        "ports": "1",
+        "connector": "RJ45",
+        "protocol": "Ethernet",
+        "slot": "MGMT"
+      },
+      "notes": "Management is separate from data LAN. Speed remains unspecified. USB, VGA and mini-DP are not network ports. Source: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+    },
+    {
+      "id": "smc-b300-nb3rt-psu",
+      "kind": "psu",
+      "manufacturer": "Supermicro",
+      "model": "6600W redundant supply module; confirm exact installed FRU",
+      "quantity": 6,
+      "attributes": {
+        "outputWatts": "6600",
+        "redundancy": "3+3; depends on configuration and application load",
+        "efficiency": "Titanium Level (96%)"
+      },
+      "notes": "6.6 kW is the maximum module rating, not chassis AC consumption. Manufacturer capacity tiers depend on supply voltage. Equipment inlet, cord limits and usable AC budget are not established here. Source: https://www.supermicro.com/en/products/system/gpu/8u/as-8126gs-nb3rt ; module reference: https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/appendix/system-specifications-as-8126gs-nb3rt.htm"
+    }
+  ],
+  "unknowns": [
+    "Actual ConnectX-8 fabric mode, link rate, optics and cables",
+    "Installed CPU, memory, storage and optional DPUs",
+    "Exact PSU FRU: manufacturer references disagree on its part number",
+    "Paired-input PSU grouping, twelve-cord assignments and failover validation are not implemented; six PSU modules must not be interpreted as six physical AC cords"
+  ],
+  "drawing": {
+    "kind": "server",
+    "ports": 11,
+    "fans": 10,
+    "psus": 6,
+    "slots": 2,
+    "reference": "https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/introduction/chassis-features/front-view-as-8126gs-nb3rt.htm",
+    "audit": "Front/rear geometry reviewed against user-supplied manufacturer photographs: eight top-front OSFP cages; lower front storage, two expansion bays and service I/O; rear ten fan modules, six dual-input PSU modules and two dummy-fan positions. Network overlays preserve existing port IDs. Rear AC inputs are reference artwork only; paired-input power mapping remains unvalidated."
   }
+}
 ]

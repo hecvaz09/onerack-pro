@@ -21,6 +21,7 @@ function DeviceFace({device,face,pocket}:{device:RackGridDevice;face:'front'|'re
  if(p){
   if(isBlankingPanel(device.catalogDevice.sku,device.catalogDevice.model,device.catalogDevice.heightRU,pocket))return <Image src={artworkUrl(p,face)} alt="" fill unoptimized sizes="190px" loading="eager" draggable={false} style={{pointerEvents:'none'}}/>;
   if(pocket)return <div className="rack3-art-detail"><PocketFace profile={p} face={face} stretch/></div>;
+  if(p.key==='smc-b3008u')return <div className="rack3-art-detail"><svg viewBox="0 0 800 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><image href={artworkUrl(p,face)} width="800" height="640" preserveAspectRatio="xMidYMid meet"/></svg></div>;
   const ru=device.catalogDevice.heightRU,fh=ru<=1?112:ru===2?160:ru===4?280:440;
   const crop=p.key==='smc-grandtwin'?'22 30 756 110':['asus-esc8000a','smc-641e','fs-s3900','nvidia-qm8700'].includes(p.key)?(ru<=1?(p.key==='nvidia-qm8700'&&face==='rear'?'22 25 756 70':'22 29 756 61'):p.key==='asus-esc8000a'&&face==='rear'?'22 0 756 256':'22 29 756 227'):`0 0 800 ${fh}`;
   return <div className="rack3-art-detail"><svg viewBox={crop} preserveAspectRatio="none" aria-hidden="true"><image href={artworkUrl(p,face)} width="800" height={fh}/></svg></div>;
