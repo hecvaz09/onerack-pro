@@ -77,11 +77,14 @@ test('Library shows both B300 references with correct dimensions and visible pai
  assert.ok(!html.includes('smc-as8126-'));
 });
 
-test('front/rear rack faces preserve RU positions and use one uniform artwork/port transform across rack types',()=>{
- for(const heightRU of [42,48])for(const pockets of [false,true])for(const rear of [false,true]){
-  const html=renderToStaticMarkup(createElement(RackGrid,{heightRU,config:readRackConfig({pockets,profile:pockets?'onerack-u60':heightRU===42?'apc-netshelter-42':'generic-48'}),devices:[device],rear}));
+test('B300 front/rear faces fill their existing eight-RU slot with the same artwork/port transform across rack types',()=>{
+ for(const heightRU of [42,48])for(const pockets of [false,true])for(const rear of [false,true])for(const zoom of [50,100,150]){
+  const html=renderToStaticMarkup(createElement(RackGrid,{heightRU,config:readRackConfig({pockets,profile:pockets?'onerack-u60':heightRU===42?'apc-netshelter-42':'generic-48'}),devices:[device],rear,zoom}));
+  assert.ok(html.includes(`zoom:${zoom/100}`));
   assert.ok(html.includes('b300-chassis'));assert.ok(html.includes(`grid-row:${heightRU-15} / span 8`));
-  assert.ok(html.includes('viewBox="0 0 800 640" preserveAspectRatio="xMidYMid meet"'));
+  assert.ok(html.includes('<svg class="catalog-face-connections" viewBox="0 0 800 640" preserveAspectRatio="none"'));
+  assert.ok(html.includes('<image href="/equipment-artwork/smc-b3008u-'));
+  assert.ok(html.includes('width="800" height="640" preserveAspectRatio="none"'));
   assert.ok(html.includes(`smc-b3008u-${rear?'rear':'front'}.svg`));
   assert.ok(!html.includes('class="equipment-name"'));
   assert.equal((html.match(/class="connection-socket"/g)||[]).length,rear?0:11);
