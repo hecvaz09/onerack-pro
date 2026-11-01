@@ -1,3 +1,4 @@
+import {B300_INPUT_IDENTITY,B300_POWER_SCOPE} from './b300-power-inputs.ts';
 import {isMeasuredPower,type PowerMeasurement} from './power-consumption.ts';
 // Electrical profiles are independent of rack position and manufacturer.
 // Unknown branch/outlet limits must never produce an approved plan.
@@ -5,8 +6,8 @@ export type Feed = 'A'|'B';
 export type Topology='single-phase'|'three-phase-wye'|'three-phase-delta';
 export type Phase='L1'|'L2'|'L3'|'L1-L2'|'L2-L3'|'L3-L1';
 export type Supply = {topology?:Topology;neutralLimitAmps?:number;confirmed?:boolean;id:string;name:string;feed:Feed;voltage:number;limitAmps:number;branches?:Record<string,number>;outlets:{n:number;connectors:string[];limitAmps?:number;branch?:string;phase?:Phase;reserved?:boolean}[]};
-export type Load = {id:string;name:string;watts?:number;pf?:number;cords:number;minimumCords:number;connector:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number;estimateSource?:string;measurement?:PowerMeasurement};
-export type Cord = {pduId:string;outlet:number;deviceId:string;inlet:number};
+export type Load = {assessment?:"pdu-capacity";id:string;name:string;watts?:number;pf?:number;cords:number;minimumCords:number;connector:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number;estimateSource?:string;measurement?:PowerMeasurement};
+export type Cord = {pduId:string;outlet:number;deviceId:string;inlet:number;inputIdentity?:"b300-module-input-v1"};
 export type FeedInputs = {cablePolicy?:import('./power-cable-policy.ts').PowerCablePolicy;headroomPercent:number;supplies?:Record<string,Omit<Supply,'id'|'name'>>;budgets:Record<string,{watts:number;pf:number;estimateSource?:string;measurement?:PowerMeasurement;cords?:number;minimumCords?:number;connector?:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number}>};
 export function feedInputsError(s:FeedInputs):string|null {
   if(s?.cablePolicy!==undefined&&!['balanced','low-ru-c13-switch-top'].includes(s.cablePolicy))return 'Choose a supported cable assignment policy.';
@@ -15,7 +16,7 @@ export function feedInputsError(s:FeedInputs):string|null {
   for(const b of Object.values(s.budgets)){
     if(b.measurement!==undefined&&(!isMeasuredPower(b)||b.measurement.source.length>1000))return 'Measurement evidence must match the saved watts and include a source.';
     for(const k of ['cords','minimumCords','minVoltage','maxVoltage','cordLimitAmps','psuAcCapacity'] as const)if(b[k]!==undefined&&(!Number.isFinite(b[k])||b[k]!<=0||b[k]!>1000000))return 'Check PSU limits.';
-    if(b.cords!==undefined&&(!Number.isInteger(b.cords)||b.cords>6))return 'Use 1–6 PSU cords.';
+    if(b.cords!==undefined&&(!Number.isInteger(b.cords)||b.cords>12))return 'Use 1-12 power inputs.';
     if(b.minimumCords!==undefined&&!Number.isInteger(b.minimumCords))return 'Minimum surviving PSU count must be a whole number.';
     if(b.connector!==undefined&&(typeof b.connector!=='string'||b.connector.length>40))return 'Check cord connector.';
   }
@@ -75,6 +76,8 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
   const valid=cords.filter(c=>{
     const p=supplies.find(p=>p.id===c.pduId),d=loads.find(d=>d.id===c.deviceId),o=p?.outlets.find(o=>o.n===c.outlet);
     if(!p||!d||!o||!Number.isInteger(c.inlet)||c.inlet<1||c.inlet>d.cords){issues.add('A saved cable has an invalid device, outlet or PSU number.');return false;}
+    if(d.assessment==='pdu-capacity'&&c.inputIdentity!==B300_INPUT_IDENTITY){issues.add(`${d.name}: saved input identity needs review; clear legacy PSU assignments and select the exact module input.`);return false;}
+    if(d.assessment!=='pdu-capacity'&&c.inputIdentity===B300_INPUT_IDENTITY){issues.add(`${d.name}: saved input identity does not match the configured model.`);return false;}
     const outlet=`${p.id}:${c.outlet}`,inlet=`${d.id}:${c.inlet}`;
     if(seenOutlets.has(outlet)||seenInlets.has(inlet)){issues.add('Duplicate outlet or PSU assignment.');return false;}
     seenOutlets.add(outlet);seenInlets.add(inlet);
@@ -90,7 +93,8 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
     if(!d.minVoltage||!d.maxVoltage)issues.add(`${d.name}: verify the PSU voltage range.`);
     if(!Number.isFinite(d.watts)||Number(d.watts)<=0)issues.add(`${d.name}: enter total system AC watts.`);
     if(!Number.isFinite(d.pf)||Number(d.pf)<=0||Number(d.pf)>1)issues.add(`${d.name}: power factor is missing or invalid.`);
-    if(!d.psuAcCapacity||!d.cordLimitAmps)issues.add(`${d.name}: verify supported AC load per PSU and usable cord current.`);
+    if(d.assessment==='pdu-capacity'){if(!d.cordLimitAmps)issues.add(`${d.name}: verify usable input cord current.`);}
+    else if(!d.psuAcCapacity||!d.cordLimitAmps)issues.add(`${d.name}: verify supported AC load per PSU and usable cord current.`);
     if(valid.filter(c=>c.deviceId===d.id).length!==d.cords)issues.add(`${d.name}: not all ${d.cords} power cords are connected.`);
   }
   const scenarios=([null,'A','B'] as const).map(lost=>{
@@ -98,11 +102,15 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
     const items=new Map<string,{outlet:Supply['outlets'][number];watts:number;pf:number}[]>();
     const totals=supplies.map(p=>({id:p.id,name:p.name,feed:p.feed,online:p.feed!==lost,limitAmps:p.limitAmps,...supplyDemand(p,[])}));
     for(const d of loads){
+      // An incomplete saved mapping cannot establish this chassis' PDU loading.
+      // The allocator checks the completed proposal before any individual save.
+      if(d.assessment==='pdu-capacity'&&valid.filter(c=>c.deviceId===d.id).length!==d.cords)continue;
       const connected=active.filter(c=>c.deviceId===d.id);
-      if(connected.length<d.minimumCords)errors.push(`${d.name}: ${connected.length} surviving cords; needs at least ${d.minimumCords}.`);
+      if(d.assessment==='pdu-capacity'&&!connected.length)errors.push(`${d.name}: no assigned inputs remain for this PDU capacity scenario.`);
+      if(d.assessment!=='pdu-capacity'&&connected.length<d.minimumCords)errors.push(`${d.name}: ${connected.length} surviving cords; needs at least ${d.minimumCords}.`);
       if(!connected.length||!Number.isFinite(d.watts)||Number(d.watts)<=0||!Number.isFinite(d.pf)||Number(d.pf)<=0||Number(d.pf)>1)continue;
       const watts=Number(d.watts)*(1+headroomPercent/100)/connected.length,va=watts/Number(d.pf);
-      if(d.psuAcCapacity&&watts>d.psuAcCapacity)errors.push(`${d.name}: surviving PSU AC capacity exceeded.`);
+      if(d.assessment!=='pdu-capacity'&&d.psuAcCapacity&&watts>d.psuAcCapacity)errors.push(`${d.name}: surviving PSU AC capacity exceeded.`);
       for(const c of connected){
         const p=supplies.find(p=>p.id===c.pduId)!,o=p.outlets.find(o=>o.n===c.outlet)!;
         if(p.voltage<=0)continue;
@@ -121,5 +129,5 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
     }
     return {lost,totals,errors};
   });
-  return {ready:issues.size===0&&scenarios.every(s=>s.errors.length===0),issues:[...issues],scenarios};
+  return {ready:issues.size===0&&scenarios.every(s=>s.errors.length===0),issues:[...issues],scenarios,...(loads.some(d=>d.assessment==="pdu-capacity")?{scopeNotes:[B300_POWER_SCOPE]}:{})};
 }

@@ -11,6 +11,7 @@ export type OutletAssignment = {
     notes: string;
     inlet?: number;
     locked?: boolean;
+    inputIdentity?: "b300-module-input-v1";
 };
 export type NodeDetails = {
     hostname: string;
@@ -31,12 +32,20 @@ function record(value: unknown): Record<string, unknown> {
 export function detailsObject(value: unknown): Record<string, unknown> {
     return { ...record(value) };
 }
+// Replacing a binding owns these fields, while notes and future metadata remain explicit.
+export function withOutletAssignment(value: unknown, assignment: OutletAssignment): Record<string, unknown> {
+    const entry = detailsObject(value);
+    delete entry.inlet;
+    delete entry.locked;
+    delete entry.inputIdentity;
+    return { ...entry, ...assignment };
+}
 export function readDetails(value: unknown): EquipmentDetails {
     const outlets: EquipmentDetails["outlets"] = {};
     for (const [key, entry] of Object.entries(record(record(value).outlets))) {
         const item = record(entry);
         if (/^\d+$/.test(key) && typeof item.deviceId === "string" && typeof item.notes === "string")
-            outlets[key] = { deviceId: item.deviceId, notes: item.notes, ...(typeof item.inlet === "number" ? {inlet:item.inlet} : {}), ...(typeof item.locked === "boolean" ? {locked:item.locked} : {}) };
+            outlets[key] = { deviceId: item.deviceId, notes: item.notes, ...(typeof item.inlet === "number" ? {inlet:item.inlet} : {}), ...(typeof item.locked === "boolean" ? {locked:item.locked} : {}), ...(item.inputIdentity === "b300-module-input-v1" ? {inputIdentity:item.inputIdentity} : {}) };
     }
     const nodes: EquipmentDetails["nodes"] = {};
     for (const [key, nodeValue] of Object.entries(record(record(value).nodes))) {

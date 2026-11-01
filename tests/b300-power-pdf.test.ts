@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {PDFDocument,PDFRawStream,decodePDFRawStream} from 'pdf-lib';
+import {buildRackPdf} from '../lib/build-document';import {b300PowerFixture,withCables} from './fixtures/b300-power';import {balanceFeeds} from '../lib/feed-balance';import {feedRack} from '../lib/feed-rack';import {analyzeFeeds} from '../lib/feed-power';
+test('actual PDF exports all twelve module/input identities and describes only PDU capacity',async()=>{
+ const f=b300PowerFixture(),plan=balanceFeeds(f.equipment,f.inputs),equipment=withCables(f.equipment,plan.assignments),m=feedRack(equipment,f.inputs),analysis=analyzeFeeds(m.supplies,m.loads,m.cords);
+ const bytes=await buildRackPdf({project:'Synthetic project',customer:null,rack:'Synthetic rack',heightRU:42,devices:f.rack.devices.map(d=>({id:d.id,label:d.label,sku:d.catalogDevice.sku,vendor:d.catalogDevice.vendor,model:d.catalogDevice.model,startRU:d.startRU,heightRU:d.catalogDevice.heightRU,mounting:d.mounting,details:equipment.find(e=>e.id===d.id)!.details})),connections:[],feedPower:analysis});
+ const doc=await PDFDocument.load(bytes);let content='';for(const [,value] of doc.context.enumerateIndirectObjects())if(value instanceof PDFRawStream){const decoded=Buffer.from(decodePDFRawStream(value).decode()).toString('latin1');for(const match of decoded.matchAll(/<([0-9a-f]+)>\s*Tj/gi))content+=Buffer.from(match[1],'hex').toString('latin1')+' ';}
+ const text=content.replace(/\s+/g,' ');for(let n=1;n<=6;n++)for(let input=1;input<=2;input++)assert.ok(text.includes(`PSU ${n} Input ${input}`),text);
+ assert.ok(text.includes('Within entered PDU capacity limits'));assert.ok(text.includes('Server internal redundancy is not evaluated'));assert.ok(!text.includes('Four-PDU power'));assert.ok(doc.getPageCount()>1);
+});

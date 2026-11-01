@@ -60,13 +60,13 @@ test('real front overlays link all eleven fixed ports to the existing editor wit
  let stopped=false;groups[0].props.onPointerDown({stopPropagation(){stopped=true;}});assert.equal(stopped,true);
 });
 
-test('rear reference includes ten fan modules, two dummy bays and twelve AC inputs without false single-input controls',()=>{
+test('rear reference includes ten fan modules, two dummy bays and twelve distinct AC input controls',()=>{
  const rear=svg('rear');assert.equal((rear.match(/data-rear-fan="/g)||[]).length,10);
  assert.equal((rear.match(/data-psu-module="/g)||[]).length,6);assert.equal((rear.match(/data-module-input="/g)||[]).length,12);
  assert.equal((rear.match(/data-dummy-fan="true"/g)||[]).length,2);
  assert.ok(!rear.includes('data-network-endpoint='));
  const overlay=renderToStaticMarkup(createElement('svg',null,createElement(FaceConnections,{profile,face:'rear',ports,psus:[1,2,3,4,5,6],deviceId:device.id})));
- assert.ok(!overlay.includes('connection-socket'));assert.ok(!overlay.includes('psu-hit'));
+ assert.equal((overlay.match(/class="psu-hit"/g)||[]).length,12);assert.ok(overlay.includes('PSU 6 · Input 2'));assert.ok(!overlay.includes('PSU 7 ·'));
 });
 
 test('Library shows both B300 references with correct dimensions and visible paired-power limitation',()=>{
@@ -87,7 +87,7 @@ test('B300 front/rear faces fill their existing eight-RU slot with the same artw
   assert.ok(html.includes('width="800" height="640" preserveAspectRatio="none"'));
   assert.ok(html.includes(`smc-b3008u-${rear?'rear':'front'}.svg`));
   assert.ok(!html.includes('class="equipment-name"'));
-  assert.equal((html.match(/class="connection-socket"/g)||[]).length,rear?0:11);
+  assert.equal((html.match(/class="connection-socket"/g)||[]).length,rear?12:11);
  }
 });
 

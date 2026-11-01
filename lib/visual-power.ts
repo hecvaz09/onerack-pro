@@ -1,3 +1,4 @@
+import {B300_INPUT_IDENTITY} from './b300-power-inputs.ts';
 import {analyzeFeeds,type Cord} from './feed-power.ts';
 import {feedRack,readFeedInputs,type FeedEquipment} from './feed-rack.ts';
 import {readDetails,readOutlets} from './equipment-details.ts';
@@ -27,7 +28,8 @@ export function visualPowerBalance(equipment:FeedEquipment[],configuration:unkno
  const inputs=readFeedInputs(configuration,equipment),model=feedRack(equipment,inputs);
  const current=analyzeFeeds(model.supplies,model.loads,model.cords,inputs.headroomPercent);
  const endpointError=candidate?validateVisualPower(equipment,configuration,candidate.pduId,candidate.outlet,candidate.deviceId,candidate.inlet):undefined;
- const cords=candidate&&!endpointError?[...model.cords,candidate]:model.cords;
+ const candidateLoad=model.loads.find(d=>d.id===candidate?.deviceId);
+ const cords=candidate&&!endpointError?[...model.cords,{...candidate,...(candidateLoad?.assessment==='pdu-capacity'?{inputIdentity:B300_INPUT_IDENTITY}:{})}]:model.cords;
  const projected=analyzeFeeds(model.supplies,model.loads,cords,inputs.headroomPercent);
  const incomplete=new Set<string>();
  for(const load of model.loads){
@@ -35,7 +37,7 @@ export function visualPowerBalance(equipment:FeedEquipment[],configuration:unkno
    incomplete.add(`${load.name}: not all ${load.cords} power cords are connected.`);
    for(const scenario of projected.scenarios){
     const count=cords.filter(c=>c.deviceId===load.id&&model.supplies.find(p=>p.id===c.pduId)?.feed!==scenario.lost).length;
-    if(count<load.minimumCords)incomplete.add(`${load.name}: ${count} surviving cords; needs at least ${load.minimumCords}.`);
+    if(load.assessment!=='pdu-capacity'&&count<load.minimumCords)incomplete.add(`${load.name}: ${count} surviving cords; needs at least ${load.minimumCords}.`);
    }
   }
  }

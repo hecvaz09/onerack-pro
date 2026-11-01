@@ -19,6 +19,6 @@ export async function askRackAssistant(projectId:string,rackId:string,request:{t
     // Re-read after the potentially slow provider call to avoid explaining stale wiring.
     const fresh=isAssistantTopic(request.topic)?rack:await prisma.rack.findFirst({where:{id:rackId,projectId,trashedAt:null,project:{trashedAt:null}},include:{devices:{include:{catalogDevice:true},orderBy:{startRU:'asc'}}}});
     if(!fresh)return {error:'This rack no longer exists.'};
-    return {text:explainRack(topic,fresh.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details})),fresh.configuration),checkedAt:new Date().toISOString()};
+    return {text:explainRack(topic,fresh.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details})),fresh.configuration),checkedAt:new Date().toISOString()};
   }catch(error){return {error:error instanceof Error&&/AI |allowance|topic|question/.test(error.message)?error.message:'Could not read the latest rack data. No changes were made.'};}
 }

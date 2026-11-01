@@ -31,7 +31,7 @@ export async function applyPowerBalance(rackId:string,revision:string,inputs?:Px
       const rack=inputs?await lockedPowerInputRack(tx,rackId):await tx.rack.findUnique({where:{id:rackId},include:{devices:{include:{catalogDevice:true},orderBy:{startRU:"asc"}}}});
       if(!rack)return {error:"Rack not found."};
       if(inputs&&!matchesPowerInputsRevision(expectedInputRevision,rackId,rack))return {error:POWER_INPUT_CONFLICT,conflict:true as const};
-      const equipment:PowerEquipment[]=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,model:d.catalogDevice.model,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
+      const equipment:PowerEquipment[]=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
       if((rack.configuration as {feedPower?:{cablePolicy?:string}}|null)?.feedPower?.cablePolicy==='low-ru-c13-switch-top')return {error:'This rack uses C13-only / dedicated switch outlet rules. Use the shared power planner to calculate and save cables.'};
       const savedSettings=readPx3Settings(rack.configuration);
       if(powerRevision(equipment,savedSettings)!==revision)return {error:"The rack or power inputs changed. Reload and preview a fresh plan."};

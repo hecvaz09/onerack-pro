@@ -1,4 +1,5 @@
 "use client";
+import {powerAssignmentLabel} from '@/lib/b300-power-inputs';
 import {useState,useTransition} from 'react';
 import {useRouter} from 'next/navigation';
 import {draftPowerPlan,readDraftPowerPlan} from '@/lib/draft-power-plan';
@@ -16,6 +17,6 @@ export function DraftPowerPanel({rackId,equipment,inputs,initial,saved}:{rackId:
  {dirty&&<p className="my-2 text-sm">Save power inputs first. PSU voltage and capacity documentation may remain pending; load, cord and PDU limits are required.</p>}
  {preview?.error&&<p role="alert" className="my-2 text-amber-300">{preview.error}</p>}
  {stale&&<p role="alert" className="my-2 text-amber-300">This draft is out of date. Generate it again using the current rack and inputs.</p>}
- {plan&&<><p className="my-3 font-semibold">{preview?.plan?'Draft preview':'Saved draft'} · {plan.assignments.length} cords · not installed</p><details><summary>Unverified checks and conflicts · {plan.issues.length}</summary><ul className="list-disc pl-5 text-sm">{plan.issues.map(i=><li className="my-2" key={i}>{i}</li>)}</ul></details><details className="my-3"><summary>Draft cable schedule</summary>{plan.assignments.map(c=><p className="my-2 text-sm" key={`${c.pduId}:${c.outlet}`}>{equipment.find(e=>e.id===c.pduId)?.name||c.pduId} · P{c.outlet} → {equipment.find(e=>e.id===c.deviceId)?.name||c.deviceId} · PSU {c.inlet}</p>)}</details></>}
+ {plan&&<><p className="my-3 font-semibold">{preview?.plan?'Draft preview':'Saved draft'} · {plan.assignments.length} cords · not installed</p><details><summary>Unverified checks and conflicts · {plan.issues.length}</summary><ul className="list-disc pl-5 text-sm">{plan.issues.map(i=><li className="my-2" key={i}>{i}</li>)}</ul></details><details className="my-3"><summary>Draft cable schedule</summary>{plan.assignments.map(c=><p className="my-2 text-sm" key={`${c.pduId}:${c.outlet}`}>{equipment.find(e=>e.id===c.pduId)?.name||c.pduId} · P{c.outlet} → {equipment.find(e=>e.id===c.deviceId)?.name||c.deviceId} · {powerAssignmentLabel(equipment.find(e=>e.id===c.deviceId),c)}</p>)}</details></>}
  <p role="status">{message}</p></details>;
 }

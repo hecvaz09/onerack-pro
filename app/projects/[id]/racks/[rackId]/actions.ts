@@ -1,4 +1,7 @@
 "use server";
+import {powerWiringGuide} from '@/lib/power-wiring-guide';
+import {isB300PowerDevice,B300_INPUT_IDENTITY} from '@/lib/b300-power-inputs';
+import {validateVisualPower,visualPowerBalance,canSaveVisualPowerDraft} from '@/lib/visual-power';
 import {requireActiveRack} from "@/lib/rack-trash";
 
 import {requireActiveProjectForRack} from "@/lib/project-lifecycle";
@@ -8,7 +11,7 @@ import { parseRackUnit } from "@/lib/rack-validation";
 
 import {planRackFill} from "@/lib/rack-fill";
 import { mountingError } from "@/lib/rack-mounting";
-import { detailsObject, readDetails, readOutlets, readNodeNames, type NodeDetails } from "@/lib/equipment-details";
+import { detailsObject, withOutletAssignment, readDetails, readOutlets, readNodeNames, type NodeDetails } from "@/lib/equipment-details";
 import { readRackConfig, rackSettingsFromForm, rackChangeError } from "@/lib/rack-config";
 import { prisma } from "@/lib/prisma";
 import { replayRackChange } from "@/lib/rack-history";
@@ -146,17 +149,31 @@ export async function removeDevice(rackId: string, deviceId: string): Promise<Mo
 }
 
 export async function saveOutlet(rackId: string, pduId: string, outlet: number, deviceId: string, notes: string, inlet=0): Promise<MoveDeviceResult> {
-  if(!Number.isInteger(inlet)||inlet<0||inlet>6)return {ok:false,error:"Choose a PSU number from 1 to 6."};
+  if(!Number.isInteger(inlet)||inlet<0||inlet>12)return {ok:false,error:"Choose a power input from 1 to 12."};
   if (!Number.isInteger(outlet) || notes.length > 2000) return { ok:false,error:"Invalid outlet or notes longer than 2,000 characters." };
   try {
     const result = await rackMutation(rackId, async tx => {
       const pdu = await tx.deviceInstance.findFirst({where:{id:pduId,rackId,catalogDevice:{category:"pdu"}},include:{catalogDevice:true,rack:true}});
       if (!pdu || !readOutlets(pdu.catalogDevice.rawData).some(o=>o.n===outlet)) return {error:"This outlet is not in the installed PDU."};
-      if (deviceId && !await tx.deviceInstance.findFirst({where:{id:deviceId,rackId,catalogDevice:{category:{not:"pdu"}}}})) return {error:"Choose installed equipment in this rack."};
-      const details=readDetails(pdu.details);
-      if (!deviceId && !notes.trim()) delete details.outlets[String(outlet)];
-      else details.outlets[String(outlet)]={deviceId,notes:notes.trim(),inlet,locked:true};
-      await tx.deviceInstance.update({where:{id:pduId},data:{details:JSON.parse(JSON.stringify({...pdu.details as object,...details}))}});
+      const device=deviceId?await tx.deviceInstance.findFirst({where:{id:deviceId,rackId,catalogDevice:{category:{not:"pdu"}}},include:{catalogDevice:true}}):null;
+      if(deviceId&&!device)return {error:"Choose installed equipment in this rack."};
+      const b300=isB300PowerDevice(device?.catalogDevice);
+      const occupied=readDetails(pdu.details).outlets[outlet];
+      if(deviceId&&occupied?.deviceId&&(b300||occupied.inputIdentity===B300_INPUT_IDENTITY)&&(occupied.deviceId!==deviceId||occupied.inlet!==inlet||b300&&occupied.inputIdentity!==B300_INPUT_IDENTITY))return {error:'This outlet already has an assignment. Clear it before selecting a different physical input.'};
+      if(deviceId&&(!b300&&inlet>6||b300&&inlet<1))return {error:b300?'Select one of the 12 physical B300 inputs.':'Choose a PSU number from 1 to 6.'};
+      if(b300){
+        const rack=await tx.rack.findUniqueOrThrow({where:{id:rackId},include:{devices:{include:{catalogDevice:true}}}});
+        const equipment=rack.devices.map(d=>{const outlets=readDetails(d.details).outlets;if(d.id===pduId)delete outlets[outlet];return {id:d.id,name:d.label||d.catalogDevice.model,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:{...d.details as object,outlets}};});
+        const endpointError=validateVisualPower(equipment,rack.configuration,pduId,outlet,deviceId,inlet);if(endpointError)return {error:endpointError};
+        const review=visualPowerBalance(equipment,rack.configuration,{pduId,outlet,deviceId,inlet});
+        if(review.errors.length&&!canSaveVisualPowerDraft(review))return {error:review.errors.join(' ')};
+        const plan=powerWiringGuide(equipment,rack.configuration,{deviceId,inlet},{pduId,outlet,deviceId,inlet});
+        if(plan.error)return {error:plan.error};
+      }
+      const details=detailsObject(pdu.details),outlets=detailsObject(details.outlets);
+      if (!deviceId && !notes.trim()) delete outlets[String(outlet)];
+      else outlets[String(outlet)]=withOutletAssignment(outlets[String(outlet)],{deviceId,notes:notes.trim(),inlet,locked:true,...(b300?{inputIdentity:B300_INPUT_IDENTITY}:{})});
+      await tx.deviceInstance.update({where:{id:pduId},data:{details:JSON.parse(JSON.stringify({...details,outlets}))}});
       return {projectId:pdu.rack.projectId};
     });
     if ("error" in result) return {ok:false,error:result.error!};

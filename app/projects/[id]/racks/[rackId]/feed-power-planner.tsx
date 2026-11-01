@@ -1,4 +1,5 @@
 'use client';
+import {powerAssignmentLabel} from '@/lib/b300-power-inputs';
 import {PowerOverview} from './power-overview';
 import {EquipmentPowerInputs} from './equipment-power-inputs';
 import {SavedPowerReview} from './saved-power-review';
@@ -50,7 +51,7 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
     <details className="power-extra"><summary>Cable assignment rules · {inputs.cablePolicy==='low-ru-c13-switch-top'?'Low RU first · C13 only':'Electrical balance'}</summary><label className="mt-3 block text-sm">Assignment policy<select className={`${inputClassName} mt-2 w-full`} value={inputs.cablePolicy||'balanced'} onChange={e=>{setInputs(s=>({...s,cablePolicy:e.target.value as FeedInputs['cablePolicy']}));setMessage('Unsaved cable policy. Save power inputs before generating a proposal.');}}><option value="balanced">Balance electrical load</option><option value="low-ru-c13-switch-top">Lowest RU first · C13 only · dedicated switch outlets</option></select></label>{inputs.cablePolicy==='low-ru-c13-switch-top'&&<p className="mt-3 text-sm">C19 receptacles are excluded. Network switches use only P7, P11, P15, P19, P23 and P27. Servers use remaining compatible outlets in ascending order, starting with the lowest RU. P1 is C19 on the PX3 model, so it is skipped. Electrical limits and fixed cables remain enforced. Matching A/B outlet numbers are preferred when available. Saving this policy does not rewire the rack.</p>}</details>
         <DraftPowerPanel rackId={rackId} equipment={equipment} inputs={inputs} initial={saved} saved={savedDraft}/>
         <FeedPowerControls rackId={rackId} equipment={equipment} inputs={inputs} initial={saved}/>
-        <details className="mt-3"><summary>Saved cable schedule · {cords.length} cords</summary>{cords.map(c=><p key={`${c.pduId}:${c.outlet}`} className="mt-2 text-sm">{supplies.find(p=>p.id===c.pduId)?.name} · P{c.outlet} → {loads.find(d=>d.id===c.deviceId)?.name} · PSU {c.inlet}</p>)}</details>
+        <details className="mt-3"><summary>Saved cable schedule · {cords.length} cords</summary>{cords.map(c=><p key={`${c.pduId}:${c.outlet}`} className="mt-2 text-sm">{supplies.find(p=>p.id===c.pduId)?.name} · P{c.outlet} → {loads.find(d=>d.id===c.deviceId)?.name} · {powerAssignmentLabel(equipment.find(e=>e.id===c.deviceId),c)}</p>)}</details>
       </details>
     </section>
     <SavedPowerReview equipment={equipment} saved={saved} dirty={dirty}/>

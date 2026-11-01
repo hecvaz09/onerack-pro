@@ -1,3 +1,4 @@
+import {B300_INPUT_IDENTITY,powerInputLabel} from './b300-power-inputs.ts';
 import {analyzeFeeds,outletVoltage,supplyDemand,type Cord,type Supply,type Load} from './feed-power.ts';
 import {feedRack,type FeedEquipment} from './feed-rack.ts';
 import type {FeedInputs} from './feed-power.ts';
@@ -14,11 +15,11 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  const pending=new Set<string>();
  if(options.planning)for(const load of loads){
   if(!load.minVoltage||!load.maxVoltage)pending.add(`${load.name}: verify the PSU voltage range.`);
-  if(!load.psuAcCapacity&&Number(load.cordLimitAmps)>0)pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
+  if(load.assessment!=='pdu-capacity'&&!load.psuAcCapacity&&Number(load.cordLimitAmps)>0)pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
  }
  const blocking=baseline.issues.filter(i=>!i.includes('power cords are connected.')&&!pending.has(i));
  const fail=(error:string)=>({error,assignments:cords,analysis:baseline,pendingChecks:[...pending]});
- if(loads.some(l=>!Number.isInteger(l.cords)||l.cords<2||l.cords>6||!Number.isInteger(l.minimumCords)||l.minimumCords<1))return fail('Enter a supported PSU arrangement with 2–6 cords and a confirmed minimum surviving PSU count.');
+ if(loads.some(l=>!Number.isInteger(l.cords)||l.cords<2||l.cords>(l.assessment==='pdu-capacity'?12:6)||!Number.isInteger(l.minimumCords)||l.minimumCords<1))return fail('Enter a supported PSU arrangement with 2–6 cords and a confirmed minimum surviving PSU count.');
  if(blocking.length)return fail(`${blocking.length} electrical or configuration issues must be resolved before calculating cables. Review the missing-information list below.`);
  const assignments:Cord[]=cords.filter(c=>readDetails(equipment.find(e=>e.id===c.pduId)?.details).outlets[c.outlet]?.locked!==false);
  for(const c of assignments){
@@ -32,7 +33,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
   return supplyDemand(p,extra?[...rows,extra]:rows);
  }
  for(const load of [...loads].sort((a,b)=>inputs.cablePolicy==='low-ru-c13-switch-top'?equipmentRU(equipment.find(e=>e.id===a.id)!)-equipmentRU(equipment.find(e=>e.id===b.id)!):Number(b.watts)-Number(a.watts))){
-  if(Math.floor(load.cords/2)<load.minimumCords)return fail(`${load.name}: PSU count cannot survive either feed loss.`);
+  if(load.assessment!=='pdu-capacity'&&Math.floor(load.cords/2)<load.minimumCords)return fail(`${load.name}: PSU count cannot survive either feed loss.`);
   for(let inlet=1;inlet<=load.cords;inlet++){
    if(assignments.some(c=>c.deviceId===load.id&&c.inlet===inlet))continue;
    const count=(feed:string)=>assignments.filter(c=>c.deviceId===load.id&&supplies.find(p=>p.id===c.pduId)?.feed===feed).length;
@@ -45,8 +46,8 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
     return [{p,o,score:projected.amps/p.limitAmps+projected.spread/p.limitAmps*.01}];
    })).sort((a,b)=>inputs.cablePolicy==='low-ru-c13-switch-top'?a.o.n-b.o.n||a.p.id.localeCompare(b.p.id):a.score-b.score||a.o.n-b.o.n);
    const choice=candidates[0];
-   if(!choice)return fail(`${load.name} PSU ${inlet}: no compatible outlet fits the verified limits on feed ${preferred}. Review fixed cables or capacity.`);
-   assignments.push({pduId:choice.p.id,outlet:choice.o.n,deviceId:load.id,inlet});used.add(`${choice.p.id}:${choice.o.n}`);
+   if(!choice)return fail(`${load.name} ${powerInputLabel(equipment.find(e=>e.id===load.id),inlet)}: no compatible outlet fits the verified limits on feed ${preferred}. Review fixed cables or capacity.`);
+   assignments.push({pduId:choice.p.id,outlet:choice.o.n,deviceId:load.id,inlet,...(load.assessment==='pdu-capacity'?{inputIdentity:B300_INPUT_IDENTITY}:{})});used.add(`${choice.p.id}:${choice.o.n}`);
   }
  }
  const analysis=analyzeFeeds(supplies,loads,assignments,inputs.headroomPercent);

@@ -1,8 +1,9 @@
 'use server';
+import {isB300PowerDevice} from '@/lib/b300-power-inputs';
 import {draftPowerPlan} from '@/lib/draft-power-plan';
 import {balanceFeeds,feedRevision} from '@/lib/feed-balance';
 import {readFeedInputs} from '@/lib/feed-rack';
-import {readOutlets,readDetails} from '@/lib/equipment-details';
+import {detailsObject,withOutletAssignment,readOutlets,readDetails} from '@/lib/equipment-details';
 import {revalidatePath} from 'next/cache';
 import {rackMutation} from '@/lib/rack-mutation';
 import {feedInputsError,type FeedInputs} from '@/lib/feed-power';
@@ -15,6 +16,7 @@ export async function saveFeedInputs(rackId:string,inputs:FeedInputs,expectedRev
       const rack=await lockedPowerInputRack(tx,rackId);
       if(!rack)return {error:'Rack not found.',conflict:false as const};
       if(!matchesPowerInputsRevision(expectedRevision,rackId,rack))return {error:POWER_INPUT_CONFLICT,conflict:true as const};
+      for(const [id,budget] of Object.entries(inputs.budgets)){const device=rack.devices.find(d=>d.id===id);if(device&&!isB300PowerDevice(device.catalogDevice)&&Number(budget.cords)>6)return {error:'This equipment supports at most 6 independent PSU inputs in this planner.',conflict:false as const};}
       const budgets=Object.fromEntries(Object.entries(inputs.budgets).filter(([id])=>rack.devices.some(d=>d.id===id)));
       const supplies=Object.fromEntries(Object.entries(inputs.supplies||{}).filter(([id])=>rack.devices.some(d=>d.id===id&&d.catalogDevice.category==='pdu')));
       for(const [id,p] of Object.entries(supplies)){
@@ -36,16 +38,16 @@ export async function applyFeedBalance(rackId:string,revision:string){
  try{
   const result=await rackMutation(rackId,async tx=>{
    const rack=await tx.rack.findUniqueOrThrow({where:{id:rackId},include:{devices:{include:{catalogDevice:true},orderBy:{startRU:'asc'}}}});
-   const equipment=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
+   const equipment=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
    const inputs=readFeedInputs(rack.configuration,equipment);
    if(feedRevision(equipment,inputs)!==revision)return {error:'Rack data changed. Reload and calculate a fresh proposal.'};
    const plan=balanceFeeds(equipment,inputs);
    if(plan.error||!plan.analysis.ready)return {error:plan.error||'Plan is not ready.'};
    for(const pdu of equipment.filter(d=>d.category==='pdu')){
-    const details=readDetails(pdu.details);
-    for(const [n,a] of Object.entries(details.outlets))if(a.locked===false)delete details.outlets[n];
-    for(const c of plan.assignments.filter(c=>c.pduId===pdu.id))if(!details.outlets[c.outlet]?.deviceId)details.outlets[c.outlet]={deviceId:c.deviceId,inlet:c.inlet,notes:'',locked:false};
-    await tx.deviceInstance.update({where:{id:pdu.id},data:{details:JSON.parse(JSON.stringify({...pdu.details as object,...details}))}});
+    const details=detailsObject(pdu.details),outlets=detailsObject(details.outlets),previous=readDetails(pdu.details).outlets;
+    for(const [n,a] of Object.entries(previous))if(a.locked===false){outlets[n]=withOutletAssignment(outlets[n],{deviceId:'',notes:a.notes});delete previous[n];}
+    for(const c of plan.assignments.filter(c=>c.pduId===pdu.id))if(!previous[c.outlet]?.deviceId)outlets[c.outlet]=withOutletAssignment(outlets[c.outlet],{deviceId:c.deviceId,inlet:c.inlet,notes:typeof detailsObject(outlets[c.outlet]).notes==='string'?detailsObject(outlets[c.outlet]).notes as string:'',locked:false,...(c.inputIdentity?{inputIdentity:c.inputIdentity}:{})});
+    await tx.deviceInstance.update({where:{id:pdu.id},data:{details:JSON.parse(JSON.stringify({...details,outlets}))}});
    }
    return {projectId:rack.projectId};
   });
@@ -58,7 +60,7 @@ export async function saveDraftPowerPlan(rackId:string,revision:string):Promise<
  try{
   const result=await rackMutation(rackId,async tx=>{
    const rack=await tx.rack.findUniqueOrThrow({where:{id:rackId},include:{devices:{include:{catalogDevice:true},orderBy:{startRU:'asc'}}}});
-   const equipment=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
+   const equipment=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
    const inputs=readFeedInputs(rack.configuration,equipment);
    if(feedRevision(equipment,inputs)!==revision)return {error:'Rack data changed. Reload and generate a fresh draft.'};
    const result=draftPowerPlan(equipment,inputs);

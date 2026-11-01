@@ -99,3 +99,10 @@ test('applyPowerBalance optional input save preserves unrelated rack configurati
  const saved=await h.power.applyPowerBalance('sample-rack',powerRevision(f.equipment,f.settings),inputs,powerInputsRevision('sample-rack',f.rack));assert.equal(saved.ok,true);assert.equal(h.rackUpdates.length,1);
  assert.deepEqual(h.rackUpdates[0].data.configuration,{...f.rack.configuration,px3Power:inputs});
 });
+
+test('legacy specialist plan revision still matches when real catalog SKU identity is projected by the page',async()=>{
+ const f=powerFixture();const devices=f.rack.devices.map(d=>({...d,catalogDevice:{...d.catalogDevice,sku:'SYNTHETIC-'+d.id}}));
+ const equipment=devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
+ const h=await actionHarness({rack:{...f.rack,devices}});const result=await h.power.applyPowerBalance('sample-rack',powerRevision(equipment,f.settings));assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(h.updates.length,2);
+});

@@ -1,3 +1,4 @@
+import {isB300PowerDevice} from './b300-power-inputs.ts';
 import { PX3_4068_OUTLETS, PX3_4068_POWER, pduModelId } from "./pdu-models.ts";
 import { acDemand } from "./power-demand.ts";
 import { readDetails } from "./equipment-details.ts";
@@ -5,7 +6,7 @@ import { readDetails } from "./equipment-details.ts";
 // Verified PDU profile with explicit 1+1 or equal-sharing 3+3 equipment groups.
 export type PowerBudget = { watts:number; connector:"C13"|"C19"; passive:boolean; confirmed:boolean; source:string; pf?:number; cordAmps?:number; psusPerFeed?:1|2|3; psuAcCapacity?:number; testOnly?:boolean };
 export type Px3Settings = { headroomPercent?:number; voltage:number; pf:number; inputLimit:number; reserveDedicated:boolean; supplyConfirmed:boolean; budgets:Record<string,PowerBudget> };
-export type PowerEquipment = { id:string; name:string; model:string; mounting:string; category:string|null; rawData:unknown; details:unknown };
+export type PowerEquipment = { sku?:string|null; id:string; name:string; model:string; mounting:string; category:string|null; rawData:unknown; details:unknown };
 export type PowerAssignment = { pduId:string; outlet:number; deviceId:string; inlet:number; locked:boolean };
 export type PowerIssue = { level:"incomplete"|"overload"|"warning"; message:string; code?:"missing-cables" };
 export type PduTotals = { id:string; name:string; side:"A"|"B"; watts:number; kva:number; phases:number[]; breakers:number[]; outlets:{n:number;deviceId:string;inlet:number;watts:number;amps:number;locked:boolean}[]; spread:number };
@@ -39,6 +40,7 @@ export function savedPowerAssignments(equipment:PowerEquipment[]):PowerAssignmen
 }
 export function analyzePx3(equipment:PowerEquipment[],settings:Px3Settings,assignments=savedPowerAssignments(equipment)):PowerAnalysis {
   const issues:PowerIssue[]=[],pdus:PduTotals[]=[];
+  if(equipment.some(isB300PowerDevice))return {issues:[{level:'incomplete',message:'B300 dual-input cabling uses the shared power planner for physical input mapping and PDU capacity checks.'}],pdus,ready:false,watts:0,settings};
   const issue=(level:PowerIssue["level"],message:string,code?:PowerIssue["code"])=>issues.push({level,message,...(code?{code}:{})});
   const error=px3SettingsError(settings);
   if(error)return {issues:[{level:"incomplete",message:error}],pdus,ready:false,watts:0,settings};

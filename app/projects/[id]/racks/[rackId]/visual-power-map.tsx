@@ -1,4 +1,5 @@
 'use client';
+import {powerInputLabel,powerAssignmentLabel,isB300PowerDevice,B300_POWER_SCOPE,B300_INPUT_IDENTITY} from '@/lib/b300-power-inputs';
 import {applyPowerSave,powerFeedProgress} from '@/lib/power-feed-progress';
 import {ArrowRight,Check,ClipboardList,PlugZap,Trash2,X} from 'lucide-react';
 import {consumptionSummary} from '@/lib/power-consumption';
@@ -16,7 +17,7 @@ import {visualPowerBalance,canSaveVisualPowerDraft,connectionPowerChecks} from '
 import type {FeedEquipment} from '@/lib/feed-rack';
 import type {Cord} from '@/lib/feed-power';
 
-type Endpoint={pduId:string;outlet:number;deviceId?:string;inlet?:number};
+type Endpoint={pduId:string;outlet:number;deviceId?:string;inlet?:number;inputIdentity?:typeof B300_INPUT_IDENTITY};
 export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equipment:serverEquipment,configuration}:{equipment:FeedEquipment[];configuration:unknown;rackId:string;config:RackConfig;heightRU:number;devices:RackGridDevice[]}) {
  const [acknowledged,setAcknowledged]=useState<{source:FeedEquipment[];equipment:FeedEquipment[]}|null>(null);
  const equipment=acknowledged?.source===serverEquipment?acknowledged.equipment:serverEquipment;
@@ -44,8 +45,11 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
  const feedback=draftAllowed?'#f4ce73':blocked?'#ff9292':candidate&&review.status==='caution'?'#f4ce73':'#5ee9b5';
  const selectionMessage=draftAllowed?'Recommended planning connection. Load distribution calculated; PSU documentation is tracked separately.':target?(guide?.error?'Outlet recommendation unavailable. Open the checks below to see what needs attention.':candidate?(blocked?'Selected connection needs attention. See the reason below.':'Selected connection checked. Confirm to save it.'):'Recommended outlet highlighted. Click it to review and confirm, or choose another outlet.'):selected?.deviceId?(savedChecks.length?'Connection saved. Open pending checks for this device and PDU.':'Connection saved. No outstanding checks for this device and PDU.'):message;
  const [line,setLine]=useState<{x1:number;y1:number;x2:number;y2:number}|null>(null);
+ const inputLabel=(id:string|undefined,inlet:number)=>powerInputLabel(equipment.find(e=>e.id===id),inlet);
+ const savedLabel=(endpoint:Endpoint)=>powerAssignmentLabel(equipment.find(e=>e.id===endpoint.deviceId),readDetails(equipment.find(e=>e.id===endpoint.pduId)?.details).outlets[endpoint.outlet]||{});
+ const capacityOnly=equipment.some(isB300PowerDevice);
  const name=(id?:string)=>{const d=devices.find(d=>d.id===id);return d?`${d.label||d.catalogDevice.model} · U${d.startRU}`:'Equipment';};
- const resolve=(pduId:string,outlet:number):Endpoint=>{const a=readDetails(devices.find(d=>d.id===pduId)?.details).outlets[outlet];return {pduId,outlet,deviceId:a?.deviceId,inlet:a?.inlet};};
+ const resolve=(pduId:string,outlet:number):Endpoint=>{const a=readDetails(devices.find(d=>d.id===pduId)?.details).outlets[outlet];return {pduId,outlet,deviceId:a?.deviceId,inlet:a?.inlet,inputIdentity:a?.inputIdentity};};
  // Hover paints the rack only. It must never resize the controls above its hit targets.
  const controlEndpoint=candidate||(target?guide.recommendation:selected);
  const shown=hover||controlEndpoint||rackPlan.recommendation;
@@ -58,13 +62,13 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
    const outlets=Array.from(host.querySelectorAll<HTMLElement>('[data-power-pdu]'));
    const psus=Array.from(host.querySelectorAll<HTMLElement>('[data-psu-device]'));
    const a=outlets.find(el=>el.dataset.powerPdu===shown?.pduId&&Number(el.dataset.powerOutlet)===shown?.outlet);
-   const b=psus.find(el=>el.dataset.psuDevice===shown?.deviceId&&Number(el.dataset.psuInlet)===shown?.inlet);
+   const b=psus.find(el=>el.dataset.psuDevice===shown?.deviceId&&Number(el.dataset.psuInlet)===shown?.inlet&&(!isB300PowerDevice(equipment.find(d=>d.id===shown?.deviceId))||shown?.inputIdentity===B300_INPUT_IDENTITY));
    a?.setAttribute('data-power-highlight','true');b?.setAttribute('data-power-highlight','true');
    if(a&&b){const origin=host.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=(b.querySelector(".connection-socket")||b).getBoundingClientRect();setLine({x1:ra.left+ra.width/2-origin.left,y1:ra.top+ra.height/2-origin.top,x2:rb.left+rb.width/2-origin.left,y2:rb.top+rb.height/2-origin.top});}else setLine(null);
   }
   paint();const observer=new ResizeObserver(paint);observer.observe(host);host.addEventListener('scroll',paint,true);window.addEventListener('resize',paint);
   return()=>{observer.disconnect();host.removeEventListener('scroll',paint,true);window.removeEventListener('resize',paint);};
- },[shown,devices]);
+ },[shown,devices,equipment]);
  function inspect(target:EventTarget|null){
   if(!(target instanceof Element))return;
   const o=target.closest<HTMLElement>('[data-power-pdu]');
@@ -76,14 +80,14 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
  function chooseOutlet(pduId:string,outlet:Outlet){
   if(busy.current)return;setSaveError('');setHover(null);setClearing(false);
   const next=resolve(pduId,outlet.n);setSelected(next);
-  setCandidate(target&&!next.deviceId?{...target,pduId,outlet:outlet.n}:undefined);
+  setCandidate(target&&!next.deviceId?{...target,pduId,outlet:outlet.n,...(isB300PowerDevice(equipment.find(e=>e.id===target.deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})}:undefined);
   setMessage('Choose a PSU, review the projected balance, then confirm.');
  }
  function choosePsu(deviceId:string,inlet:number){
   if(busy.current)return;setSaveError('');setHover(null);setClearing(false);
   const cords=psuConnections(devices,deviceId,inlet);
   if(cords.length){setTarget(undefined);setCandidate(undefined);setSelected(resolve(cords[0].pdu.id,cords[0].outlet));setMessage(readDetails(cords[0].pdu.details).outlets[cords[0].outlet]?.notes.includes('Planning draft:')?'Saved draft connection. Electrical verification remains pending.':'Saved connection. Clear it to choose a different outlet.');return;}
-  setTarget({deviceId,inlet});setCandidate(selected&&!selected.deviceId?{pduId:selected.pduId,outlet:selected.outlet,deviceId,inlet}:undefined);setSelected(null);
+  setTarget({deviceId,inlet});setCandidate(selected&&!selected.deviceId?{pduId:selected.pduId,outlet:selected.outlet,deviceId,inlet,...(isB300PowerDevice(equipment.find(e=>e.id===deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})}:undefined);setSelected(null);
   setMessage('Calculator recommendation highlighted. Click that outlet to review and confirm, or click another outlet to check an alternative.');
  }
  function reviewConnection(c:Cord){
@@ -101,6 +105,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
   start(async()=>{try{const result=await disconnectVisualPower(rackId,selected.pduId,selected.outlet,selected.deviceId!,selected.inlet||0);setMessage(result.error||'Connection cleared. Choose an outlet and PSU to reconnect.');if(result.ok){setAcknowledged({source:serverEquipment,equipment:applyPowerSave(equipment,result)});setSelected(null);setCandidate(undefined);setTarget(undefined);}setClearing(false);router.refresh();}catch{setMessage('Could not clear. Refresh and try again.');}finally{busy.current=false;}});
  }
  return <div className="visual-power-map" style={{"--power-feedback":feedback} as CSSProperties} onKeyDown={e=>{if(e.key==='Escape'&&!pending){setSelected(null);setHover(null);setTarget(undefined);setCandidate(undefined);setClearing(false);}}}>
+  {capacityOnly&&<p role="note" className="text-sm text-muted-foreground">{B300_POWER_SCOPE}</p>}
   <section className="visual-power-toolbar" style={{position:"relative",top:0}} aria-label="Calculated rack wiring plan">
    <div className="power-connection-heading"><span className="power-connection-icon"><PlugZap size={20} aria-hidden="true"/></span><h3>Connection progress</h3><span className="power-connection-state">{rackPlan.error?'Needs attention':`${rackPlan.confirmed||0} / ${rackPlan.total||0} confirmed`}</span></div>
    <p className="power-connection-measurement">{rackPlan.error?rackPlan.error:'Recommendations use saved consumption and electrical settings. Saved cables stay fixed; a recommendation is not a saved connection.'}</p>
@@ -111,7 +116,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
    </section>)}</div>}
    {!rackPlan.error&&pendingConnections.length>0&&<div>
     <button className="power-connection-button is-primary" type="button" disabled={pending} onClick={()=>reviewConnection(pendingConnections[0])}><ArrowRight size={17} aria-hidden="true"/>Review next connection</button>
-    <details open className="mt-3"><summary>Pending PSUs · {pendingConnections.length}</summary><div className="power-feed-pending">{pendingConnections.map(c=><button key={`${c.deviceId}:${c.inlet}`} className="power-connection-button power-feed-row" type="button" disabled={pending} onClick={()=>reviewConnection(c)}><span><strong>{name(c.deviceId)}</strong><small>PSU {c.inlet} · Feed {c.feed}</small></span><ArrowRight size={16} aria-hidden="true"/><span><strong>Recommended outlet {c.outlet}</strong><small>{name(c.pduId)}</small></span></button>)}</div></details>
+    <details open className="mt-3"><summary>{capacityOnly?'Pending power inputs':'Pending PSUs'} · {pendingConnections.length}</summary><div className="power-feed-pending">{pendingConnections.map(c=><button key={`${c.deviceId}:${c.inlet}`} className="power-connection-button power-feed-row" type="button" disabled={pending} onClick={()=>reviewConnection(c)}><span><strong>{name(c.deviceId)}</strong><small>{inputLabel(c.deviceId,c.inlet)} · Feed {c.feed}</small></span><ArrowRight size={16} aria-hidden="true"/><span><strong>Recommended outlet {c.outlet}</strong><small>{name(c.pduId)}</small></span></button>)}</div></details>
    </div>}
    {complete&&<div><p className="power-feed-complete"><Check size={17} aria-hidden="true"/>All planned connections are saved. Review balance and remaining checks.</p><button type="button" className="power-connection-button is-primary mt-3" onClick={()=>{const target=document.getElementById('power-review');if(target){target.focus({preventScroll:true});target.scrollIntoView({block:'start'});}else{setMessage('Review the phase and breaker results in the power planner above.');}}}>Review power balance</button></div>}
 
@@ -119,7 +124,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
   </section>
   {(selected||target||saveError)&&<section className="visual-power-toolbar" aria-label="Power connection controls">
    <div className="power-connection-heading"><span className="power-connection-icon"><PlugZap size={20} aria-hidden="true"/></span><h3>{selected?.deviceId&&!candidate?'Saved connection':candidate?'Review connection':'Connect power'}</h3><span className="power-connection-state">{pending?'Saving…':selected?.deviceId&&!candidate?'Saved':draftAllowed?'Planning':candidate&&blocked?'Needs attention':target?'Selected':'Ready'}</span></div>
-   {controlEndpoint&&<div className="power-connection-route"><div><span className="power-connection-caption">PDU · Outlet {controlEndpoint.outlet}</span><strong>{name(controlEndpoint.pduId)}</strong></div><ArrowRight className="power-route-arrow" size={20} aria-hidden="true"/><div><span className="power-connection-caption">{controlEndpoint.deviceId?`Equipment · PSU ${controlEndpoint.inlet||'—'}`:'Destination'}</span><strong>{controlEndpoint.deviceId?name(controlEndpoint.deviceId):'Select a PSU in the rack'}</strong></div></div>}
+   {controlEndpoint&&<div className="power-connection-route"><div><span className="power-connection-caption">PDU · Outlet {controlEndpoint.outlet}</span><strong>{name(controlEndpoint.pduId)}</strong></div><ArrowRight className="power-route-arrow" size={20} aria-hidden="true"/><div><span className="power-connection-caption">{controlEndpoint.deviceId?`Equipment · ${!candidate&&!target?savedLabel(controlEndpoint):inputLabel(controlEndpoint.deviceId,controlEndpoint.inlet||0)}`:'Destination'}</span><strong>{controlEndpoint.deviceId?name(controlEndpoint.deviceId):'Select a PSU in the rack'}</strong></div></div>}
    {target&&<p className="power-connection-measurement">{consumptionSummary(selectedBudget||{})}</p>}
    <div className="power-connection-footer"><p role="status" aria-live="polite">{pending?'Saving connection…':saveError||selectionMessage}</p><div className="power-connection-actions">
     {candidate&&<button className="power-connection-button is-primary" type="button" disabled={pending||(blocked&&!draftAllowed)} onClick={confirm}><Check size={17} aria-hidden="true"/>{draftAllowed?'Save planning connection':blocked?'Resolve checks to save':'Save connection'}</button>}
@@ -131,7 +136,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
     <p className="power-connection-measurement">{consumptionSummary(savedBudget||{})}</p>
     {savedChecks.length>0&&<details key={`${selected.pduId}:${selected.outlet}:${selected.deviceId}`}>
      <summary className="power-connection-button"><ClipboardList size={17} aria-hidden="true"/>View pending checks <span className="power-connection-state">{savedChecks.length}</span></summary>
-     <div className="power-check-content"><h4>Pending checks · {name(selected.deviceId)} / PSU {selected.inlet}</h4>
+     <div className="power-check-content"><h4>Pending checks · {name(selected.deviceId)} / {savedLabel(selected)}</h4>
       <p>These checks concern the selected equipment and its PDU. Missing PSU specifications do not change the recorded consumption or remove the saved connection.</p>
       <ul>{savedChecks.map(check=><li key={check}>{check}</li>)}</ul>
       <p>Review PSU voltage, capacity and cord ratings in this device’s Power settings; review PDU limits in PDU power configuration. Other rack checks remain in the Power Calculator.</p>
@@ -141,7 +146,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
   </section>}
   {target&&<details key={`${target.deviceId}:${target.inlet}:${!!blocked}`} open={blocked||undefined} className="rounded-xl border border-border p-4 my-3" style={{background:"var(--background,#17252b)"}} aria-live="polite">
    <summary className="font-semibold">{blocked?'Connection checks to resolve':'Why this outlet? · alternatives and technical details'}</summary><p className="my-2 text-sm">To check an alternative, select another free outlet in the rear elevation. Review the result before saving.</p>{candidate&&!guide.error&&<p>{changedSuggestions?`This alternative changes ${changedSuggestions} other proposed assignments. Confirmed cables stay fixed.`:'This choice keeps the other proposed assignments unchanged.'}</p>}
-   {guide?.recommendation?<><p><strong>{name(target.deviceId)} / PSU {target.inlet} → {name(guide.recommendation.pduId)} / Outlet {guide.recommendation.outlet}</strong></p><p>{guide.reason}</p>{guide.contributions?.map(c=><p key={c.lost||'normal'}>{c.lost?`Feed ${c.lost} lost`:'Completed plan · normal'}: this cord {c.watts.toFixed(0)} W · PDU total {c.pduWatts.toFixed(0)} W</p>)}<p>These are calculated contributions in the completed wiring plan. Existing cables stay fixed.</p>{guide.provisional&&<details><summary>PSU documentation pending · separate from consumption</summary>{powerReviewSummary(guide.pendingChecks||[],equipment).actions.map((g,i)=><p key={i}>{g.message}{g.devices.length>1?` (${g.devices.length} systems)`:''}</p>)}</details>}</>:<><p className="text-amber-300">Recommendations paused: {grouped.actions.length} grouped checks need attention.</p><details><summary>See required inputs and affected equipment</summary>{grouped.actions.map((g,i)=><p key={i}>{g.message}{g.devices.length>1?` (${g.devices.length} systems)`:''}</p>)}{grouped.assumptions.map(a=><p key={a}>{a}</p>)}{!grouped.actions.length&&<p>{guide?.error}</p>}</details></>}
+   {guide?.recommendation?<><p><strong>{name(target.deviceId)} / {inputLabel(target.deviceId,target.inlet)} → {name(guide.recommendation.pduId)} / Outlet {guide.recommendation.outlet}</strong></p><p>{guide.reason}</p>{guide.contributions?.map(c=><p key={c.lost||'normal'}>{c.lost?`Feed ${c.lost} lost`:'Completed plan · normal'}: this cord {c.watts.toFixed(0)} W · PDU total {c.pduWatts.toFixed(0)} W</p>)}<p>These are calculated contributions in the completed wiring plan. Existing cables stay fixed.</p>{guide.provisional&&<details><summary>PSU documentation pending · separate from consumption</summary>{powerReviewSummary(guide.pendingChecks||[],equipment).actions.map((g,i)=><p key={i}>{g.message}{g.devices.length>1?` (${g.devices.length} systems)`:''}</p>)}</details>}</>:<><p className="text-amber-300">Recommendations paused: {grouped.actions.length} grouped checks need attention.</p><details><summary>See required inputs and affected equipment</summary>{grouped.actions.map((g,i)=><p key={i}>{g.message}{g.devices.length>1?` (${g.devices.length} systems)`:''}</p>)}{grouped.assumptions.map(a=><p key={a}>{a}</p>)}{!grouped.actions.length&&<p>{guide?.error}</p>}</details></>}
    {candidate&&guide?.recommendation&&!draftAllowed&&review.errors.length>0&&<div className="my-3 text-amber-300"><p>The completed plan passes, but the current partial layout has checks to resolve before this step can be saved:</p><details open><summary>Why this connection is blocked</summary>{grouped.actions.map((g,i)=><p key={i}>{g.message}{g.devices.length>1?` (${g.devices.length} systems)`:''}</p>)}{grouped.assumptions.map(a=><p key={a}>{a}</p>)}</details></div>}
    {candidate&&<><p style={{color:feedback}}>{draftAllowed?'PSU compatibility pending; consumption value is unchanged':blocked?'Cannot save this step; see checks above':review.status==='caution'?'Wiring in progress; missing connections are expected':'👍 Checks passed'} · Current step PDU load: {review.current.scenarios[0].totals.find(p=>p.id===candidate.pduId)?.watts.toFixed(0)} W → {review.projected.scenarios[0].totals.find(p=>p.id===candidate.pduId)?.watts.toFixed(0)} W</p></>}
   </details>}

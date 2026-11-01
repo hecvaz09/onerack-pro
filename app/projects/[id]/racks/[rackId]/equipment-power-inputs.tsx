@@ -1,4 +1,5 @@
 'use client';
+import {isB300PowerDevice} from '@/lib/b300-power-inputs';
 import type {Dispatch,SetStateAction,FormEvent} from 'react';
 import {isMeasuredPower} from '@/lib/power-consumption';
 import {buttonVariants} from '@/components/ui/button';
@@ -92,7 +93,8 @@ export function EquipmentPowerInputs({equipment,loads,inputs,initial,setInputs,s
       </details>
       <details className="mt-3 border-t border-border pt-3"><summary className="cursor-pointer text-sm">Advanced · PSU limits and Library references</summary>
         <p className="mt-3 text-sm text-muted-foreground">Unedited limits inherit current Library/model assumptions. Supported options are not a confirmed inventory of this device. Overrides apply to this installation only. PSU capacity is separate from selected demand.</p>
-        <div className="power-fields mt-3">{(['cords','minimumCords','connector','minVoltage','maxVoltage','cordLimitAmps','psuAcCapacity'] as const).map(field=>{
+        {isB300PowerDevice(device)&&<p className="mt-3 text-sm">Six PSU modules · two AC inputs each · 12 input assignments. Enter the cord connector, input voltage range and usable cord current below. Internal PSU redundancy and module output capacity are outside this PDU check.</p>}
+        <div className="power-fields mt-3">{(['cords','minimumCords','connector','minVoltage','maxVoltage','cordLimitAmps','psuAcCapacity'] as const).filter(field=>!isB300PowerDevice(device)||!['cords','minimumCords','psuAcCapacity'].includes(field)).map(field=>{
           const labels={cords:'PSU cords used for planning',minimumCords:'Minimum PSUs needed after feed loss',connector:'Cord connector (C13 / C19)',minVoltage:'Minimum PSU voltage (V)',maxVoltage:'Maximum PSU voltage (V)',cordLimitAmps:'Usable cord current (A)',psuAcCapacity:'Supported AC load per PSU (W)'};
           return <label key={field}>{labels[field]}<input data-power-field={field} type={field==='connector'?'text':'number'} value={budget?.[field]??load?.[field]??''} onChange={event=>update({[field]:field==='connector'?event.target.value:event.target.value?Number(event.target.value):undefined},'Unsaved PSU limit for this device. Review and save power inputs.')}/></label>;
         })}</div>

@@ -17,15 +17,17 @@ export async function actionHarness(options:Options={}){
  const updates:Write[]=[],rackUpdates:Write[]=[],deletions:string[]=[],paths:string[]=[],events:string[]=[];
  let currentRack=options.rack?structuredClone(options.rack) as Record<string,unknown>:null;
  const tx={$queryRaw:async()=>[],deviceInstance:{
-  findFirst:async()=>options.device??null,findMany:async()=>options.pdus??[],
-  update:async(input:Write)=>{events.push('update:'+input.where.id);if(options.failUpdate)throw Error('Synthetic write failure');updates.push(structuredClone(input));return input;},
+  findFirst:async(input:{where:{id?:string}})=>{if(options.device)return options.device;const devices=(currentRack?.devices||[]) as {id:string}[];const d=devices.find(d=>d.id===input.where.id);return d?{...d,rack:currentRack}:null;},findMany:async()=>options.pdus??[],
+  update:async(input:Write)=>{events.push('update:'+input.where.id);if(options.failUpdate)throw Error('Synthetic write failure');updates.push(structuredClone(input));if(currentRack&&Array.isArray(currentRack.devices))currentRack={...currentRack,devices:currentRack.devices.map((d:{id:string})=>d.id===input.where.id?{...d,...structuredClone(input.data)}:d)};return input;},
   delete:async(input:{where:{id:string}})=>{events.push('delete:'+input.where.id);deletions.push(input.where.id);return input;},
  },rack:{findUnique:async()=>currentRack,findUniqueOrThrow:async()=>{if(!currentRack)throw Error("Synthetic rack missing");return currentRack;},update:async(input:Write)=>{rackUpdates.push(structuredClone(input));currentRack={...currentRack,...structuredClone(input.data)};return currentRack;}}};
  const mocks={revalidatePath:(path:string)=>paths.push(path),rackMutation:async(id:string,mutate:(transaction:typeof tx)=>Promise<unknown>)=>{events.push('rackMutation:'+id);return mutate(tx);},prisma:{$transaction:()=>{throw Error('Unexpected direct database transaction');}}};
  const load=async(file:string)=>{const loadedModule={exports:{}};new Function('module','exports','require','__mocks',await bundle(file))(loadedModule,loadedModule.exports,createRequire(import.meta.url),mocks);return loadedModule.exports;};
  const actions=await load('app/projects/[id]/racks/[rackId]/actions.ts') as typeof import('../../app/projects/[id]/racks/[rackId]/actions.ts');
  const power=await load('app/projects/[id]/racks/[rackId]/power-actions.ts') as typeof import('../../app/projects/[id]/racks/[rackId]/power-actions.ts');
- return {actions,power,updates,rackUpdates,deletions,paths,events};
+ const visual=await load('app/projects/[id]/racks/[rackId]/visual-power-actions.ts') as typeof import('../../app/projects/[id]/racks/[rackId]/visual-power-actions.ts');
+ const feed=await load('app/projects/[id]/racks/[rackId]/feed-power-actions.ts') as typeof import('../../app/projects/[id]/racks/[rackId]/feed-power-actions.ts');
+ return {actions,power,visual,feed,updates,rackUpdates,deletions,paths,events,snapshot:()=>structuredClone(currentRack)};
 }
 export function deepFreeze<T>(value:T):T{
  if(value&&typeof value==='object'){for(const item of Object.values(value))deepFreeze(item);Object.freeze(value);}

@@ -61,7 +61,7 @@ export function PowerOverview({equipment,saved,dirty}:{equipment:FeedEquipment[]
           :overview.missingWatts>0&&<p className="text-sm">{recorded>0?'Partial total · ':''}{overview.missingWatts} {overview.missingWatts===1?'system still needs':'systems still need'} watts.{recorded===0&&' No demand recorded.'}</p>}
       </div>
       <div className="min-w-0 space-y-2">
-        <h3 className="text-sm font-medium">Saved PSU assignments</h3>
+        <h3 className="text-sm font-medium">{overview.hasCapacityOnly?'Saved power input assignments':'Saved PSU assignments'}</h3>
         {overview.expected>0?<><p className="text-3xl font-semibold tabular-nums tracking-tight">{overview.connected} <span className="text-base font-normal text-muted-foreground">/ {overview.expected}</span></p>
           <progress aria-label="Saved PSU assignments" aria-valuetext={overview.connected+' of '+overview.expected+' saved'} className="feed-load-meter w-full" value={overview.connected} max={overview.expected}/>
         </>:<p className="text-sm text-muted-foreground">No expected PSU assignments yet.</p>}
@@ -79,7 +79,7 @@ export function PowerOverview({equipment,saved,dirty}:{equipment:FeedEquipment[]
         <summary className="cursor-pointer text-sm">Affected equipment · {overview.missingAssignments.length}</summary>
         <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm">{overview.missingAssignments.map(device=><li key={device.id} data-assignment-device={device.id} className="flex flex-wrap justify-between gap-x-4 gap-y-1">
           <span className="min-w-0"><strong className="font-medium">{Number.isInteger(device.startRU)?`U${device.startRU}`:'Position not recorded'}</strong><span className="ml-2">{device.name.replace(/ · U\d+$/,'')}</span></span>
-          <span className="text-xs text-muted-foreground">{device.assigned}/{device.expected} PSUs assigned</span>
+          <span className="text-xs text-muted-foreground">{device.assigned}/{device.expected} {device.inputLabel||'PSUs'} assigned</span>
         </li>)}</ul>
       </details>
     </section>}

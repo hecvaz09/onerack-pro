@@ -1,3 +1,4 @@
+import {isB300PowerDevice,B300_INPUT_IDENTITY} from './b300-power-inputs.ts';
 import {balanceFeeds} from './feed-balance.ts';
 import {feedRack,readFeedInputs,type FeedEquipment} from './feed-rack.ts';
 import {readDetails} from './equipment-details.ts';
@@ -18,7 +19,7 @@ export function powerWiringGuide(equipment:FeedEquipment[],configuration:unknown
   const error=validateVisualPower(equipment,configuration,alternative.pduId,alternative.outlet,alternative.deviceId,alternative.inlet);
   if(error)return {error,issues:[error],recommendation:undefined};
   const pdu=fixed.find(e=>e.id===alternative.pduId)!;
-  pdu.details.outlets[alternative.outlet]={deviceId:alternative.deviceId,inlet:alternative.inlet,notes:'',locked:true};
+  pdu.details.outlets[alternative.outlet]={deviceId:alternative.deviceId,inlet:alternative.inlet,notes:'',locked:true,...(isB300PowerDevice(fixed.find(e=>e.id===alternative.deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})};
  }
  const plan=balanceFeeds(fixed,inputs,{planning:true});
  if(plan.error)return {error:plan.error,inputChecksOnly:/^\d+ electrical or configuration issues/.test(plan.error),issues:visualPowerBalance(fixed,configuration).errors,recommendation:undefined};

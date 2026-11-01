@@ -1,3 +1,4 @@
+import {powerAssignmentLabel} from './b300-power-inputs.ts';
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { isPocket, POCKET_BAYS, pocketPair } from "./onerack-layout.ts";
 import { readDetails } from "./equipment-details.ts";
@@ -13,7 +14,7 @@ export type BuildDocument = {
   rack: string;
   heightRU: number;
   pockets?:boolean;
-  devices: { id: string; label: string; vendor: string; model: string; startRU: number; heightRU: number; mounting?: string; details?:unknown }[];
+  devices: { id: string; label: string; sku?:string; vendor: string; model: string; startRU: number; heightRU: number; mounting?: string; details?:unknown }[];
   connections: { from: string; to: string; cableType: string | null; label: string | null }[];
 };
 
@@ -103,12 +104,12 @@ export async function buildRackPdf(data: BuildDocument): Promise<Uint8Array> {
   }
   table("Placed devices", ["Device", "Manufacturer / model", "Rack units"], [175, 255, 80], data.devices.map(d => [d.label, `${d.vendor} / ${d.model}`, d.heightRU === 0 ? (d.mounting || "Rail") : `${d.mounting || "front"} ${d.startRU}-${d.startRU + d.heightRU - 1}`]));
   table("Cable manifest", ["From", "To", "Cable", "Label"], [155, 155, 80, 120], data.connections.map(c => [c.from, c.to, c.cableType || "Unspecified", c.label || ""]));
-  const outlets=data.devices.flatMap(d=>Object.entries(readDetails(d.details).outlets).map(([number,a])=>[`${d.label} / ${d.mounting}`,number,data.devices.find(v=>v.id===a.deviceId)?.label||"Unassigned",a.notes]));
+  const outlets=data.devices.flatMap(d=>Object.entries(readDetails(d.details).outlets).map(([number,a])=>[`${d.label} / ${d.mounting}`,number,(()=>{const target=data.devices.find(v=>v.id===a.deviceId);return target?target.label+(data.feedPower?.scopeNotes?.length&&a.inlet?" / "+powerAssignmentLabel(target,a):""):"Unassigned";})(),a.notes]));
   if(outlets.length)table("Power outlet assignments",["PDU","Outlet","Equipment","Notes"],[160,45,150,155],outlets);
   if(data.consumption?.length)table("Consumption sources (PSU checks are separate)",["Equipment","Consumption and source"],[180,330],data.consumption.map(v=>[v.name,v.summary]));
   if(data.feedPower){
     const result=data.feedPower;
-    table("Four-PDU power / feed loss",["Check","Result"],[180,330],[["Status","NEEDS REVIEW - workbook wiring retained; not approved for hardware"],["Basis","Single-phase AC watts / (voltage x power factor). Equal sharing across surviving cords; configured headroom applied once. Missing budgets are not zero-load devices."],...result.issues.map(i=>["Unresolved",i]),...result.scenarios.flatMap(s=>[[s.lost?`Feed ${s.lost} lost`:"Normal operation","Saved wiring"],...s.totals.map(p=>[p.name,p.online?`${p.amps.toFixed(2)} / ${p.limitAmps} A (entered budgets only)`:"Offline"]),...s.errors.map(e=>["FAIL",e])])]);
+    table(result.scopeNotes?.length?"Power connections / PDU capacity":"Four-PDU power / feed loss",["Check","Result"],[180,330],[["Status",result.scopeNotes?.length?(result.ready?"Within entered PDU capacity limits":"NEEDS REVIEW - incomplete power inputs or assignments"):"NEEDS REVIEW - workbook wiring retained; not approved for hardware"],...(result.scopeNotes||[]).map(note=>["Scope",note]),["Basis","Single-phase AC watts / (voltage x power factor). Equal sharing across surviving cords; configured headroom applied once. Missing budgets are not zero-load devices."],...result.issues.map(i=>["Unresolved",i]),...result.scenarios.flatMap(s=>[[s.lost?`Feed ${s.lost} lost`:"Normal operation","Saved wiring"],...s.totals.map(p=>[p.name,p.online?`${p.amps.toFixed(2)} / ${p.limitAmps} A (entered budgets only)`:"Offline"]),...s.errors.map(e=>["FAIL",e])])]);
   }
   if(data.power){
     const power=data.power;
