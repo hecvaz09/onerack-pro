@@ -1,10 +1,11 @@
 'use client';
+import type {PsuStatus} from '@/lib/psu-connection-status';
 import {useHardwareMaterials} from './hardware-materials';
  
 import {HardwareLabel} from './hardware-label';
 import type {NetworkPort} from '@/lib/network-ports';
 
-export function GrandTwinPanel({face,ports,connected,psus=[],psuDescription,href,deviceId,onNode,disabled=false,rack=false}:{face:'front'|'rear';ports:NetworkPort[];connected:string[];psus?:number[];psuDescription?:(inlet:number)=>string;href?:string;deviceId:string;onNode?:(name:string)=>void;disabled?:boolean;rack?:boolean}){
+export function GrandTwinPanel({face,ports,connected,psus=[],psuStatus,psuDescription,href,deviceId,onNode,disabled=false,rack=false}:{face:'front'|'rear';ports:NetworkPort[];connected:string[];psus?:number[];psuStatus?:(inlet:number)=>PsuStatus|undefined;psuDescription?:(inlet:number)=>string;href?:string;deviceId:string;onNode?:(name:string)=>void;disabled?:boolean;rack?:boolean}){
  const materials=useHardwareMaterials(["#31494e"]);
  const positions=[{node:'D',x:0,y:32},{node:'B',x:380,y:32},{node:'C',x:0,y:87},{node:'A',x:380,y:87}];
  function socket(p:NetworkPort,x:number,y:number,w:number,h:number){
@@ -19,7 +20,7 @@ export function GrandTwinPanel({face,ports,connected,psus=[],psuDescription,href
  return <div className="grandtwin-panel"><svg viewBox={rack?'22 30 756 110':'0 0 800 160'} preserveAspectRatio="xMidYMid meet" role="group" aria-label={`GrandTwin ${face} nodes and connections`}>{materials.defs}
  <image style={rack?{clipPath:'inset(18.75% 2.75% 12.5%)'}:undefined} href={`/equipment-artwork/smc-grandtwin-${face}.svg`} x="0" y="0" width="800" height="160" preserveAspectRatio="xMidYMid meet"/>
  {onNode&&nodeZones.map(({node,x,y,w,h})=><g key={node} className="grandtwin-node-hit" role="button" tabIndex={disabled?-1:0} aria-label={`Open Node ${node}`} onPointerDown={e=>e.stopPropagation()} onClick={()=>!disabled&&onNode(`Node ${node}`)} onKeyDown={e=>{if(!disabled&&['Enter',' '].includes(e.key)){e.preventDefault();onNode(`Node ${node}`);}}}><rect x={x} y={y} width={w} height={h} fill="transparent" stroke="transparent" strokeWidth="1" vectorEffect="non-scaling-stroke"/></g>)}
- {face==='rear'&&[2,1].map(n=><a className="face-connection-overlays psu-hit" href={rack?"#power-connection":undefined} data-psu-device={deviceId} data-psu-inlet={n} onPointerDown={e=>e.stopPropagation()} data-connected={psus.includes(n)} key={`psu${n}`} aria-label={psuDescription?.(n)||`PSU ${n} · ${psus.includes(n)?"Connected":"Not connected"}`}><title>{psuDescription?.(n)||`PSU ${n} · ${psus.includes(n)?"Connected":"Not connected"}`}</title><rect className="connection-socket" x={(n===2?33:413)-(rack?3:0)} y={rack?94:97} width={rack?27:21} height={rack?36:30} rx="2"/><circle className="connection-led" cx={n===2?50:430} cy="101" r="2"/></a>)}
+ {face==='rear'&&[2,1].map(n=><a className="face-connection-overlays psu-hit" href={rack?"#power-connection":undefined} data-psu-device={deviceId} data-psu-inlet={n} onPointerDown={e=>e.stopPropagation()} data-psu-state={psuStatus?.(n)?.state} data-connected={psus.includes(n)} key={`psu${n}`} aria-label={psuDescription?.(n)||`PSU ${n} · ${psus.includes(n)?"Connected":"Not connected"}`}><title>{psuDescription?.(n)||`PSU ${n} · ${psus.includes(n)?"Connected":"Not connected"}`}</title><rect className="connection-socket" x={(n===2?33:413)-(rack?3:0)} y={rack?94:97} width={rack?27:21} height={rack?36:30} rx="2"/><circle className="connection-led" cx={n===2?50:430} cy="101" r="2"/></a>)}
  {face==='rear'&&positions.map(({node,x,y})=><g key={node}>
   {ports.filter(p=>p.node===node&&p.position==='mgmt').map(p=>socket(p,x+345,y+7,20,19))}
   {[2,1].map(slot=>{const configured=ports.filter(p=>p.node===node&&p.aiom===slot);const sy=y+(slot===2?2:27);return <g key={slot}>{configured.length>0&&<><rect x={x+203} y={sy} width="132" height="21" rx="1" fill={materials.fill("#31494e")} stroke="#8da8b5"/><HardwareLabel x={x+210} y={sy+14} fontSize="9" fill="#e7edf0">{node} · AIOM{slot}</HardwareLabel></>}{configured.map((p,i)=>socket(p,x+274+i*(64/Math.max(1,configured.length)),sy+2,Math.min(22,64/Math.max(1,configured.length)-8),17))}</g>;})}

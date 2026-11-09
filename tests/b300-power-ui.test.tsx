@@ -10,11 +10,12 @@ test('actual connection callbacks select input 12, confirm once, acknowledge sav
  const loaded={exports:{}};new Function('module','exports','require','__m',result.outputFiles![0].text)(loaded,loaded.exports,createRequire(import.meta.url),mocks);const api=loaded.exports as {VisualPowerMap:(p:unknown)=>unknown};
  const devices=f.rack.devices.map(d=>({...d,networkPorts:[],catalogDevice:{...d.catalogDevice,outlets:[]}}));
  const render=()=>{cursor=0;return api.VisualPowerMap({rackId:f.rack.id,configuration:{feedPower:f.inputs},equipment:f.equipment,devices,heightRU:42,config:{profile:'apc-netshelter-42',pockets:false,pduA:true,pduB:true}});};
- let tree=render();(find(tree,p=>typeof p.onPsu==='function').onPsu as (id:string,n:number)=>void)('b300',12);
+ let tree=render();assert.equal((find(tree,p=>typeof p.onPsu==='function').powerStatuses as Record<string,Record<number,{state:string}>>).b300[12].state,'off');(find(tree,p=>typeof p.onPsu==='function').onPsu as (id:string,n:number)=>void)('b300',12);
  tree=render();const c=powerWiringGuide(f.equipment,{feedPower:f.inputs},{deviceId:'b300',inlet:12}).recommendation!;
  (find(tree,p=>typeof p.onOutlet==='function').onOutlet as (id:string,o:unknown)=>void)(c.pduId,{n:c.outlet});tree=render();
+ assert.equal((find(tree,p=>typeof p.onPsu==='function').powerStatuses as Record<string,Record<number,{state:string}>>).b300[12].state,'off');
  const save=find(tree,p=>typeof p.onClick==='function'&&text(p.children)==='Save connection');assert.equal(save.disabled,false);
  (save.onClick as ()=>void)();(save.onClick as ()=>void)();assert.equal(calls.length,1);assert.deepEqual(calls[0],[f.rack.id,c.pduId,c.outlet,'b300',12,false]);
  const pdu=f.equipment.find(e=>e.id===c.pduId)!;complete({ok:true,pduId:c.pduId,details:{...pdu.details as object,outlets:{[c.outlet]:{deviceId:'b300',inlet:12,inputIdentity:B300_INPUT_IDENTITY,notes:'',locked:true}}}});await Promise.all(queue);
- tree=render();assert.equal(refreshes,1);assert.ok(text(tree).includes('Pending power inputs · 11'));assert.ok(text(tree).includes('PSU 6 · Input 2'));assert.ok(text(tree).includes('Connection saved.'));
+ tree=render();const states=find(tree,p=>typeof p.onPsu==='function').powerStatuses as Record<string,Record<number,{state:string}>>;assert.equal(states.b300[12].state,'connected');assert.equal(states.b300[11].state,'off');assert.equal(refreshes,1);assert.ok(text(tree).includes('Pending power inputs · 11'));assert.ok(text(tree).includes('PSU 6 · Input 2'));assert.ok(text(tree).includes('Connection saved.'));
 });

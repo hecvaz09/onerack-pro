@@ -1067,3 +1067,20 @@ html.dark :is(select,input,textarea):disabled {opacity:.5;cursor:not-allowed;}
 .onerack-physical .physical-device.b300-chassis .physical-device-handle {inset:0;width:100%;height:100%;padding:0;border:0;background:transparent;z-index:1;}
 .b300-chassis .physical-device-handle::before {content:none;}
 .b300-chassis .catalog-face-connections {z-index:2;}
+
+/* Saved PSU status stays separate from recommendation and selection outlines. */
+.visual-power-map .psu-hit[data-psu-state] {--psu-status:#89949e;}
+.visual-power-map .psu-hit[data-psu-state="connected"] {--psu-status:#45db89;}
+.visual-power-map .psu-hit[data-psu-state="pending"] {--psu-status:#efbd52;}
+.visual-power-map .psu-hit[data-psu-state="issue"] {--psu-status:#ff7373;}
+.visual-power-map .psu-hit[data-psu-state] .connection-socket,
+.visual-power-map .psu-hit[data-psu-state] .psu-inlet {fill:color-mix(in srgb,var(--psu-status) 25%,transparent);stroke:var(--psu-status);stroke-width:2px;}
+.visual-power-map .psu-hit[data-psu-state] .connection-led {fill:var(--psu-status);r:3px;}
+.visual-power-map .psu-hit[data-psu-state="connected"] .connection-led,
+.visual-power-map .psu-hit[data-psu-state="connected"] .psu-inlet {filter:drop-shadow(0 0 4px #45db89);}
+.psu-status-legend {display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0;font-size:13px;}
+.psu-status-legend [data-state="off"] {color:#89949e;}
+.psu-status-legend [data-state="connected"] {color:#45db89;}
+.psu-status-legend [data-state="pending"] {color:#efbd52;}
+.psu-status-legend [data-state="issue"] {color:#ff7373;}
+.psu-status-legend small {flex-basis:100%;color:var(--muted-foreground);}

@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Local rack SVG faceplates. */
+import type {PsuStatuses,PsuStatus} from '@/lib/psu-connection-status';
 import {StandardRackFace} from "./standard-rack-face";
 import {standardFaceGeometry} from "@/lib/rack-face-geometry";
 import {RackPanSurface} from "./rack-pan-surface";
@@ -31,6 +32,7 @@ export type RackGridDevice = {
     networkPorts?:NetworkPort[];
     connectedPorts?:string[];
     connectedPsus?:number[];
+    psuStatus?:(inlet:number)=>PsuStatus|undefined;
     psuDescription?:(inlet:number)=>string;
     networkHref?:string;
     catalogDevice: {
@@ -59,6 +61,7 @@ type Controls = {
     onNode?: (id: string, name: string) => void;
 };
 type Props = Controls & {
+    powerStatuses?:PsuStatuses;
     config:RackConfig;
     heightRU: number;
     devices: RackGridDevice[];
@@ -70,11 +73,11 @@ type Props = Controls & {
         error: string | null;
     } | null;
 };
-export function RackGrid({ heightRU, config, devices: sourceDevices, rear = false, zoom = 100, preview, ...controls }: Props) {
+export function RackGrid({ powerStatuses, heightRU, config, devices: sourceDevices, rear = false, zoom = 100, preview, ...controls }: Props) {
     const [powerTarget,setPowerTarget]=useState<{deviceId:string;inlet:number}|null>(null);
     const powerDevice=sourceDevices.find(d=>d.id===powerTarget?.deviceId);
     const ruPitch=!config.pockets&&(config.pduPairs===2||(heightRU===42&&config.profile==="apc-netshelter-42"))?43:28;
-    const devices=sourceDevices.map(d=>({...d,connectedPsus:connectedPsuInlets(sourceDevices,d.id),psuDescription:(inlet:number)=>psuHoverDescription(sourceDevices,d,inlet)}));
+    const devices=sourceDevices.map(d=>({...d,connectedPsus:connectedPsuInlets(sourceDevices,d.id),psuStatus:(inlet:number)=>powerStatuses?.[d.id]?.[inlet],psuDescription:(inlet:number)=>[psuHoverDescription(sourceDevices,d,inlet),powerStatuses?.[d.id]?.[inlet]?.description].filter(Boolean).join(" · ")}));
     const face = rear ? "rear" : "front", slots = Array.from({ length: heightRU }, (_, i) => heightRU - i), row = (ru: number) => heightRU - ru + 1;
     const placed = devices.filter(d => d.catalogDevice.heightRU > 0 && !isPocket(heightRU, d.startRU,config.pockets));
     const occupied = new Set(placed.flatMap(d => Array.from({ length: d.catalogDevice.heightRU }, (_, i) => d.startRU + i)));
@@ -156,18 +159,18 @@ function Device({ device, face, controls, row, pocket = false, standardBay = fal
     }} data-movable={!controls.disabled&&!device.pending} data-device-block data-target-label={`${name} · U${device.startRU} · ${rear?"rear":"front"}`} data-device-id={device.id} className={`physical-device ${b300?"b300-chassis":""} ${blankPanel?"blanking-panel":""} ${switchWithoutLabel?"switch-without-label":""} ${pocket ? "pocket-device" : ""} ${illustrated ? "catalog-illustrated" : ""} ${fitted?"fitted-face":""} ${standardFace?"standard-face":""} ${chassisPanel ? `illustrated-chassis ${rear?"chassis-rear":"chassis-front"}` : ""}`} data-selected={controls.selectedId === device.id} data-multi-ru={device.catalogDevice.heightRU > 1} style={{ gridRow: row ? `${row} / span ${device.catalogDevice.heightRU}` : undefined, visibility: isDragging || controls.draggingId === device.id ? "hidden" : undefined, backgroundColor: standardFace||blankPanel||b300?"transparent":colorForCategory(device.catalogDevice.category) }}>
     <button type="button" {...attributes} aria-label={`${name} · U${device.startRU} · ${face}`} title={standardFace||blankPanel?`${name} · U${device.startRU} · ${artFace}`:undefined} className={`physical-device-handle ${chassisPanel?"chassis-nameplate":""}`} onClick={() => controls.onSelect?.(device.id)} onContextMenu={e => { e.preventDefault(); controls.onContext?.(device.id, e.clientX, e.clientY); }}>{!switchWithoutLabel&&!blankPanel&&!b300&&<><span className="equipment-name">{name}{standardFace&&` · U${device.startRU}`}</span>{device.catalogDevice.heightRU > 1 && !pocket && <small>U{device.startRU}–U{device.startRU + device.catalogDevice.heightRU - 1}</small>}</>}</button>
     {rear && !twin && !pocket && device.catalogDevice.nodeNames?.length ? <div className="rear-node-zones">{device.catalogDevice.nodeNames.map(name => <button type="button" key={name} disabled={controls.disabled} aria-label={`Edit ${name} at U${device.startRU}`} data-status={readDetails(device.details).nodes[name]?.status || "active"} onClick={() => controls.onNode?.(device.id, name)} onContextMenu={e => { e.preventDefault(); controls.onNode?.(device.id, name); }}>{name}</button>)}</div> : null}
-    {illustrated&&pocket&&<PocketFace profile={art!} face={artFace}><FaceConnections vertical profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></PocketFace>}
+    {illustrated&&pocket&&<PocketFace profile={art!} face={artFace}><FaceConnections vertical profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></PocketFace>}
     {illustrated&&!twin&&!pocket&&fitted&&<svg className="catalog-face-connections catalog-hardware-face" viewBox={crop} preserveAspectRatio="none" aria-label={`${art!.label} ${artFace} face`}>
       <image href={artworkUrl(art!,artFace)} width="800" height={faceHeight}/>
-      <FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/>
+      <FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/>
     </svg>}
-    {illustrated&&standardFace&&<StandardRackFace profile={art!} face={artFace}><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></StandardRackFace>}
-    {illustrated&&!twin&&!pocket&&!fitted&&!standardFace&&!b300&&<><img className="catalog-rack-face" src={artworkUrl(art!,artFace)} alt={`${art!.label} ${artFace} schematic`}/><svg className="catalog-face-connections" viewBox={`0 0 800 ${faceHeight}`} preserveAspectRatio="none"><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></svg></>}
+    {illustrated&&standardFace&&<StandardRackFace profile={art!} face={artFace}><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></StandardRackFace>}
+    {illustrated&&!twin&&!pocket&&!fitted&&!standardFace&&!b300&&<><img className="catalog-rack-face" src={artworkUrl(art!,artFace)} alt={`${art!.label} ${artFace} schematic`}/><svg className="catalog-face-connections" viewBox={`0 0 800 ${faceHeight}`} preserveAspectRatio="none"><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus} href={device.networkHref} deviceId={device.id}/></svg></>}
     {/* Fit the B300 face to its existing RU envelope; artwork and ports share this transform. */}
-    {b300&&<svg className="catalog-face-connections" viewBox="0 0 800 640" preserveAspectRatio="none" aria-label={`${art!.label} ${artFace} face`}><image href={artworkUrl(art!,artFace)} width="800" height="640" preserveAspectRatio="none"/><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psus={device.connectedPsus} psuDescription={device.psuDescription} href={device.networkHref} deviceId={device.id}/></svg>}
-    {twin&&<GrandTwinPanel rack face={artFace} ports={device.networkPorts||[]} connected={device.connectedPorts||[]} psuDescription={device.psuDescription} psus={device.connectedPsus||[]} href={device.networkHref} deviceId={device.id} disabled={controls.disabled} onNode={controls.onNode?name=>controls.onNode?.(device.id,name):undefined}/>}
+    {b300&&<svg className="catalog-face-connections" viewBox="0 0 800 640" preserveAspectRatio="none" aria-label={`${art!.label} ${artFace} face`}><image href={artworkUrl(art!,artFace)} width="800" height="640" preserveAspectRatio="none"/><FaceConnections profile={art!} face={artFace} ports={device.networkPorts} connected={device.connectedPorts} psus={device.connectedPsus} psuStatus={device.psuStatus} psuDescription={device.psuDescription} href={device.networkHref} deviceId={device.id}/></svg>}
+    {twin&&<GrandTwinPanel rack face={artFace} ports={device.networkPorts||[]} connected={device.connectedPorts||[]} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus||[]} href={device.networkHref} deviceId={device.id} disabled={controls.disabled} onNode={controls.onNode?name=>controls.onNode?.(device.id,name):undefined}/>}
     {chassisPanel&&!rear&&<ServerFrontPanel/>}
-    {rearPanel&&<ServerRearPanel ports={device.networkPorts||[]} connected={device.connectedPorts||[]} psuDescription={device.psuDescription} psus={device.connectedPsus||[]} href={device.networkHref} deviceId={device.id}/>}
+    {rearPanel&&<ServerRearPanel ports={device.networkPorts||[]} connected={device.connectedPorts||[]} psuStatus={device.psuStatus} psuDescription={device.psuDescription} psus={device.connectedPsus||[]} href={device.networkHref} deviceId={device.id}/>}
     <RemoveDot device={device} controls={controls}/>
   </div>;
 }
