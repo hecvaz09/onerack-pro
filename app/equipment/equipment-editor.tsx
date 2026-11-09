@@ -26,7 +26,7 @@ export function EquipmentEditor({id,revision,installed,initial,modelRaw}:{id:str
     <header className="my-6"><p className="text-sm text-muted-foreground">Reusable equipment configuration</p><h1 className="mt-1 text-3xl font-semibold">{id?draft.model||'Edit equipment':'Add equipment'}</h1><p className="mt-3 text-muted-foreground">Enter what you know. Leave unknown component specifications blank. Add separate rows for different component models.</p>{id&&<p className="mt-2 text-sm text-muted-foreground">This library configuration is used by {installed} installed system{installed===1?'':'s'}. Edits are shared; duplicate it to create a variant.</p>}</header>
     <form onInvalidCapture={e=>{const details=(e.target as HTMLElement).closest("details");if(details)details.open=true;}} onSubmit={e=>{e.preventDefault();save();}}><fieldset disabled={pending}>
     {!id&&<GuidedEquipment current={draft} onApply={change}/>}
-    <EquipmentRecordSummary model={draft.model} raw={{...(modelRaw&&typeof modelRaw==='object'&&!Array.isArray(modelRaw)?modelRaw:{}),systemSpecs:draft.specs}}/>
+    <EquipmentRecordSummary sku={draft.sku} model={draft.model} raw={{...(modelRaw&&typeof modelRaw==='object'&&!Array.isArray(modelRaw)?modelRaw:{}),systemSpecs:draft.specs}}/>
     <CatalogVisuals sku={draft.sku} model={draft.model} specs={draft.specs}/>
     <ResearchPanel onIdentity={id?undefined:values=>change({...values,...(draft.sku?{sku:draft.sku}:{}),...(draft.model?{model:draft.model}:{}),...(draft.vendor?{vendor:draft.vendor}:{})})} category={draft.category} vendor={draft.vendor} model={draft.model} specs={draft.specs} onApply={s=>spec(s)}/>
     <section className="spec-section"><h2>System identity</h2><div className="spec-fields">

@@ -1,12 +1,13 @@
+import {PsuTestReference} from './psu-test-reference';
 import {equipmentRecord} from '@/lib/equipment-record';
 import {isMeasuredPower} from '@/lib/power-consumption';
-export function EquipmentRecordSummary({model,raw,installation,catalogHref,powerInputContext=false}:{model:string;raw:unknown;installation?:unknown;catalogHref?:string;powerInputContext?:boolean}){
- const record=equipmentRecord(model,raw,installation);
+export function EquipmentRecordSummary({sku,model,raw,installation,catalogHref,powerInputContext=false}:{sku?:string;model:string;raw:unknown;installation?:unknown;catalogHref?:string;powerInputContext?:boolean}){
+ const record=equipmentRecord(model,raw,installation,sku);
  const measurement=installation&&typeof installation==='object'&&isMeasuredPower(installation)?true:false;
  return <details className="mt-4 rounded-lg border border-border p-4"><summary className="cursor-pointer font-medium">Equipment record · specifications and sources</summary><p className="my-3 text-sm text-muted-foreground">{powerInputContext?'Model references are not selected installation demand or proof of installed hardware. Current edits apply to this device only and still need saving.':'Model facts are shared. Saved installation values apply here only. Unknown values are not treated as zero.'}</p><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b border-border"><th className="py-2 pr-4">Specification</th><th className="py-2 pr-4">Value</th><th className="py-2">Where it comes from</th></tr></thead><tbody>{record.facts.map(f=>{
   const demand=powerInputContext&&f.key==='watts';
   const label=demand?(f.origin==='model'?'Model maximum AC demand (reference only)':'Selected installation demand'):f.label;
   const basis=demand&&f.origin==='installation'&&measurement?'User-recorded measurement; not live monitoring or independently verified. PSU compatibility is checked separately.':f.basis;
   return <tr key={f.key} className="border-b border-border/50 align-top"><th className="py-3 pr-4 font-normal">{label}</th><td className="py-3 pr-4 whitespace-nowrap">{f.value}</td><td className="py-3"><span className={f.origin==='unknown'?'text-muted-foreground':'font-medium'}>{f.origin==='installation'?'This installation':f.origin==='model'?(powerInputContext?'Model reference':'Model record'):'Still unknown'}</span><p className="mt-1 text-xs text-muted-foreground">{basis}</p>{f.source&&<a className="text-primary underline" href={f.source} target="_blank" rel="noreferrer">Source ↗</a>}</td></tr>;
- })}</tbody></table></div>{catalogHref&&<a className="mt-4 inline-block text-sm text-primary underline" href={catalogHref}>Open model in Equipment Library ↗</a>}</details>;
+ })}</tbody></table></div>{record.psuTest&&<PsuTestReference report={record.psuTest}/>} {catalogHref&&<a className="mt-4 inline-block text-sm text-primary underline" href={catalogHref}>Open model in Equipment Library ↗</a>}</details>;
 }

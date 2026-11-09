@@ -491,7 +491,7 @@
         "id": "ref-psu",
         "kind": "psu",
         "model": "PWS-504P-1R",
-        "manufacturer": "",
+        "manufacturer": "Supermicro",
         "quantity": 2,
         "attributes": {
           "outputWatts": "500",
@@ -499,7 +499,7 @@
           "redundancy": "1+1",
           "efficiency": "Platinum"
         },
-        "notes": ""
+        "notes": "80 PLUS report SO-179.3 (2010-08-16), PWS-504P-1R: 500 W rated DC output. Tested at 230 V / 60 Hz: 20% load 112 W AC, 103 W DC, 91.84% efficiency, PF 0.92; 50% 271 W AC, 255 W DC, 94.11%, PF 0.97; 100% 547 W AC, 507 W DC, 92.61%, PF 0.98. Bench points are not installed-server demand or an approved AC/cord limit. Source: https://www.supermicro.com/products/powersupply/80PLUS/80PLUS_PWS-504P-1R.pdf"
       }
     ],
     "unknowns": [

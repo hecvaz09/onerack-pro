@@ -2,11 +2,12 @@ import {isB300PowerDevice} from './b300-power-inputs.ts';
 import {consumptionLabel,isMeasuredPower} from './power-consumption.ts';
 import {readSystemSpecs} from './system-specs.ts';
 import {modelPowerReference} from './model-power-reference.ts';
+import {psuTestReference} from './psu-test-reference.ts';
 export type EquipmentFact={key:string;label:string;value:string;origin:'model'|'installation'|'unknown';basis:string;source?:string};
 const object=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
 const positive=(v:unknown)=>{const n=Number(v);return Number.isFinite(n)&&n>0?n:undefined;};
 // Read-only consolidation. Existing IDs, wiring, budgets and raw records remain untouched.
-export function equipmentRecord(model:string,raw:unknown,installation?:unknown){
+export function equipmentRecord(model:string,raw:unknown,installation?:unknown,sku?:string){
  const specs=readSystemSpecs(raw),reference=modelPowerReference(model),power=object(object(raw).powerLoad),saved=object(installation);
  const b300=isB300PowerDevice({model});
  const facts:EquipmentFact[]=[];
@@ -26,5 +27,6 @@ export function equipmentRecord(model:string,raw:unknown,installation?:unknown){
  add('minVoltage','Minimum input voltage',power.minVoltage,' V','Library voltage range.',specs.sourceUrl||undefined);
  add('maxVoltage','Maximum input voltage',power.maxVoltage,' V','Library voltage range.',specs.sourceUrl||undefined);
  add('cordLimitAmps','Usable cord current',power.cordLimitAmps,' A','Library cord limit.',specs.sourceUrl||undefined);
- return {model,specs,facts,sourceUrls:[...new Set([specs.sourceUrl,reference?.source].filter((s):s is string=>!!s))]};
+ const psuTest=psuTestReference(sku||model,raw);
+ return {model,specs,facts,psuTest,sourceUrls:[...new Set([specs.sourceUrl,reference?.source,psuTest?.source].filter((s):s is string=>!!s))]};
 }

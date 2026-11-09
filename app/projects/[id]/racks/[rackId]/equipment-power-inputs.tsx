@@ -98,7 +98,7 @@ export function EquipmentPowerInputs({equipment,loads,inputs,initial,setInputs,s
           const labels={cords:'PSU cords used for planning',minimumCords:'Minimum PSUs needed after feed loss',connector:'Cord connector (C13 / C19)',minVoltage:'Minimum PSU voltage (V)',maxVoltage:'Maximum PSU voltage (V)',cordLimitAmps:'Usable cord current (A)',psuAcCapacity:'Supported AC load per PSU (W)'};
           return <label key={field}>{labels[field]}<input data-power-field={field} type={field==='connector'?'text':'number'} value={budget?.[field]??load?.[field]??''} onChange={event=>update({[field]:field==='connector'?event.target.value:event.target.value?Number(event.target.value):undefined},'Unsaved PSU limit for this device. Review and save power inputs.')}/></label>;
         })}</div>
-        <EquipmentRecordSummary model={device.model||''} raw={device.rawData} installation={budget} powerInputContext/>
+        <EquipmentRecordSummary sku={device.sku||undefined} model={device.model||''} raw={device.rawData} installation={budget} powerInputContext/>
       </details>
     </article>;
   })}<a href="#power-save-inputs" className="inline-block text-sm font-medium text-primary underline underline-offset-4" onClick={event=>{
