@@ -2,7 +2,7 @@ import {componentPowerEstimate} from './component-power-estimate.ts';
 import {feedRack,readFeedInputs,type FeedEquipment} from './feed-rack.ts';
 import type {FeedInputs} from './feed-power.ts';
 import {supplyIssues} from './feed-power.ts';
-import {feedRevision} from './feed-balance.ts';
+import {canonicalPowerValue} from './power-input-state.ts';
 import {calculatedWiringPlan} from './power-wiring-guide.ts';
 
 export function simplePowerPlan(equipment:FeedEquipment[],configuration:unknown){
@@ -11,7 +11,7 @@ export function simplePowerPlan(equipment:FeedEquipment[],configuration:unknown)
  const plan=calculatedWiringPlan(ordered,inputs);
  const saved=feedRack(ordered,inputs).cords;
  const remaining=plan.assignments.filter(c=>!saved.some(s=>s.deviceId===c.deviceId&&s.inlet===c.inlet&&s.pduId===c.pduId&&s.outlet===c.outlet));
- return {...plan,remaining,revision:feedRevision(ordered,inputs),planning:plan.pendingChecks.length>0};
+ return {...plan,remaining,revision:canonicalPowerValue({equipment:ordered,inputs}),planning:plan.pendingChecks.length>0};
 }
 
 // Suggest only missing consumption. Never replace measurements, assign cord ratings,

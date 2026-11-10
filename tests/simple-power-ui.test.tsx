@@ -23,7 +23,14 @@ test('actual Calculate/Save controls preview without lighting inputs, save once,
  const api=loaded.exports as {VisualPowerMap:(p:unknown)=>unknown};
  const render=()=>{cursor=0;return api.VisualPowerMap({rackId:f.rack.id,configuration:f.rack.configuration,equipment:f.equipment,devices:f.rack.devices,heightRU:42,config:{profile:'apc-netshelter-42',pockets:false,pduA:true,pduB:true}});};
  const states=(tree:unknown)=>(nodes(tree).find(p=>typeof p.onPsu==='function')!.powerStatuses as Record<string,Record<number,{state:string}>>).b300;
- let tree=render();assert.equal(states(tree)[12].state,'off');button(tree,'Calculate connections')();tree=render();assert.equal(states(tree)[12].state,'off');assert.ok(text(tree).includes('12 new connections proposed'));
+ let tree=render();assert.equal(states(tree)[12].state,'off');
+ const control=(label:string)=>nodes(tree).find(p=>p['aria-label']===label)!;
+ assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,100);
+ (control('Zoom rack in').onClick as ()=>void)();tree=render();assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,125);assert.equal(calls.length,0);
+ for(let i=0;i<12;i++){(control('Zoom rack in').onClick as ()=>void)();tree=render();}assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,300);assert.equal(control('Zoom rack in').disabled,true);
+ for(let i=0;i<12;i++){(control('Zoom rack out').onClick as ()=>void)();tree=render();}assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,50);assert.equal(control('Zoom rack out').disabled,true);
+ button(tree,'Reset zoom')();tree=render();assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,100);
+ button(tree,'Calculate connections')();tree=render();assert.equal(states(tree)[12].state,'off');assert.ok(text(tree).includes('12 new connections proposed'));
  const save=button(tree,'Save connections');save();save();assert.equal(calls.length,1);
  const plan=simplePowerPlan(f.equipment,f.rack.configuration);assert.deepEqual(calls[0],[f.rack.id,plan.revision,false]);
  const saved=withCables(f.equipment,plan.assignments);complete({ok:true,count:12,planning:false,updates:saved.filter(e=>e.category==='pdu').map(e=>({pduId:e.id,details:e.details}))});await Promise.all(queue);
