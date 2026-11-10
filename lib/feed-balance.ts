@@ -1,3 +1,4 @@
+import {isMeasuredPower} from './power-consumption.ts';
 import {B300_INPUT_IDENTITY,powerInputLabel} from './b300-power-inputs.ts';
 import {analyzeFeeds,outletVoltage,supplyDemand,type Cord,type Supply,type Load} from './feed-power.ts';
 import {feedRack,type FeedEquipment} from './feed-rack.ts';
@@ -14,6 +15,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  // limits, wattage, PF, cord ampacity, outlet and supply data remain mandatory.
  const pending=new Set<string>();
  if(options.planning)for(const load of loads){
+  if(load.estimateSource&&!isMeasuredPower(load))pending.add(`${load.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
   if(!load.minVoltage||!load.maxVoltage)pending.add(`${load.name}: verify the PSU voltage range.`);
   if(load.assessment!=='pdu-capacity'&&!load.psuAcCapacity&&Number(load.cordLimitAmps)>0)pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
  }

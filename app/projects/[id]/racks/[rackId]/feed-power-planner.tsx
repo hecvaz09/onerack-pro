@@ -1,5 +1,7 @@
 'use client';
+import {missingPowerEstimates,nextPowerQuestion} from '@/lib/simple-power-plan';
 import {powerAssignmentLabel} from '@/lib/b300-power-inputs';
+import {ClearLayoutControls} from './clear-layout-controls';
 import {PowerOverview} from './power-overview';
 import {EquipmentPowerInputs} from './equipment-power-inputs';
 import {SavedPowerReview} from './saved-power-review';
@@ -21,9 +23,9 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   const inputs=editor.draft,saved=editor.saved,dirty=powerEditorDirty(editor),message=editor.message,viewCurrent=editor.revision===saveRevision&&!editor.conflict;
   function setInputs(change:SetStateAction<FeedInputs>){setBulkFeedback(null);setEditor(current=>editPowerEditor(current,change));}
   function setMessage(value:string){setEditor(current=>powerEditorMessage(current,value));}
-  function save(){
+  function save(next?:FeedInputs){
     if(saveBusy.current||editor.conflict)return;
-    saveBusy.current=true;setBulkFeedback(null);const request=capturePowerSave(editor);
+    saveBusy.current=true;setBulkFeedback(null);const editing=next?editPowerEditor(editor,next):editor;if(next)setEditor(editing);const request=capturePowerSave(editing);
     start(async()=>{
       let result:PowerSaveResult<FeedInputs>;
       try{result=await saveFeedInputs(rackId,request.inputs,request.revision);}catch{result={error:'The save could not be confirmed. Your draft is kept. Open the latest rack before trying again.'};}
@@ -32,8 +34,25 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
     });
   }
   const {supplies,loads,cords}=feedRack(equipment,inputs);
+  const advanced=useRef<HTMLDetailsElement>(null);
+  const estimates=missingPowerEstimates(equipment,inputs),question=nextPowerQuestion(equipment,saved);
+  function openSettings(id:string){
+    if(advanced.current)advanced.current.open=true;
+    requestAnimationFrame(()=>{const element=document.getElementById(id);element?.scrollIntoView({block:'start'});element?.focus({preventScroll:true});});
+  }
   return <section className={`${cardClassName} space-y-6`}>
     {editor.conflict&&<div role="alert" className="rounded-lg border border-border p-3 text-sm"><p>{POWER_INPUT_CONFLICT}</p><p>The saved overview and wiring on this page may be out of date.</p><a className="text-primary underline" href={latestHref||''} target="_blank" rel="noreferrer">Open latest rack in a new tab</a></div>}
+    <header><h2 className="text-xl font-semibold">Connect your rack</h2><p className="mt-2 text-sm text-muted-foreground">Calculate connections, review them on your rack, then save the layout.</p></header>
+    {question&&!dirty&&<section className="rounded-xl border border-border p-4 space-y-3" aria-label="Next setup step"><h3 className="font-semibold">{question.title}</h3><p className="text-sm text-muted-foreground">{question.message}</p>
+      {question.target==='power-equipment'&&estimates.changes.length>0&&<><button type="button" disabled={pending||!viewCurrent} className="power-connection-button is-primary" onClick={()=>save(estimates.inputs)}>Use and save Library estimates</button><details><summary className="text-sm">Review {estimates.changes.length} estimated system{estimates.changes.length===1?'':'s'}</summary><p className="text-sm text-muted-foreground">Planning values only; existing consumption values and measurements stay unchanged. No electrical limits are assumed.</p>{estimates.changes.map(e=><p key={e.id} className="text-sm">{e.name}: {e.watts} W estimated</p>)}</details></>}
+      <button type="button" className="power-connection-button" onClick={()=>openSettings(question.target)}>Review {question.target==='power-feeds'?'power feeds':'equipment settings'}</button>
+    </section>}
+    {message&&<p role={editor.status==='error'?'alert':'status'} className="text-sm">{message}</p>}
+    <section id="power-connections" tabIndex={-1} aria-label="Connections" className="space-y-4">
+      {(dirty||!viewCurrent)&&<div role="status" className="space-y-2"><p>Save your settings before calculating connections.</p><button type="button" disabled={pending||editor.conflict} className="power-connection-button is-primary" onClick={()=>save()}>Save settings</button></div>}
+      <div inert={dirty||!viewCurrent}>{children}</div>
+    </section>
+    <details ref={advanced} id="power-advanced" className="power-extra"><summary>Advanced settings &amp; electrical checks</summary><div className="mt-5 space-y-6">
     <PowerOverview equipment={equipment} saved={saved} dirty={dirty}/>
 
     <section id="power-equipment" tabIndex={-1} className="space-y-4"><header><h3 className="text-xl font-semibold">Equipment power</h3><p className="mt-2 text-sm text-muted-foreground">Record AC demand for each complete installed device. Entries are individual; applying demand to matching devices is an explicit choice.</p></header>
@@ -42,18 +61,15 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
     </section>
     <div id="power-feeds" tabIndex={-1}><FeedElectricalSetup supplies={supplies} initialSupplies={feedRack(equipment,saved).supplies} equipment={equipment} onChange={(id,value)=>{setInputs(s=>({...s,supplies:{...s.supplies,[id]:value}}));setMessage('Unsaved electrical setup');}}/></div>
     <div className="space-y-2"><p className="text-sm text-muted-foreground">Save equipment consumption and power feed settings before connecting equipment. Existing cables stay unchanged.</p>
-    <button id="power-save-inputs" type="button" disabled={pending||editor.conflict} className="rounded-lg border border-border px-4 py-2" onClick={save}>{pending?'Saving…':'Save power inputs'}</button>{message&&<p role={editor.status==='error'||editor.conflict?'alert':'status'}>{message}</p>}</div>
-    <section id="power-connections" tabIndex={-1} aria-label="Connections" className="space-y-4">
-      <header><h3 className="text-xl font-semibold">Connections</h3><p className="mt-2 text-sm text-muted-foreground">Select a pending PSU, review its recommended outlet, then confirm the connection.</p></header>
-      {(dirty||!viewCurrent)&&<p role="status" className="text-sm text-amber-300">Save edits and refresh this rack view before connecting equipment. The rear elevation uses server-saved values.</p>}
-      <div inert={dirty||!viewCurrent}>{children}</div>
-      <details className="power-extra"><summary>Additional connection tools · drafts, bulk proposals, manual entry and Undo/Redo</summary><p className="my-3 text-sm text-muted-foreground">A plan snapshot saves only a proposal. Save proposed cables applies wiring. Individual connections are saved using the rear elevation above. Undo/Redo operates on rack history, including other rack changes.</p>
+    <button id="power-save-inputs" type="button" disabled={pending||editor.conflict} className="rounded-lg border border-border px-4 py-2" onClick={()=>save()}>{pending?'Saving…':'Save power inputs'}</button>{message&&<p role={editor.status==='error'||editor.conflict?'alert':'status'}>{message}</p>}</div>
+      <details className="power-extra"><summary>Manual tools, drafts, and Undo/Redo</summary><p className="my-3 text-sm text-muted-foreground">A plan snapshot saves only a proposal. Save proposed cables applies wiring. Individual connections are saved using the rear elevation above. Undo/Redo operates on rack history, including other rack changes.</p>
     <details className="power-extra"><summary>Cable assignment rules · {inputs.cablePolicy==='low-ru-c13-switch-top'?'Low RU first · C13 only':'Electrical balance'}</summary><label className="mt-3 block text-sm">Assignment policy<select className={`${inputClassName} mt-2 w-full`} value={inputs.cablePolicy||'balanced'} onChange={e=>{setInputs(s=>({...s,cablePolicy:e.target.value as FeedInputs['cablePolicy']}));setMessage('Unsaved cable policy. Save power inputs before generating a proposal.');}}><option value="balanced">Balance electrical load</option><option value="low-ru-c13-switch-top">Lowest RU first · C13 only · dedicated switch outlets</option></select></label>{inputs.cablePolicy==='low-ru-c13-switch-top'&&<p className="mt-3 text-sm">C19 receptacles are excluded. Network switches use only P7, P11, P15, P19, P23 and P27. Servers use remaining compatible outlets in ascending order, starting with the lowest RU. P1 is C19 on the PX3 model, so it is skipped. Electrical limits and fixed cables remain enforced. Matching A/B outlet numbers are preferred when available. Saving this policy does not rewire the rack.</p>}</details>
+        <ClearLayoutControls rackId={rackId} kind="power"/>
         <DraftPowerPanel rackId={rackId} equipment={equipment} inputs={inputs} initial={saved} saved={savedDraft}/>
         <FeedPowerControls rackId={rackId} equipment={equipment} inputs={inputs} initial={saved}/>
         <details className="mt-3"><summary>Saved cable schedule · {cords.length} cords</summary>{cords.map(c=><p key={`${c.pduId}:${c.outlet}`} className="mt-2 text-sm">{supplies.find(p=>p.id===c.pduId)?.name} · P{c.outlet} → {loads.find(d=>d.id===c.deviceId)?.name} · {powerAssignmentLabel(equipment.find(e=>e.id===c.deviceId),c)}</p>)}</details>
       </details>
-    </section>
     <SavedPowerReview equipment={equipment} saved={saved} dirty={dirty}/>
+    </div></details>
   </section>;
 }
