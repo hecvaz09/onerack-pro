@@ -27,5 +27,5 @@ test('actual Calculate/Save controls preview without lighting inputs, save once,
  const save=button(tree,'Save connections');save();save();assert.equal(calls.length,1);
  const plan=simplePowerPlan(f.equipment,f.rack.configuration);assert.deepEqual(calls[0],[f.rack.id,plan.revision,false]);
  const saved=withCables(f.equipment,plan.assignments);complete({ok:true,count:12,planning:false,updates:saved.filter(e=>e.category==='pdu').map(e=>({pduId:e.id,details:e.details}))});await Promise.all(queue);
- tree=render();assert.equal(refreshes,1);assert.ok(Object.values(states(tree)).every(s=>s.state==='connected'));assert.ok(text(tree).includes('Connections saved.'));
+ tree=render();assert.equal(refreshes,1);assert.ok(Object.values(states(tree)).every(s=>s.state==='connected'));assert.ok(text(tree).includes('Connections saved.'));const meters=nodes(tree).filter(p=>p.role==='progressbar');assert.equal(meters.length,2);for(const meter of meters){assert.equal(meter['aria-valuenow'],6);assert.equal(meter['aria-valuemax'],6);assert.equal(meter.className,'power-feed-progress');}
 });
