@@ -29,7 +29,7 @@ test('actual Calculate/Save controls preview without lighting inputs, save once,
  (control('Zoom rack in').onClick as ()=>void)();tree=render();assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,125);assert.equal(calls.length,0);
  for(let i=0;i<12;i++){(control('Zoom rack in').onClick as ()=>void)();tree=render();}assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,300);assert.equal(control('Zoom rack in').disabled,true);
  for(let i=0;i<12;i++){(control('Zoom rack out').onClick as ()=>void)();tree=render();}assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,50);assert.equal(control('Zoom rack out').disabled,true);
- button(tree,'Reset zoom')();tree=render();assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,100);
+ button(tree,'Reset')();tree=render();assert.equal(nodes(tree).find(p=>typeof p.onPsu==='function')!.zoom,100);
  button(tree,'Calculate connections')();tree=render();assert.equal(states(tree)[12].state,'off');assert.ok(text(tree).includes('12 new connections proposed'));
  const save=button(tree,'Save connections');save();save();assert.equal(calls.length,1);
  const plan=simplePowerPlan(f.equipment,f.rack.configuration);assert.deepEqual(calls[0],[f.rack.id,plan.revision,false]);
