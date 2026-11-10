@@ -1,4 +1,6 @@
 'use client';
+import {PowerViewStateContext} from '@/lib/power-view-state';
+import {powerSettingsProblem,type PowerSettingsProblem} from '@/lib/power-settings-problem';
 import {missingPowerEstimates,nextPowerQuestion} from '@/lib/simple-power-plan';
 import {powerAssignmentLabel} from '@/lib/b300-power-inputs';
 import {ClearLayoutControls} from './clear-layout-controls';
@@ -25,21 +27,37 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   function setMessage(value:string){setEditor(current=>powerEditorMessage(current,value));}
   function save(next?:FeedInputs){
     if(saveBusy.current||editor.conflict)return;
-    saveBusy.current=true;setBulkFeedback(null);const editing=next?editPowerEditor(editor,next):editor;if(next)setEditor(editing);const request=capturePowerSave(editing);
+    setBulkFeedback(null);const editing=next?editPowerEditor(editor,next):editor;const request=capturePowerSave(editing);
+    const problem=powerSettingsProblem(request.inputs,equipment);
+    if(problem){setEditor(finishPowerSave(editing,request,{error:problem.message}));revealProblem(problem);return;}
+    if(next)setEditor(editing);saveBusy.current=true;
     start(async()=>{
-      let result:PowerSaveResult<FeedInputs>;
-      try{result=await saveFeedInputs(rackId,request.inputs,request.revision);}catch{result={error:'The save could not be confirmed. Your draft is kept. Open the latest rack before trying again.'};}
-      setEditor(current=>finishPowerSave(current,request,result));saveBusy.current=false;
-      if('ok' in result&&result.ok)router.refresh();
+      try{
+        let result:PowerSaveResult<FeedInputs>;
+        try{result=await saveFeedInputs(rackId,request.inputs,request.revision);}catch{result={error:'The save could not be confirmed. Your draft is kept. You can correct settings or retry.'};}
+        setEditor(current=>finishPowerSave(current,request,result));
+        if('ok' in result&&result.ok)router.refresh();
+        else if(!('conflict' in result&&result.conflict))revealProblem(powerSettingsProblem(request.inputs,equipment)||{message:'error' in result?result.error:'Review your settings.',target:'power-equipment'});
+      }finally{saveBusy.current=false;}
     });
   }
   const {supplies,loads,cords}=feedRack(equipment,inputs);
   const advanced=useRef<HTMLDetailsElement>(null);
+  const problem=powerSettingsProblem(inputs,equipment);
   const estimates=missingPowerEstimates(equipment,inputs),question=nextPowerQuestion(equipment,saved);
-  function openSettings(id:string){
+  function revealProblem(issue:PowerSettingsProblem){
     if(advanced.current)advanced.current.open=true;
-    requestAnimationFrame(()=>{const element=document.getElementById(id);element?.scrollIntoView({block:'start'});element?.focus({preventScroll:true});});
+    requestAnimationFrame(()=>{
+      const section=document.getElementById(issue.target);
+      const article=issue.deviceId?Array.from(section?.querySelectorAll<HTMLElement>('[data-equipment-power]')||[]).find(el=>el.dataset.equipmentPower===issue.deviceId):null;
+      const field=issue.field?article?.querySelector<HTMLElement>(`[data-power-field="${issue.field}"]`):null;
+      const target=field||article||section;
+      for(let node:HTMLElement|null=target||null;node;node=node.parentElement)if(node instanceof HTMLDetailsElement)node.open=true;
+      target?.scrollIntoView({block:'center'});target?.focus({preventScroll:true});
+    });
   }
+  function openSettings(id:string){revealProblem({message:'',target:id==='power-feeds'?'power-feeds':'power-equipment'});}
+  function discardEdits(){setBulkFeedback(null);setEditor(current=>powerEditorMessage(editPowerEditor(current,current.saved),'Unsaved changes discarded. Saved wiring is unchanged.'));}
   return <section className={`${cardClassName} space-y-6`}>
     {editor.conflict&&<div role="alert" className="rounded-lg border border-border p-3 text-sm"><p>{POWER_INPUT_CONFLICT}</p><p>The saved overview and wiring on this page may be out of date.</p><a className="text-primary underline" href={latestHref||''} target="_blank" rel="noreferrer">Open latest rack in a new tab</a></div>}
     <header><h2 className="text-xl font-semibold">Connect your rack</h2><p className="mt-2 text-sm text-muted-foreground">Calculate connections, review them on your rack, then save the layout.</p></header>
@@ -49,14 +67,14 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
     </section>}
     {message&&<p role={editor.status==='error'?'alert':'status'} className="text-sm">{message}</p>}
     <section id="power-connections" tabIndex={-1} aria-label="Connections" className="space-y-4">
-      {(dirty||!viewCurrent)&&<div role="status" className="space-y-2"><p>Save your settings before calculating connections.</p><button type="button" disabled={pending||editor.conflict} className="power-connection-button is-primary" onClick={()=>save()}>Save settings</button></div>}
-      <div inert={dirty||!viewCurrent}>{children}</div>
+      {(dirty||!viewCurrent)&&<div role="status" className="space-y-2"><p>{editor.status==='error'&&problem?'Correct the highlighted setting, then save again.':'Save your settings before calculating connections. Zoom and saved-connection inspection remain available.'}</p><button type="button" disabled={pending||editor.conflict} className="power-connection-button is-primary" onClick={()=>save()}>Save settings</button>{editor.status==='error'&&problem&&<button type="button" className="power-connection-button" onClick={()=>revealProblem(problem)}>Review highlighted setting</button>}{dirty&&<button type="button" disabled={pending} className="power-connection-button" onClick={discardEdits}>Discard unsaved changes</button>}</div>}
+      <PowerViewStateContext.Provider value={dirty||!viewCurrent}>{children}</PowerViewStateContext.Provider>
     </section>
     <details ref={advanced} id="power-advanced" className="power-extra"><summary>Advanced settings &amp; electrical checks</summary><div className="mt-5 space-y-6">
     <PowerOverview equipment={equipment} saved={saved} dirty={dirty}/>
 
     <section id="power-equipment" tabIndex={-1} className="space-y-4"><header><h3 className="text-xl font-semibold">Equipment power</h3><p className="mt-2 text-sm text-muted-foreground">Record AC demand for each complete installed device. Entries are individual; applying demand to matching devices is an explicit choice.</p></header>
-    <EquipmentPowerInputs equipment={equipment} loads={loads} inputs={inputs} initial={saved} setInputs={setInputs} setMessage={setMessage} bulkFeedback={bulkFeedback} setBulkFeedback={setBulkFeedback}/>
+    <EquipmentPowerInputs invalidField={editor.status==='error'?problem||undefined:undefined} equipment={equipment} loads={loads} inputs={inputs} initial={saved} setInputs={setInputs} setMessage={setMessage} bulkFeedback={bulkFeedback} setBulkFeedback={setBulkFeedback}/>
     <details className="power-extra"><summary>Planning allowance · {inputs.headroomPercent}% extra headroom</summary><label className="block text-sm">Extra headroom (%)<input type="number" min="0" max="100" className={`${inputClassName} ml-3 w-24`} value={inputs.headroomPercent} onChange={e=>{setInputs({...inputs,headroomPercent:Number(e.target.value)});setMessage('Unsaved inputs');}}/></label></details>
     </section>
     <div id="power-feeds" tabIndex={-1}><FeedElectricalSetup supplies={supplies} initialSupplies={feedRack(equipment,saved).supplies} equipment={equipment} onChange={(id,value)=>{setInputs(s=>({...s,supplies:{...s.supplies,[id]:value}}));setMessage('Unsaved electrical setup');}}/></div>

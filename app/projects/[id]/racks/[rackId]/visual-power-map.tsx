@@ -1,4 +1,5 @@
 'use client';
+import {PowerViewStateContext} from '@/lib/power-view-state';
 import {POWER_MAP_ZOOM,powerMapLine} from '@/lib/power-map-view';
 import {simplePowerPlan} from '@/lib/simple-power-plan';
 import {psuConnectionStatuses} from '@/lib/psu-connection-status';
@@ -7,7 +8,7 @@ import {applyPowerSave,powerFeedProgress} from '@/lib/power-feed-progress';
 import {ArrowRight,Check,ClipboardList,PlugZap,Trash2,X} from 'lucide-react';
 import {consumptionSummary} from '@/lib/power-consumption';
 import {readFeedInputs} from '@/lib/feed-rack';
-import {useEffect,useMemo,useRef,useState,useTransition,type CSSProperties} from 'react';
+import {useContext,useEffect,useMemo,useRef,useState,useTransition,type CSSProperties} from 'react';
 import {useRouter} from 'next/navigation';
 import {RackGrid,type RackGridDevice} from './physical-rack-grid';
 import type {RackConfig} from '@/lib/rack-config';
@@ -22,6 +23,7 @@ import type {Cord} from '@/lib/feed-power';
 
 type Endpoint={pduId:string;outlet:number;deviceId?:string;inlet?:number;inputIdentity?:typeof B300_INPUT_IDENTITY};
 export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equipment:serverEquipment,configuration}:{equipment:FeedEquipment[];configuration:unknown;rackId:string;config:RackConfig;heightRU:number;devices:RackGridDevice[]}) {
+ const settingsPending=useContext(PowerViewStateContext);
  const [acknowledged,setAcknowledged]=useState<{source:FeedEquipment[];equipment:FeedEquipment[]}|null>(null);
  const equipment=acknowledged?.source===serverEquipment?acknowledged.equipment:serverEquipment;
  const devices=useMemo(()=>serverDevices.map(d=>({...d,details:equipment.find(e=>e.id===d.id)?.details??d.details})),[serverDevices,equipment]);
@@ -110,21 +112,21 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
   setTarget({deviceId:c.deviceId,inlet:c.inlet});setCandidate(c);setSelected(null);setHover(null);setSaveError('');setClearing(false);
  }
  function confirm(){
-  if(!candidate||busy.current||(blocked&&!draftAllowed))return;
+  if(settingsPending||!candidate||busy.current||(blocked&&!draftAllowed))return;
   setSaveError('');
   const endpoint=candidate;busy.current=true;
   start(async()=>{try{const result=await connectVisualPower(rackId,endpoint.pduId,endpoint.outlet,endpoint.deviceId,endpoint.inlet,draftAllowed);if(result.error){setSaveError(result.error);router.refresh();return;}setAcknowledged({source:serverEquipment,equipment:applyPowerSave(equipment,result)});setCandidate(undefined);setTarget(undefined);setSelected(endpoint);setMessage(draftAllowed?'Draft connection saved. Electrical verification remains pending.':'Connection saved. Balance sheet updated.');router.refresh();}catch{setSaveError('Could not save. Refresh and try again.');}finally{busy.current=false;}});
  }
  function clear(){
-  if(!selected?.deviceId||busy.current)return;busy.current=true;
+  if(settingsPending||!selected?.deviceId||busy.current)return;busy.current=true;
   start(async()=>{try{const result=await disconnectVisualPower(rackId,selected.pduId,selected.outlet,selected.deviceId!,selected.inlet||0);setMessage(result.error||'Connection cleared. Choose an outlet and PSU to reconnect.');if(result.ok){setAcknowledged({source:serverEquipment,equipment:applyPowerSave(equipment,result)});setSelected(null);setCandidate(undefined);setTarget(undefined);}setClearing(false);router.refresh();}catch{setMessage('Could not clear. Refresh and try again.');}finally{busy.current=false;}});
  }
  function calculateLayout(){
-  if(busy.current)return;
+  if(settingsPending||busy.current)return;
   setPreviewRevision(simplePlan.revision);setSaveError('');setSelected(null);setTarget(undefined);setCandidate(undefined);setHover(null);
  }
  function saveLayout(){
-  if(busy.current||!reviewing||!simplePlan.remaining.length)return;
+  if(settingsPending||busy.current||!reviewing||!simplePlan.remaining.length)return;
   busy.current=true;setSaveError('');
   start(async()=>{try{
    const result=await saveVisualPowerPlan(rackId,simplePlan.revision,simplePlan.planning);
@@ -136,7 +138,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
  return <div className="visual-power-map" style={{"--power-feedback":feedback} as CSSProperties} onKeyDown={e=>{if(e.key==='Escape'&&!pending){setSelected(null);setHover(null);setTarget(undefined);setCandidate(undefined);setClearing(false);}}}>
   <section className="simple-power-actions" aria-label="Automatic rack connections">
    <div><p className="text-sm text-muted-foreground">Calculate → Review → Save</p><h3 className="font-semibold">{reviewing?'Review your connections':'Plan your connections'}</h3><p className="text-sm" role="status" aria-live="polite">{previewRevision&&simplePlan.error?'Some settings need attention before a plan can be calculated.':previewRevision&&!reviewing?'The rack changed. Calculate a fresh plan.':reviewing?`${simplePlan.remaining.length} new connections proposed. Click a PSU to inspect its outlet.`:message==='Click a PSU to see the calculator’s recommended PDU outlet.'?'Use your saved Library data and rack settings. Existing cables stay fixed.':message}</p></div>
-   <div className="power-connection-actions"><button type="button" className={`power-connection-button${reviewing?'':' is-primary'}`} disabled={pending} onClick={calculateLayout}>Calculate connections</button>{reviewing&&simplePlan.remaining.length>0&&<button type="button" className="power-connection-button is-primary" disabled={pending} onClick={saveLayout}>{pending?'Saving…':simplePlan.planning?'Save planning layout':'Save connections'}</button>}{previewRevision&&simplePlan.error&&<button type="button" className="power-connection-button" onClick={openAdvanced}>Review needed settings</button>}</div>
+   <div className="power-connection-actions"><button type="button" className={`power-connection-button${reviewing?'':' is-primary'}`} disabled={pending||settingsPending} onClick={calculateLayout}>Calculate connections</button>{reviewing&&simplePlan.remaining.length>0&&<button type="button" className="power-connection-button is-primary" disabled={pending||settingsPending} onClick={saveLayout}>{pending?'Saving…':simplePlan.planning?'Save planning layout':'Save connections'}</button>}{previewRevision&&simplePlan.error&&<button type="button" className="power-connection-button" onClick={openAdvanced}>Review needed settings</button>}</div>
    {reviewing&&simplePlan.remaining.length>0&&<p className="text-xs text-muted-foreground">Dashed outlines are proposed connections. PSU lights update only after saving.</p>}
    {reviewing&&simplePlan.planning&&<p className="text-sm text-amber-300">Planning mode · estimates or PSU documentation need verification. Saving records the wiring, not electrical approval.</p>}
    {reviewing&&!simplePlan.remaining.length&&<p className="text-sm">All proposed connections are already saved.</p>}
@@ -166,10 +168,10 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
    {controlEndpoint&&<div className="power-connection-route"><div><span className="power-connection-caption">PDU · Outlet {controlEndpoint.outlet}</span><strong>{name(controlEndpoint.pduId)}</strong></div><ArrowRight className="power-route-arrow" size={20} aria-hidden="true"/><div><span className="power-connection-caption">{controlEndpoint.deviceId?`Equipment · ${!candidate&&!target?savedLabel(controlEndpoint):inputLabel(controlEndpoint.deviceId,controlEndpoint.inlet||0)}`:'Destination'}</span><strong>{controlEndpoint.deviceId?name(controlEndpoint.deviceId):'Select a PSU in the rack'}</strong></div></div>}
    {target&&<p className="power-connection-measurement">{consumptionSummary(selectedBudget||{})}</p>}
    <div className="power-connection-footer"><p role="status" aria-live="polite">{pending?'Saving connection…':saveError||selectionMessage}</p><div className="power-connection-actions">
-    {candidate&&<button className="power-connection-button is-primary" type="button" disabled={pending||(blocked&&!draftAllowed)} onClick={confirm}><Check size={17} aria-hidden="true"/>{draftAllowed?'Save planning connection':blocked?'Resolve checks to save':'Save connection'}</button>}
-    {selected?.deviceId&&!candidate&&!clearing&&<button className="power-connection-button is-danger" type="button" disabled={pending} onClick={()=>setClearing(true)}><Trash2 size={16} aria-hidden="true"/>Clear connection</button>}
+    {candidate&&<button className="power-connection-button is-primary" type="button" disabled={pending||settingsPending||(blocked&&!draftAllowed)} onClick={confirm}><Check size={17} aria-hidden="true"/>{draftAllowed?'Save planning connection':blocked?'Resolve checks to save':'Save connection'}</button>}
+    {selected?.deviceId&&!candidate&&!clearing&&<button className="power-connection-button is-danger" type="button" disabled={pending||settingsPending} onClick={()=>setClearing(true)}><Trash2 size={16} aria-hidden="true"/>Clear connection</button>}
     {(selected||target)&&!clearing&&<button className="power-connection-button" type="button" disabled={pending} onClick={()=>{setSelected(null);setHover(null);setTarget(undefined);setCandidate(undefined);setClearing(false);setSaveError('');}}><X size={16} aria-hidden="true"/>{selected?.deviceId&&!candidate?'Done':'Cancel'}</button>}
-    {clearing&&<><span className="power-clear-question">Remove this connection?</span><button className="power-connection-button is-danger" type="button" disabled={pending} onClick={clear}><Trash2 size={16} aria-hidden="true"/>Yes, clear connection</button><button className="power-connection-button" type="button" disabled={pending} onClick={()=>setClearing(false)}>Keep connection</button></>}
+    {clearing&&<><span className="power-clear-question">Remove this connection?</span><button className="power-connection-button is-danger" type="button" disabled={pending||settingsPending} onClick={clear}><Trash2 size={16} aria-hidden="true"/>Yes, clear connection</button><button className="power-connection-button" type="button" disabled={pending} onClick={()=>setClearing(false)}>Keep connection</button></>}
    </div></div>
    {selected?.deviceId&&!candidate&&<div className="power-saved-checks">
     <p className="power-connection-measurement">{consumptionSummary(savedBudget||{})}</p>
