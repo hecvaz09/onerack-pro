@@ -1,13 +1,11 @@
 import {isB300PowerDevice} from './b300-power-inputs.ts';
-import {modelAcLimits} from './model-power-reference.ts';
-import {catalogPowerLimits} from './catalog-power-limits.ts';
+import {libraryPowerLimits} from './library-power-limits.ts';
 import {readPx3Settings} from './px3-power.ts';
 import {pduModelId,PX3_4068_OUTLETS,PX3_4068_POWER} from './pdu-models.ts';
 import {readSystemSpecs} from './system-specs.ts';
 import {readDetails} from './equipment-details.ts';
 import type {Supply,Load,Cord,FeedInputs} from './feed-power.ts';
 export type FeedEquipment={id:string;name:string;startRU?:number;model?:string;sku?:string|null;mounting?:string;rawData:unknown;details:unknown;category:string|null};
-const present=(v:unknown)=>v!==undefined&&v!==null&&(typeof v!=='string'||v.trim()!=='');
 const obj=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
 export function readFeedInputs(raw:unknown,equipment?:FeedEquipment[]):FeedInputs {
   const v=obj(obj(raw).feedPower);
@@ -36,7 +34,7 @@ export function feedRack(equipment:FeedEquipment[],inputs:FeedInputs){
       supplies.push({feed:plannedFeed,topology:profile.topology as Supply['topology'],voltage:Number(profile.voltage)||0,limitAmps:Number(profile.limitAmps)||0,outlets:Array.isArray(profile.outlets)?profile.outlets as Supply['outlets']:[],branches:profile.branches as Supply['branches'],...preset,...configured,id:e.id,name:e.name});
       for(const [n,a] of Object.entries(readDetails(e.details).outlets))if(a.deviceId)cords.push({pduId:e.id,outlet:Number(n),deviceId:a.deviceId,inlet:a.inlet||0,...(a.inputIdentity?{inputIdentity:a.inputIdentity}:{})});
     }else if(e.category!=='accessory'){
-      const p:Record<string,unknown>={...modelAcLimits(e.sku||e.model||'',inputs.budgets[e.id]?.connector||obj(raw.powerLoad).connector||catalogPowerLimits(raw).connector),...catalogPowerLimits(raw),...Object.fromEntries(Object.entries(obj(raw.powerLoad)).filter(([,v])=>present(v))),...Object.fromEntries(Object.entries(inputs.budgets[e.id]||{}).filter(([,v])=>present(v)))},b=inputs.budgets[e.id];
+      const p=libraryPowerLimits(e.sku||e.model||'',raw,inputs.budgets[e.id]),b=inputs.budgets[e.id];
       const b300=isB300PowerDevice(e);
       const psus=readSystemSpecs(raw).components.filter(c=>c.kind==='psu').reduce((n,c)=>n+c.quantity,0);
       loads.push({id:e.id,name:e.name,watts:b?.watts,pf:b?.pf,pfEstimateSource:b?.pfEstimateSource,estimateSource:b?.estimateSource,measurement:b?.measurement,cords:b300?12:Number(p.cords)||psus||2,minimumCords:b300?1:Number(p.minimumCords)||1,...(b300?{assessment:"pdu-capacity" as const}:{}),connector:String(p.connector||''),minVoltage:Number(p.minVoltage)||undefined,maxVoltage:Number(p.maxVoltage)||undefined,cordLimitAmps:Number(p.cordLimitAmps)||undefined,psuAcCapacity:Number(p.psuAcCapacity)||undefined});

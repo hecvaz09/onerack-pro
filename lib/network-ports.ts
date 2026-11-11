@@ -1,8 +1,10 @@
+import {supportedNetworkSpeeds} from './network-speeds.ts';
 import {externalName} from './external-connections.ts';
 import {breakoutPortNumbers,BREAKOUT_CABLE} from './network-breakout.ts';
 import { readSystemSpecs } from './system-specs.ts';
+import {reviewedComponentField} from './component-review.ts';
 
-export type NetworkPort = { id:string; name:string; protocol:string; connector:string; speedGbps:number|null; reviewed:boolean; slot?:number; node?:string; aiom?:number; endpoint?:string; position?:'mgmt'|'lan'|'switch-data'; number?:number; parentId?:string; lane?:number; parentEndpoint?:string };
+export type NetworkPort = { id:string; name:string; protocol:string; connector:string; speedGbps:number|null; supportedSpeedsGbps?:number[]; reviewed:boolean; slot?:number; node?:string; aiom?:number; endpoint?:string; position?:'mgmt'|'lan'|'switch-data'; number?:number; parentId?:string; lane?:number; parentEndpoint?:string };
 export function adapterSlots(value:string,quantity:number):number[]{
   const clean=value.trim().replace(/^PCIe\s*/i,'').replace(/^slots?\s*/i,'');
   const range=clean.match(/^(\d+)\s*[-–]\s*(\d+)$/);
@@ -25,7 +27,7 @@ export function networkPorts(raw:unknown):NetworkPort[] {
       id:JSON.stringify([c.id,card,port]),name:slots.length?`Slot${slots[card-1]} · P${port-1+portBase}`:mgmt?(count===1?'MGMT':`MGMT-P${port}`):lan?`LAN${(card-1)*count+port}`:`${c.model}${c.quantity>1?` #${card}`:''} · Port ${front?firstPort+port-1:port}`,
       slot:slots[card-1],number:front?firstPort+port-1:slots.length?port-1+portBase:port,...(mgmt?{position:'mgmt' as const}:lan?{position:'lan' as const}:front?{position:'switch-data' as const}:{}),
       endpoint:slots.length?`Slot${slots[card-1]}-P${port-1+portBase}`:mgmt?(count===1?'MGMT':`MGMT-P${port}`):lan?`LAN${(card-1)*count+port}`:undefined,
-      protocol:c.attributes.protocol||'',connector:c.attributes.connector||'',speedGbps:Number(c.attributes.speedGbps)||null,reviewed:specs.status==='verified',
+      protocol:c.attributes.protocol||'',connector:c.attributes.connector||'',speedGbps:Number(c.attributes.speedGbps)||null,...(c.attributes.supportedSpeedsGbps?{supportedSpeedsGbps:supportedNetworkSpeeds(c.attributes.supportedSpeedsGbps)||[]}:{}),reviewed:['ports','protocol','connector'].every(key=>!!reviewedComponentField(specs,c,key))&&!!(reviewedComponentField(specs,c,'speedGbps')||reviewedComponentField(specs,c,'supportedSpeedsGbps')),
     });
   }
   // Component IDs remain unchanged; node names qualify physical endpoints for tracing.
@@ -41,7 +43,7 @@ export function networkPorts(raw:unknown):NetworkPort[] {
     const component=specs.components.find(c=>c.id===JSON.parse(port.id)[0]);
     const selected=breakoutPortNumbers(component?.attributes.breakoutPorts||'')||[];
     if(port.position!=='switch-data'||!selected.includes(port.number||0))return [port];
-    return [1,2,3,4].map(lane=>({...port,id:JSON.stringify([...JSON.parse(port.id),lane]),parentId:port.id,lane,parentEndpoint:`P${port.number}`,endpoint:`P${port.number}-${lane}`,name:`P${port.number}-${lane} · breakout leg ${lane}/4 · 25 Gb/s`,speedGbps:25,connector:'SFP28'}));
+    return [1,2,3,4].map(lane=>({...port,id:JSON.stringify([...JSON.parse(port.id),lane]),parentId:port.id,lane,parentEndpoint:`P${port.number}`,endpoint:`P${port.number}-${lane}`,name:`P${port.number}-${lane} · breakout leg ${lane}/4 · 25 Gb/s`,speedGbps:25,...(port.supportedSpeedsGbps?{supportedSpeedsGbps:[25]}:{}),connector:'SFP28'}));
   });
 }
 export function networkEndpoint(ru:number,category:string|null,port:NetworkPort){
@@ -67,6 +69,7 @@ export function portCompatibility(a:NetworkPort,b:NetworkPort,cableType:string):
     if(legs.length!==1)return {error:'Connect each breakout leg to a node port, not another breakout leg.',warnings};
     const peer=a.lane?b:a;
     if(peer.speedGbps&&peer.speedGbps!==25)return {error:'A 25G breakout leg requires a 25G node port. Configure the actual supported port speed first.',warnings};
+    if(!peer.speedGbps&&peer.supportedSpeedsGbps?.length&&!peer.supportedSpeedsGbps.includes(25))return {error:'This adapter does not list 25G support for a breakout leg.',warnings};
     if(peer.protocol&&peer.protocol!=='Ethernet')return {error:'This breakout requires an Ethernet node port.',warnings};
   }else if(cableType===BREAKOUT_CABLE)return {error:'Select one configured breakout leg on the production switch.',warnings};
   if(known(a.protocol)&&known(b.protocol)&&a.protocol!==b.protocol)return {error:`${a.protocol} and ${b.protocol} cannot connect directly.`,warnings};
@@ -81,7 +84,7 @@ export function portCompatibility(a:NetworkPort,b:NetworkPort,cableType:string):
   if(!cableType||cableType==='Other')warnings.push('Cable type needs review.');
   return {warnings};
 }
-export function networkShape(raw:unknown){return JSON.stringify(networkPorts(raw).map(({id,protocol,connector,speedGbps,node,aiom})=>({id,protocol,connector,speedGbps,...(node?{node}:{}),...(aiom?{aiom}:{})})).sort((a,b)=>a.id.localeCompare(b.id)));}
+export function networkShape(raw:unknown){return JSON.stringify(networkPorts(raw).map(({id,protocol,connector,speedGbps,supportedSpeedsGbps,node,aiom})=>({id,protocol,connector,speedGbps,...(supportedSpeedsGbps?{supportedSpeedsGbps}:{}),...(node?{node}:{}),...(aiom?{aiom}:{})})).sort((a,b)=>a.id.localeCompare(b.id)));}
 
 
 // Automatic labels are derived, so moving equipment cannot leave stale RU identifiers.

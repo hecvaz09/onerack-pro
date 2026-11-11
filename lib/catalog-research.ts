@@ -30,7 +30,9 @@ export function mergeResearch(current:SystemSpecs,report:ResearchReport,selected
   for(const [i,{component:c,source}] of report.components.entries())if(selected.includes(`c${i}`)){
     const existing=specs.components.find(v=>v.kind===c.kind&&v.model.toLowerCase()===c.model.toLowerCase());
     if(existing){let changed=false;for(const [key,value] of Object.entries(c.attributes))if(!existing.attributes[key]&&value){existing.attributes[key]=value;changed=true;}if(changed){const citation=`AI-filled fields source: ${source} (${report.createdAt.slice(0,10)})`;if(!existing.notes.includes(citation))existing.notes+=`\n${citation}`;}}
-    else specs.components.push({...c,id:`ai-${crypto.randomUUID()}`,notes:`${c.notes}\nSource: ${source}\nResearched: ${report.createdAt.slice(0,10)}`.slice(0,2000)});
+    // Research suggestions cannot approve their own fields. Approval is a
+    // separate review action tied to an exact component identity and value.
+    else specs.components.push({...c,fieldReviews:undefined,id:`ai-${crypto.randomUUID()}`,notes:`${c.notes}\nSource: ${source}\nResearched: ${report.createdAt.slice(0,10)}`.slice(0,2000)});
   }
   if(!specs.sourceUrl)specs.sourceUrl=report.sources[0]||'';
   const error=systemSpecsError(specs);if(error)throw new Error(error);

@@ -1,6 +1,7 @@
+import {supportedNetworkSpeeds} from './network-speeds.ts';
 import {breakoutPortNumbers} from './network-breakout.ts';
 export const COMPONENT_FIELDS = {
-  network: {label:'Network cards & onboard ports',singular:'Network interface',fields:[['node','Node identifier (multi-node chassis)','text'],['protocol','Protocol','Ethernet|InfiniBand|Fibre Channel|Other'],['ports','Ports per card','number'],['startPort','First physical port number','number'],['portNumberBase','PCIe port numbering starts at','0|1'],['breakoutPorts','100G to 4x25G breakout ports (e.g. 1-24)','text'],['speedGbps','Speed per port (Gb/s)','number'],['connector','Port / connector type','text'],['slot','PCIe / AIOM slot or onboard location','text']]},
+  network: {label:'Network cards & onboard ports',singular:'Network interface',fields:[['node','Node identifier (multi-node chassis)','text'],['protocol','Protocol','Ethernet|InfiniBand|Fibre Channel|Other'],['ports','Ports per card','number'],['startPort','First physical port number','number'],['portNumberBase','PCIe port numbering starts at','0|1'],['breakoutPorts','100G to 4x25G breakout ports (e.g. 1-24)','text'],['speedGbps','Configured / selected speed per port (Gb/s)','number'],['supportedSpeedsGbps','Supported speeds (Gb/s, comma separated)','text'],['connector','Port / connector type','text'],['slot','PCIe / AIOM slot or onboard location','text']]},
   drive: {label:'Drives & storage',singular:'Drive',fields:[['type','Drive type','NVMe SSD|SAS SSD|SATA SSD|SAS HDD|SATA HDD|Other'],['capacityTB','Capacity per drive (TB)','number'],['formFactor','Form factor','text'],['interface','Interface / generation','text'],['location','Bay / location','text']]},
   psu: {label:'Power supplies',singular:'Power supply',fields:[['outputWatts','Rated DC output per PSU (W)','number'],['acCapacityWatts','Supported AC budget per PSU (W)','number'],['inlet','Equipment inlet type','C14|C20|C22|Hardwired|Other'],['inputVoltage','Input voltage range','text'],['redundancy','Redundancy arrangement','text'],['efficiency','Efficiency / certification','text']]},
   cpu: {label:'Processors',singular:'Processor',fields:[['cores','Cores per processor','number'],['socket','Socket','text'],['tdpWatts','TDP per processor (W)','number']]},
@@ -9,7 +10,8 @@ export const COMPONENT_FIELDS = {
   other: {label:'Other components',singular:'Component',fields:[['type','Component type','text'],['location','Slot / location','text'],['specification','Specifications','text']]},
 } as const;
 export type ComponentKind=keyof typeof COMPONENT_FIELDS;
-export type SystemComponent={id:string;kind:ComponentKind;manufacturer:string;model:string;quantity:number;attributes:Record<string,string>;notes:string};
+export type FieldReview={value:string;model:string;manufacturer:string;source:string;reviewedAt:string};
+export type SystemComponent={id:string;kind:ComponentKind;manufacturer:string;model:string;quantity:number;attributes:Record<string,string>;notes:string;fieldReviews?:Record<string,FieldReview>};
 export type SystemSpecs={version:1;description:string;sourceUrl:string;status:'draft'|'verified';notes:string;components:SystemComponent[];custom:{name:string;value:string}[]};
 export type CatalogInput={sku:string;vendor:string;model:string;heightRU:number;category:string;specs:SystemSpecs};
 export const CATEGORIES=['chassis','switch','pdu','node','accessory'] as const;
@@ -34,10 +36,19 @@ export function systemSpecsError(value:unknown):string|null{
     if(!text(c.manufacturer)||!text(c.model)||!String(c.model).trim()||!text(c.notes,2000)||!Number.isInteger(c.quantity)||Number(c.quantity)<1||Number(c.quantity)>512)return 'Each component needs a model or description and a quantity from 1 to 512.';
     const attrs=record(c.attributes);if(!c.attributes||typeof c.attributes!=='object'||Array.isArray(c.attributes))return 'Invalid component specifications.';
     const fields=COMPONENT_FIELDS[c.kind as ComponentKind].fields;
+    if(c.fieldReviews!==undefined){
+      if(!c.fieldReviews||typeof c.fieldReviews!=='object'||Array.isArray(c.fieldReviews))return 'Invalid field reviews.';
+      for(const [key,rawReview] of Object.entries(c.fieldReviews)){
+        const review=record(rawReview);
+        if(!fields.some(f=>f[0]===key)||!text(review.value)||!text(review.model)||!text(review.manufacturer)||!text(review.source,2000)||!text(review.reviewedAt,30)||!/^\d{4}-\d{2}-\d{2}$/.test(String(review.reviewedAt)))return 'Invalid reviewed specification.';
+        try{if(new URL(String(review.source)).protocol!=='https:')return 'Reviewed specifications need an HTTPS source.';}catch{return 'Reviewed specifications need a valid source URL.';}
+      }
+    }
     for(const [key,v] of Object.entries(attrs)){const field=fields.find(f=>f[0]===key);if(!field||!text(v))return 'Invalid component field.';
       if(v&&field[2]==='number'&&(!Number.isFinite(Number(v))||Number(v)<=0||Number(v)>1000000||(['ports','startPort'].includes(key)&&!Number.isInteger(Number(v)))))return `${field[1]} must be a positive ${key==='ports'?'whole ':''}number.`;
       if(v&&field[2].includes('|')&&!field[2].split('|').includes(String(v)))return `Choose a supported value for ${field[1]}.`;
     }
+    if(c.kind==='network'&&attrs.supportedSpeedsGbps&&supportedNetworkSpeeds(String(attrs.supportedSpeedsGbps))===null)return 'Enter supported speeds as positive numbers separated by commas.';
     if(c.kind==='network'&&attrs.startPort&&(Number(attrs.startPort)>512||Number(attrs.startPort)+Number(attrs.ports||1)-1>512))return 'Physical port numbers must be between 1 and 512.';
     if(c.kind==='network'&&attrs.breakoutPorts){
       const ports=breakoutPortNumbers(String(attrs.breakoutPorts)),first=Number(attrs.startPort)||1,count=Number(attrs.ports)||0;

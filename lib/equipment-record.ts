@@ -3,12 +3,13 @@ import {consumptionLabel,isMeasuredPower} from './power-consumption.ts';
 import {readSystemSpecs} from './system-specs.ts';
 import {modelPowerReference} from './model-power-reference.ts';
 import {psuTestReference} from './psu-test-reference.ts';
+import {libraryPowerLimits} from './library-power-limits.ts';
 export type EquipmentFact={key:string;label:string;value:string;origin:'model'|'installation'|'unknown';basis:string;source?:string};
 const object=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
 const positive=(v:unknown)=>{const n=Number(v);return Number.isFinite(n)&&n>0?n:undefined;};
 // Read-only consolidation. Existing IDs, wiring, budgets and raw records remain untouched.
 export function equipmentRecord(model:string,raw:unknown,installation?:unknown,sku?:string){
- const specs=readSystemSpecs(raw),reference=modelPowerReference(model),power=object(object(raw).powerLoad),saved=object(installation);
+ const specs=readSystemSpecs(raw),reference=modelPowerReference(sku||model),power=libraryPowerLimits(sku||model,raw),saved=object(installation);
  const b300=isB300PowerDevice({model});
  const facts:EquipmentFact[]=[];
  const add=(key:string,label:string,base:unknown,unit:string,basis:string,source?:string)=>{

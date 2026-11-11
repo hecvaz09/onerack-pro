@@ -22,7 +22,7 @@ export function powerWiringGuide(equipment:FeedEquipment[],configuration:unknown
   pdu.details.outlets[alternative.outlet]={deviceId:alternative.deviceId,inlet:alternative.inlet,notes:'',locked:true,...(isB300PowerDevice(fixed.find(e=>e.id===alternative.deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})};
  }
  const plan=balanceFeeds(fixed,inputs,{planning:true});
- if(plan.error)return {error:plan.error,inputChecksOnly:/^\d+ electrical or configuration issues/.test(plan.error),issues:visualPowerBalance(fixed,configuration).errors,recommendation:undefined};
+ if(plan.error)return {error:plan.error,inputChecksOnly:/^\d+ electrical or configuration issues/.test(plan.error),issues:visualPowerBalance(fixed,configuration).errors.filter(issue=>!plan.pendingChecks.includes(issue)),pendingChecks:plan.pendingChecks,recommendation:undefined};
  const saved=feedRack(equipment,inputs).cords;
  const remaining=plan.assignments.filter(c=>!saved.some(v=>v.deviceId===c.deviceId&&v.inlet===c.inlet));
  const cord=alternative||(target?plan.assignments.find(c=>c.deviceId===target.deviceId&&c.inlet===target.inlet):remaining[0]);
