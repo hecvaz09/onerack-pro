@@ -48,4 +48,11 @@ test('actual Save settings rejection opens/focuses PF, preserves edits, keeps th
  snapshots.initial=(calls[1][1] as FeedInputs);snapshots.saveRevision='b'.repeat(64);tree=render();tree=render();
  assert.equal(nodes(tree).find(p=>typeof p.value==='boolean')!.value,false);
  edit(tree,.5);tree=render();button(tree,'Discard unsaved changes')();tree=render();assert.equal((editor(tree).inputs as FeedInputs).budgets.b300.pf,.98);assert.equal(calls.length,2);
+ // Exercise the actual Library action through the same save/acknowledge/reload path.
+ f.equipment.push({id:'smc',name:'SMC U1',sku:'SYS-510P-WTR',model:'SMC 1U Server',category:'node',details:{},rawData:{systemSpecs:{version:1,status:'verified',description:'',sourceUrl:'',notes:'',custom:[],components:[{id:'p',kind:'psu',manufacturer:'Supermicro',model:'PWS-504P-1R',quantity:2,attributes:{},notes:''}]}}});
+ snapshots.initial={...snapshots.initial,budgets:{...snapshots.initial.budgets,smc:{watts:450,pf:0}}};snapshots.saveRevision='c'.repeat(64);
+ tree=render();tree=render();button(tree,'Use Library power factors and save')();await Promise.all(queue);
+ const savedLibrary=calls.at(-1)![1] as FeedInputs;assert.equal(savedLibrary.budgets.smc.watts,450);assert.equal(savedLibrary.budgets.smc.pf,.87);assert.match(savedLibrary.budgets.smc.pfEstimateSource!,/SO-179.3/);
+ snapshots.initial=JSON.parse(JSON.stringify(savedLibrary));snapshots.saveRevision='b'.repeat(64);tree=render();tree=render();assert.equal((editor(tree).inputs as FeedInputs).budgets.smc.pf,.87);assert.ok(!text(tree).includes('Use Library power factors and save'));
+
 });

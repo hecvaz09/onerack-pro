@@ -15,7 +15,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  // limits, wattage, PF, cord ampacity, outlet and supply data remain mandatory.
  const pending=new Set<string>();
  if(options.planning)for(const load of loads){
-  if(load.estimateSource&&!isMeasuredPower(load))pending.add(`${load.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
+  if(load.pfEstimateSource||load.estimateSource&&!isMeasuredPower(load))pending.add(`${load.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
   if(!load.minVoltage||!load.maxVoltage)pending.add(`${load.name}: verify the PSU voltage range.`);
   if(load.assessment!=='pdu-capacity'&&!load.psuAcCapacity&&Number(load.cordLimitAmps)>0)pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
  }

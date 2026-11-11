@@ -38,7 +38,7 @@ export function feedRack(equipment:FeedEquipment[],inputs:FeedInputs){
       const p:Record<string,unknown>={...modelAcLimits(e.model||'',inputs.budgets[e.id]?.connector??obj(raw.powerLoad).connector),...catalogPowerLimits(raw),...Object.fromEntries(Object.entries(obj(raw.powerLoad)).filter(([,v])=>v!==undefined)),...Object.fromEntries(Object.entries(inputs.budgets[e.id]||{}).filter(([,v])=>v!==undefined))},b=inputs.budgets[e.id];
       const b300=isB300PowerDevice(e);
       const psus=readSystemSpecs(raw).components.filter(c=>c.kind==='psu').reduce((n,c)=>n+c.quantity,0);
-      loads.push({id:e.id,name:e.name,watts:b?.watts,pf:b?.pf,estimateSource:b?.estimateSource,measurement:b?.measurement,cords:b300?12:Number(p.cords)||psus||2,minimumCords:b300?1:Number(p.minimumCords)||1,...(b300?{assessment:"pdu-capacity" as const}:{}),connector:String(p.connector||''),minVoltage:Number(p.minVoltage)||undefined,maxVoltage:Number(p.maxVoltage)||undefined,cordLimitAmps:Number(p.cordLimitAmps)||undefined,psuAcCapacity:Number(p.psuAcCapacity)||undefined});
+      loads.push({id:e.id,name:e.name,watts:b?.watts,pf:b?.pf,pfEstimateSource:b?.pfEstimateSource,estimateSource:b?.estimateSource,measurement:b?.measurement,cords:b300?12:Number(p.cords)||psus||2,minimumCords:b300?1:Number(p.minimumCords)||1,...(b300?{assessment:"pdu-capacity" as const}:{}),connector:String(p.connector||''),minVoltage:Number(p.minVoltage)||undefined,maxVoltage:Number(p.maxVoltage)||undefined,cordLimitAmps:Number(p.cordLimitAmps)||undefined,psuAcCapacity:Number(p.psuAcCapacity)||undefined});
     }
   }
   return {supplies,loads,cords};

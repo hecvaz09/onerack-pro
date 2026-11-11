@@ -1,4 +1,5 @@
 'use client';
+import {libraryPowerFactors} from '@/lib/library-power-factor';
 import {PowerViewStateContext} from '@/lib/power-view-state';
 import {powerSettingsProblem,type PowerSettingsProblem} from '@/lib/power-settings-problem';
 import {missingPowerEstimates,nextPowerQuestion} from '@/lib/simple-power-plan';
@@ -44,6 +45,7 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   const {supplies,loads,cords}=feedRack(equipment,inputs);
   const advanced=useRef<HTMLDetailsElement>(null);
   const problem=powerSettingsProblem(inputs,equipment);
+  const libraryFactors=libraryPowerFactors(equipment,inputs);
   const estimates=missingPowerEstimates(equipment,inputs),question=nextPowerQuestion(equipment,saved);
   function revealProblem(issue:PowerSettingsProblem){
     if(advanced.current)advanced.current.open=true;
@@ -61,6 +63,7 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   return <section className={`${cardClassName} space-y-6`}>
     {editor.conflict&&<div role="alert" className="rounded-lg border border-border p-3 text-sm"><p>{POWER_INPUT_CONFLICT}</p><p>The saved overview and wiring on this page may be out of date.</p><a className="text-primary underline" href={latestHref||''} target="_blank" rel="noreferrer">Open latest rack in a new tab</a></div>}
     <header><h2 className="text-xl font-semibold">Connect your rack</h2><p className="mt-2 text-sm text-muted-foreground">Calculate connections, review them on your rack, then save the layout.</p></header>
+    {libraryFactors.changes.length>0&&<section className="rounded-xl border border-border p-4 space-y-3" aria-label="Library power factors"><h3 className="font-semibold">Power factor available from your Library</h3><p className="text-sm">Use PF {libraryFactors.changes[0].pf} for {libraryFactors.changes.length} matching server(s) with missing power factor. This is the lowest reported PSU test value at 230 V, used as a planning assumption. Your entered watts and measurements stay unchanged.</p><details><summary>Source and affected servers</summary>{libraryFactors.changes.map(c=><p className="text-sm mt-2" key={c.id}>{c.name}: {c.source}</p>)}</details><button type="button" disabled={pending||!viewCurrent} className="power-connection-button is-primary" onClick={()=>save(libraryFactors.inputs)}>Use Library power factors and save</button></section>}
     {question&&!dirty&&<section className="rounded-xl border border-border p-4 space-y-3" aria-label="Next setup step"><h3 className="font-semibold">{question.title}</h3><p className="text-sm text-muted-foreground">{question.message}</p>
       {question.target==='power-equipment'&&estimates.changes.length>0&&<><button type="button" disabled={pending||!viewCurrent} className="power-connection-button is-primary" onClick={()=>save(estimates.inputs)}>Use and save Library estimates</button><details><summary className="text-sm">Review {estimates.changes.length} estimated system{estimates.changes.length===1?'':'s'}</summary><p className="text-sm text-muted-foreground">Planning values only; existing consumption values and measurements stay unchanged. No electrical limits are assumed.</p>{estimates.changes.map(e=><p key={e.id} className="text-sm">{e.name}: {e.watts} W estimated</p>)}</details></>}
       <button type="button" className="power-connection-button" onClick={()=>openSettings(question.target)}>Review {question.target==='power-feeds'?'power feeds':'equipment settings'}</button>

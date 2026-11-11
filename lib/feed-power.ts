@@ -6,14 +6,15 @@ export type Feed = 'A'|'B';
 export type Topology='single-phase'|'three-phase-wye'|'three-phase-delta';
 export type Phase='L1'|'L2'|'L3'|'L1-L2'|'L2-L3'|'L3-L1';
 export type Supply = {topology?:Topology;neutralLimitAmps?:number;confirmed?:boolean;id:string;name:string;feed:Feed;voltage:number;limitAmps:number;branches?:Record<string,number>;outlets:{n:number;connectors:string[];limitAmps?:number;branch?:string;phase?:Phase;reserved?:boolean}[]};
-export type Load = {assessment?:"pdu-capacity";id:string;name:string;watts?:number;pf?:number;cords:number;minimumCords:number;connector:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number;estimateSource?:string;measurement?:PowerMeasurement};
+export type Load = {assessment?:"pdu-capacity";id:string;name:string;watts?:number;pf?:number;cords:number;minimumCords:number;connector:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number;pfEstimateSource?:string;estimateSource?:string;measurement?:PowerMeasurement};
 export type Cord = {pduId:string;outlet:number;deviceId:string;inlet:number;inputIdentity?:"b300-module-input-v1"};
-export type FeedInputs = {cablePolicy?:import('./power-cable-policy.ts').PowerCablePolicy;headroomPercent:number;supplies?:Record<string,Omit<Supply,'id'|'name'>>;budgets:Record<string,{watts:number;pf:number;estimateSource?:string;measurement?:PowerMeasurement;cords?:number;minimumCords?:number;connector?:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number}>};
+export type FeedInputs = {cablePolicy?:import('./power-cable-policy.ts').PowerCablePolicy;headroomPercent:number;supplies?:Record<string,Omit<Supply,'id'|'name'>>;budgets:Record<string,{watts:number;pf:number;pfEstimateSource?:string;estimateSource?:string;measurement?:PowerMeasurement;cords?:number;minimumCords?:number;connector?:string;minVoltage?:number;maxVoltage?:number;cordLimitAmps?:number;psuAcCapacity?:number}>};
 export function feedInputsError(s:FeedInputs):string|null {
   if(s?.cablePolicy!==undefined&&!['balanced','low-ru-c13-switch-top'].includes(s.cablePolicy))return 'Choose a supported cable assignment policy.';
   if(!s||!Number.isFinite(s.headroomPercent)||s.headroomPercent<0||s.headroomPercent>100||!s.budgets||typeof s.budgets!=='object'||Array.isArray(s.budgets))return 'Check power inputs.';
   for(const b of Object.values(s.budgets))if(!b||(b.estimateSource!==undefined&&(typeof b.estimateSource!=='string'||b.estimateSource.length>1000))||!Number.isFinite(b.watts)||b.watts<0||b.watts>1000000||!Number.isFinite(b.pf)||b.pf<=0||b.pf>1)return 'Enter nonnegative AC watts and a power factor above 0 and at most 1.';
   for(const b of Object.values(s.budgets)){
+    if(b.pfEstimateSource!==undefined&&(typeof b.pfEstimateSource!=='string'||!b.pfEstimateSource.trim()||b.pfEstimateSource.length>1000))return 'Check power factor source.';
     if(b.measurement!==undefined&&(!isMeasuredPower(b)||b.measurement.source.length>1000))return 'Measurement evidence must match the saved watts and include a source.';
     for(const k of ['cords','minimumCords','minVoltage','maxVoltage','cordLimitAmps','psuAcCapacity'] as const)if(b[k]!==undefined&&(!Number.isFinite(b[k])||b[k]!<=0||b[k]!>1000000))return 'Check PSU limits.';
     if(b.cords!==undefined&&(!Number.isInteger(b.cords)||b.cords>12))return 'Use 1-12 power inputs.';
@@ -89,7 +90,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
   });
   for(const p of supplies)for(const error of supplyIssues(p))issues.add(`${p.name}: ${error}.`);
   for(const d of loads){
-    if(d.estimateSource&&!isMeasuredPower(d))issues.add(`${d.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
+    if(d.pfEstimateSource||d.estimateSource&&!isMeasuredPower(d))issues.add(`${d.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
     if(!d.minVoltage||!d.maxVoltage)issues.add(`${d.name}: verify the PSU voltage range.`);
     if(!Number.isFinite(d.watts)||Number(d.watts)<=0)issues.add(`${d.name}: enter total system AC watts.`);
     if(!Number.isFinite(d.pf)||Number(d.pf)<=0||Number(d.pf)>1)issues.add(`${d.name}: power factor is missing or invalid.`);
