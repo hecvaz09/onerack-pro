@@ -30,7 +30,7 @@ export function psuConnectionStatuses(equipment:FeedEquipment[],configuration:un
     const text=issue.replace(/^(Normal|Feed [AB] lost): /,'');
     return !text.startsWith(pdu.name+' P')||text.startsWith(pdu.name+' P'+cord.outlet+':');
    });
-   const pending=(s:string)=>s.endsWith(': verify usable input cord current.')||s.endsWith(': verify the PSU voltage range.')||s.endsWith(': verify supported AC load per PSU and usable cord current.')||s.endsWith(': power estimate uses unverified efficiency, power factor and load assumptions.');
+   const pending=(s:string)=>s.endsWith(': cable compatibility is pending; outlet-only planning.')||s.endsWith(': verify usable input cord current.')||s.endsWith(': verify the PSU voltage range.')||s.endsWith(': verify supported AC load per PSU and usable cord current.')||s.endsWith(': power estimate uses unverified efficiency, power factor and load assumptions.');
    const failures=checks.filter(s=>!pending(s));
    const draft=details.outlets[cord.outlet]?.notes.includes('Planning draft:');
    inlets[inlet]=failures.length?{state:'issue',description:failures.join(' ')}:checks.length||draft?{state:'pending',description:checks.join(' ')||'Saved planning connection: verification pending'}:{state:'connected',description:'Saved connection: applicable checks passed'};

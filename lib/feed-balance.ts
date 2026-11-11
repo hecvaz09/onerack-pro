@@ -15,9 +15,11 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  // limits, wattage, PF, cord ampacity, outlet and supply data remain mandatory.
  const pending=new Set<string>();
  if(options.planning)for(const load of loads){
+  if(!load.connector)pending.add(`${load.name}: cable compatibility is pending; outlet-only planning.`);
+  if(load.assessment==='pdu-capacity'&&!load.cordLimitAmps)pending.add(`${load.name}: verify usable input cord current.`);
   if(load.pfEstimateSource||load.estimateSource&&!isMeasuredPower(load))pending.add(`${load.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
   if(!load.minVoltage||!load.maxVoltage)pending.add(`${load.name}: verify the PSU voltage range.`);
-  if(load.assessment!=='pdu-capacity'&&!load.psuAcCapacity&&Number(load.cordLimitAmps)>0)pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
+  if(load.assessment!=='pdu-capacity'&&(!load.psuAcCapacity||!load.cordLimitAmps))pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
  }
  const blocking=baseline.issues.filter(i=>!i.includes('power cords are connected.')&&!pending.has(i));
  const fail=(error:string)=>({error,assignments:cords,analysis:baseline,pendingChecks:[...pending]});
@@ -42,7 +44,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
    const preferred=count('A')<=count('B')?'A':'B';
    const candidates=supplies.filter(p=>p.feed===preferred).flatMap(p=>p.outlets.flatMap(o=>{
     const voltage=outletVoltage(p,o),amps=cordWatts(load)/Number(load.pf)/voltage;
-    if(!policyAllows(inputs.cablePolicy,equipment.find(e=>e.id===load.id)?.category,o)||o.reserved||used.has(`${p.id}:${o.n}`)||!o.connectors.includes(load.connector)||voltage<load.minVoltage!||voltage>load.maxVoltage!||amps>Math.min(o.limitAmps!,load.cordLimitAmps!))return [];
+    if(!policyAllows(inputs.cablePolicy,equipment.find(e=>e.id===load.id)?.category,o)||o.reserved||used.has(`${p.id}:${o.n}`)||(load.connector?!o.connectors.includes(load.connector):!options.planning||!o.connectors.some(c=>c==='C13'||c==='C19'))||voltage<load.minVoltage!||voltage>load.maxVoltage!||amps>Math.min(o.limitAmps!,load.cordLimitAmps??Infinity))return [];
     const projected=demand(p,{outlet:o,watts:cordWatts(load),pf:Number(load.pf)});
     if(projected.amps>p.limitAmps||(p.neutralLimitAmps&&projected.neutralAmps>p.neutralLimitAmps)||Object.entries(projected.branches).some(([b,a])=>a>p.branches![b]))return [];
     return [{p,o,score:projected.amps/p.limitAmps+projected.spread/p.limitAmps*.01}];

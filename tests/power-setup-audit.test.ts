@@ -11,6 +11,6 @@ test('blank connector overrides inherit verified Library inlet and voltage, expl
 });
 test('audit exposes remaining cord requirement together, separating pending PSU documentation',()=>{
  const checks=powerSetupAudit([device],{headroomPercent:0,budgets:{s:{watts:450,pf:.9}}});
- assert.deepEqual(checks.filter(c=>c.blocking&&c.target==='power-equipment').map(c=>c.field),['cordLimitAmps']);assert.deepEqual(checks.filter(c=>!c.blocking).map(c=>c.field),['psuAcCapacity']);
- const missing=powerSetupAudit([{...device,rawData:{}}],{headroomPercent:0,budgets:{}});for(const field of ['watts','pf','connector','cordLimitAmps'])assert.ok(missing.some(c=>c.field===field&&c.blocking));
+ assert.deepEqual(checks.filter(c=>c.blocking&&c.target==='power-equipment').map(c=>c.field),[]);assert.deepEqual(checks.filter(c=>!c.blocking).map(c=>c.field),['cordLimitAmps','psuAcCapacity']);
+ const missing=powerSetupAudit([{...device,rawData:{}}],{headroomPercent:0,budgets:{}});for(const field of ['watts','pf'])assert.ok(missing.some(c=>c.field===field&&c.blocking));
 });

@@ -83,13 +83,14 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
     if(seenOutlets.has(outlet)||seenInlets.has(inlet)){issues.add('Duplicate outlet or PSU assignment.');return false;}
     seenOutlets.add(outlet);seenInlets.add(inlet);
     if(o.reserved)issues.add(`${p.name} P${o.n}: outlet is reserved for facility use.`);
-    if(!o.connectors.includes(d.connector))issues.add(`${d.name}: incompatible connector at ${p.name} P${o.n}.`);
+    if(d.connector?!o.connectors.includes(d.connector):!o.connectors.some(c=>c==='C13'||c==='C19'))issues.add(`${d.name}: incompatible connector at ${p.name} P${o.n}.`);
     const voltage=outletVoltage(p,o);
     if((d.minVoltage&&voltage<d.minVoltage)||(d.maxVoltage&&voltage>d.maxVoltage))issues.add(`${d.name}: ${voltage.toFixed(1)} V is outside its documented ${d.minVoltage}–${d.maxVoltage} V input range.`);
     return true;
   });
   for(const p of supplies)for(const error of supplyIssues(p))issues.add(`${p.name}: ${error}.`);
   for(const d of loads){
+    if(!d.connector)issues.add(`${d.name}: cable compatibility is pending; outlet-only planning.`);
     if(d.pfEstimateSource||d.estimateSource&&!isMeasuredPower(d))issues.add(`${d.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
     if(!d.minVoltage||!d.maxVoltage)issues.add(`${d.name}: verify the PSU voltage range.`);
     if(!Number.isFinite(d.watts)||Number(d.watts)<=0)issues.add(`${d.name}: enter total system AC watts.`);

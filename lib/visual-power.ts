@@ -18,8 +18,7 @@ export function validateVisualPower(equipment:FeedEquipment[],configuration:unkn
  if(model.cords.some(c=>c.deviceId===deviceId&&c.inlet===inlet))return 'This PSU already has a connection. Clear its assignment before reconnecting.';
  const configured=model.supplies.find(s=>s.id===pduId)?.outlets.find(o=>o.n===outlet);
  const connectors=configured?.connectors??socket.type.split(/[^A-Za-z0-9]+/).filter(Boolean);
- if(!load.connector)return 'Set the equipment cord connector in Power settings before connecting.';
- if(!connectors.includes(load.connector))return 'The outlet and equipment cord connectors are incompatible.';
+ if(load.connector?!connectors.includes(load.connector):!connectors.some(c=>c==='C13'||c==='C19'))return 'The outlet and equipment cord connectors are incompatible.';
  if(configured?.reserved)return 'This outlet is reserved in the PDU power configuration.';
  if(!policyAllows(inputs.cablePolicy,device.category,{n:outlet,connectors}))return 'This outlet is excluded for this equipment by the saved cable assignment rules.';
 }
@@ -49,6 +48,8 @@ export function visualPowerBalance(equipment:FeedEquipment[],configuration:unkno
 // Draft wiring may retain missing PSU metadata, but never suppress known failures.
 export function canSaveVisualPowerDraft(review:ReturnType<typeof visualPowerBalance>){
  return review.errors.length>0&&review.errors.every(i=>
+  i.endsWith(': cable compatibility is pending; outlet-only planning.')||
+  i.endsWith(': verify usable input cord current.')||
   i.endsWith(': verify the PSU voltage range.')||
   i.endsWith(': verify supported AC load per PSU and usable cord current.')||
   i.endsWith(': power estimate uses unverified efficiency, power factor and load assumptions.'));
