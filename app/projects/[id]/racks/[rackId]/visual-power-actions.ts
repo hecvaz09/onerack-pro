@@ -7,6 +7,7 @@ import {detailsObject,readDetails,withOutletAssignment} from '@/lib/equipment-de
 import {powerWiringGuide} from '@/lib/power-wiring-guide';
 import {visualPowerBalance,canSaveVisualPowerDraft} from '@/lib/visual-power';
 import {simplePowerPlan} from '@/lib/simple-power-plan';
+import {individualPowerReview} from '@/lib/individual-power-review';
 
 export async function connectVisualPower(rackId:string,pduId:string,outlet:number,deviceId:string,inlet:number,draft=false):Promise<PowerSaveResult> {
  if(!rackId||!pduId||!deviceId||!Number.isInteger(outlet)||!Number.isInteger(inlet))return {error:'Invalid power endpoints.'};
@@ -14,15 +15,25 @@ export async function connectVisualPower(rackId:string,pduId:string,outlet:numbe
   const result=await rackMutation(rackId,async tx=>{
    const rack=await tx.rack.findUniqueOrThrow({where:{id:rackId},include:{devices:{include:{catalogDevice:true}}}});
    const equipment=rack.devices.map(d=>({id:d.id,name:d.label||d.catalogDevice.model,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
-   const review=visualPowerBalance(equipment,rack.configuration,{pduId,outlet,deviceId,inlet});
-   const guide=powerWiringGuide(equipment,rack.configuration,{deviceId,inlet},{pduId,outlet,deviceId,inlet});
-   const draftAllowed=draft&&!!guide.recommendation&&!!guide.provisional&&canSaveVisualPowerDraft(review);
-   if(guide.provisional&&!draft)return {error:'This recommendation has pending PSU documentation. Confirm it as a planning connection.'};
-   if(!draftAllowed&&review.errors.length)return {error:review.errors.join(' ')};
-   if(!draftAllowed&&guide.error)return {error:guide.error};
+   const candidate={pduId,outlet,deviceId,inlet};
+   let draftAllowed=false;
+   if(isB300PowerDevice(equipment.find(e=>e.id===deviceId))){
+    // This chassis requires the completed twelve-input plan for capacity checks.
+    const review=visualPowerBalance(equipment,rack.configuration,candidate);
+    const guide=powerWiringGuide(equipment,rack.configuration,{deviceId,inlet},candidate);
+    draftAllowed=draft&&!!guide.recommendation&&!!guide.provisional&&canSaveVisualPowerDraft(review);
+    if(guide.provisional&&!draft)return {error:'This recommendation has pending PSU documentation. Confirm it as a planning connection.'};
+    if(!draftAllowed&&review.errors.length)return {error:review.errors.join(' ')};
+    if(!draftAllowed&&guide.error)return {error:guide.error};
+   }else{
+    const review=individualPowerReview(equipment,rack.configuration,candidate);
+    if(review.errors.length)return {error:review.errors.join(' ')};
+    if(review.planning&&!draft)return {error:'Verification is pending. Review and save this as a planning connection.'};
+    draftAllowed=review.planning;
+   }
    const pdu=rack.devices.find(d=>d.id===pduId)!;
    const raw=detailsObject(pdu.details),outlets=detailsObject(raw.outlets),previous=readDetails(pdu.details).outlets[outlet];
-   outlets[outlet]=withOutletAssignment(outlets[outlet],{deviceId,inlet,notes:[previous?.notes,draftAllowed?'Planning draft: PSU electrical verification pending.':''].filter(Boolean).join(' '),locked:true,...(isB300PowerDevice(equipment.find(e=>e.id===deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})});
+   outlets[outlet]=withOutletAssignment(outlets[outlet],{deviceId,inlet,notes:[previous?.notes,draftAllowed?'Planning draft: electrical verification pending.':''].filter(Boolean).join(' '),locked:true,...(isB300PowerDevice(equipment.find(e=>e.id===deviceId))?{inputIdentity:B300_INPUT_IDENTITY}:{})});
    const details=JSON.parse(JSON.stringify({...raw,outlets}));
    await tx.deviceInstance.update({where:{id:pduId},data:{details}});
    return {projectId:rack.projectId,pduId,details};
