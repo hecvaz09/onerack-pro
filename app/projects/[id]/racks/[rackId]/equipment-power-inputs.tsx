@@ -48,10 +48,11 @@ export function EquipmentPowerInputs({invalidField,equipment,loads,inputs,initia
           <p className="mt-1 text-sm text-muted-foreground">{Number.isInteger(device.startRU)?`U${device.startRU}`:'Position not recorded'} · this installed device only</p>
           {device.model&&device.model!==shortName(device)&&<p className="mt-1 text-xs text-muted-foreground">{device.model}</p>}
           {!hasEquipmentDemand(budget)&&<p className="mt-2 text-sm">Demand missing or invalid. Blank or 0 W remains incomplete in the calculator.</p>}
-          {missingFactor&&<p className="mt-2 text-sm">Power factor required · open power factor and estimation below.</p>}
+          {missingFactor&&<p className="mt-2 text-sm">Power factor required: enter it beside watts before saving.</p>}
           {dirty&&<p className="mt-2 text-sm">Unsaved edits for this device.</p>}
         </div>
         <label className="text-sm">Whole-system AC demand (W)<input data-power-field="watts" aria-invalid={invalidField?.deviceId===device.id&&invalidField.field==='watts'||undefined} type="number" min="0" max="1000000" step="any" className={`${inputClassName} mt-1 block w-44 max-w-full aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/30`} value={budget?.watts||''} placeholder="Not recorded" onChange={event=>update({watts:Number(event.target.value),estimateSource:undefined,measurement:undefined},'Unsaved demand for this device. Editing watts clears its previous source. Review and save power inputs.')}/></label>
+        <label className="text-sm">Power factor<input data-power-field="pf" aria-invalid={invalidField?.deviceId===device.id&&invalidField.field==='pf'||undefined} type="number" min="0.01" max="1" step="any" className={`${inputClassName} mt-1 block w-40 max-w-full aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/30`} value={budget?.pf||''} placeholder="Required" onChange={event=>update({pf:Number(event.target.value)},'Unsaved power factor for this device. Review and save power inputs.')}/></label>
         <label className="text-sm">Demand source<select data-power-field="source" className={`${inputClassName} mt-1 block w-48 max-w-full appearance-auto`} value={isMeasuredPower(budget||{})?'measured':budget?.estimateSource?'estimated':'entered'} onChange={event=>{
           if(event.target.value==='measured'&&hasEquipmentDemand(budget))update({measurement:{watts:budget.watts,source:'User-recorded measurement'},estimateSource:undefined},'Recorded as your measurement of this device, not live monitoring. Review and save power inputs.');
           else if(event.target.value==='entered')update({measurement:undefined,estimateSource:undefined},'Source changed to manually entered for this device. Review and save power inputs.');
@@ -86,9 +87,8 @@ export function EquipmentPowerInputs({invalidField,equipment,loads,inputs,initia
         </form>
       </details>}
 
-      <details className="mt-4 border-t border-border pt-3"><summary className="cursor-pointer text-sm">Power factor and estimation{missingFactor?' · power factor required':''}</summary>
+      <details className="mt-4 border-t border-border pt-3"><summary className="cursor-pointer text-sm">Planning estimates and power factor help</summary>
         <p className="mt-3 text-sm text-muted-foreground">Power factor converts watts into electrical load. It must be above 0 and at most 1; it is not inferred from a watt reading.</p>
-        <label className="mt-3 block text-sm">Power factor<input data-power-field="pf" aria-invalid={invalidField?.deviceId===device.id&&invalidField.field==='pf'||undefined} type="number" min="0.01" max="1" step="any" className={`${inputClassName} mt-1 block w-40 max-w-full aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/30`} value={budget?.pf||''} placeholder="Required" onChange={event=>update({pf:Number(event.target.value)},'Unsaved power factor for this device. Review and save power inputs.')}/></label>
         <PowerEstimatePicker model={device.model||''} raw={device.rawData} requiredPsus={load?.minimumCords||1} count={1} onApply={estimate=>update({...estimate,measurement:undefined},'Unsaved planning estimate for this device. Review and save power inputs.')}/>
       </details>
       <details className="mt-3 border-t border-border pt-3"><summary className="cursor-pointer text-sm">Advanced · PSU limits and Library references</summary>

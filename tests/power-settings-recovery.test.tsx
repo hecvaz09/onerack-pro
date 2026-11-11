@@ -39,10 +39,10 @@ test('actual Save settings rejection opens/focuses PF, preserves edits, keeps th
  const editor=(tree:unknown)=>nodes(tree).find(p=>typeof p.setInputs==='function')!;
  const edit=(tree:unknown,pf:number)=>{(editor(tree).setInputs as (fn:(v:FeedInputs)=>FeedInputs)=>void)(v=>({...v,budgets:{...v.budgets,b300:{...v.budgets.b300,watts:12345,pf}}}));};
  let tree=render();(nodes(tree).find(p=>p.id==='power-advanced')!.ref as {current:unknown}).current=outer;
- edit(tree,0);tree=render();button(tree,'Save settings')();tree=render();
- assert.equal(calls.length,0);assert.equal(outer.open,true);assert.equal(inner.open,true);assert.equal(focused,1);
+ edit(tree,0);tree=render();assert.ok(text(tree).includes('enter a power factor above 0 and at most 1'));button(tree,'Complete required setting')();assert.equal(outer.open,true);assert.equal(calls.length,0);button(tree,'Save settings')();tree=render();
+ assert.equal(calls.length,0);assert.equal(outer.open,true);assert.equal(inner.open,true);assert.equal(focused,2);
  assert.equal((editor(tree).inputs as FeedInputs).budgets.b300.pf,0);assert.equal((editor(tree).invalidField as {field:string}).field,'pf');
- assert.ok(!nodes(tree).some(p=>p.inert===true));assert.ok(text(tree).includes('Correct the highlighted setting'));
+ assert.ok(!nodes(tree).some(p=>p.inert===true));assert.ok(text(tree).includes('enter a power factor above 0 and at most 1'));
  edit(tree,.98);tree=render();failNetwork=true;button(tree,'Save settings')();await Promise.all(queue);tree=render();assert.equal(calls.length,1);
  failNetwork=false;button(tree,'Save settings')();await Promise.all(queue);assert.equal(calls.length,2);assert.equal(refreshes,1);
  snapshots.initial=(calls[1][1] as FeedInputs);snapshots.saveRevision='b'.repeat(64);tree=render();tree=render();
