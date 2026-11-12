@@ -657,6 +657,29 @@ html { color-scheme:dark; }
 .apc-model-pdu .physical-pdu-body span {visibility:hidden;}
 .apc-model-pdu .apc-pdu-panel {position:absolute;inset:28px 5px 5px;width:auto;height:auto;display:flex;flex-direction:column;justify-content:space-between;gap:14px;padding:10px 5px;background:linear-gradient(90deg,#10171d,#222d35 48%,#11191f);border:1px solid #52616c;border-radius:3px;color:#dce4eb;}
 .apc-model-label {font-size:13px;font-weight:700;text-align:center;letter-spacing:1px;}
+/* Gen 2 APDU11350ME: 48 numbered receptacles and six phase-colored banks. */
+.apc-model-pdu .apdu11350-panel {gap:8px;padding:6px 4px;}
+.apdu11350-panel .apc-bank-stack {gap:7px;}
+.apdu11350-panel .apc-socket-bank {gap:3px;}
+.apdu11350-panel .apc-socket-bank button[data-phase="1"] {background:#d4d9dc;border-color:#e0e5e8;color:#111920;}
+.apdu11350-panel .apc-socket-bank button[data-phase="2"] {background:#8e999f;border-color:#c6d0d5;color:#111920;}
+.apdu11350-panel .apc-socket-bank button[data-phase="3"] {background:#39464e;border-color:#758995;color:#080e12;}
+.apdu11350-panel .apc-socket-bank button[data-phase] .apc-socket-number {color:#111920;}
+.apdu11350-panel .apc-socket-bank button[data-phase="3"] .apc-socket-number {color:#e7eef2;}
+.apdu11350-controller {padding:5px 0;}
+.apdu11350-controller .apc-display-face {margin:4px 2px;padding:7px 0;}
+.apdu11350-controller .apc-controls {margin-bottom:4px;}
+.apdu11350-controller .apc-management-ports {grid-template-columns:1fr;justify-items:center;margin:4px 0;padding:3px;}
+.apdu11350-controller .apc-management-ports a {width:26px;}
+.apdu11350-service-ports {display:grid;grid-template-columns:1fr 1fr;gap:2px;font:6px ui-monospace,monospace;}
+.apdu11350-service-ports span {display:flex;align-items:center;justify-content:center;gap:2px;}
+.apdu11350-service-ports i {width:13px;height:10px;border:1px solid #8296a3;background:#071118;}
+.apdu11350-breakers {display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.apdu11350-breakers>div {display:flex;align-items:center;justify-content:center;gap:3px;border:1px solid #7b8e99;padding:3px 1px;background:#8e999f;color:#12212a;font:8px ui-monospace,monospace;}
+.apdu11350-breakers>div[data-phase="1"] {background:#d4d9dc;}
+.apdu11350-breakers>div[data-phase="3"] {background:#39464e;color:#e7eef2;}
+.apdu11350-breakers i {width:9px;height:20px;border:1px solid #9cabb4;background:linear-gradient(#101a21 35%,#627987 36%,#627987 62%,#101a21 63%);}
+.apdu11350-breakers small {display:block;font-size:6px;}
 .apc-model-label small {display:block;font-size:7px;letter-spacing:0;font-weight:400;margin-top:5px;}
 .apc-bank-stack {display:flex;flex-direction:column;gap:18px;}
 .apc-socket-bank {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 4px;}

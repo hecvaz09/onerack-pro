@@ -31,7 +31,7 @@ export function feedRack(equipment:FeedEquipment[],inputs:FeedInputs){
       }:undefined;
       const plannedFeed=(details.feed==='A'||details.feed==='B'?details.feed:e.mounting?.startsWith('rear-right')?'A':e.mounting?.startsWith('rear-left')?'B':undefined) as Supply['feed'];
       const configured=inputs.supplies?.[e.id];
-      supplies.push({feed:plannedFeed,topology:profile.topology as Supply['topology'],voltage:Number(profile.voltage)||0,limitAmps:Number(profile.limitAmps)||0,outlets:Array.isArray(profile.outlets)?profile.outlets as Supply['outlets']:[],branches:profile.branches as Supply['branches'],...preset,...configured,id:e.id,name:e.name});
+      supplies.push({feed:plannedFeed,topology:profile.topology as Supply['topology'],voltage:Number(profile.voltage)||0,limitAmps:Number(profile.limitAmps)||0,outlets:Array.isArray(profile.outlets)?profile.outlets as Supply['outlets']:[],branches:profile.branches as Supply['branches'],...(typeof profile.confirmed==='boolean'?{confirmed:profile.confirmed}:{}),...preset,...configured,id:e.id,name:e.name});
       for(const [n,a] of Object.entries(readDetails(e.details).outlets))if(a.deviceId)cords.push({pduId:e.id,outlet:Number(n),deviceId:a.deviceId,inlet:a.inlet||0,...(a.inputIdentity?{inputIdentity:a.inputIdentity}:{})});
     }else if(e.category!=='accessory'){
       const p=libraryPowerLimits(e.sku||e.model||'',raw,inputs.budgets[e.id]),b=inputs.budgets[e.id];

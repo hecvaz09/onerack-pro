@@ -1580,5 +1580,99 @@
     "reference": "https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/introduction/chassis-features/front-view-as-8126gs-nb3rt.htm",
     "audit": "Front/rear geometry reviewed against user-supplied manufacturer photographs: eight top-front OSFP cages; lower front storage, two expansion bays and service I/O; rear ten fan modules, six dual-input PSU modules and two dummy-fan positions. Network overlays preserve existing port IDs. Rear AC inputs are reference artwork only; paired-input power mapping remains unvalidated."
   }
+},
+{
+  "key": "apc-apdu11350",
+  "skus": [
+    "APDU11350ME"
+  ],
+  "label": "APC APDU11350ME",
+  "category": "pdu",
+  "heightRU": 0,
+  "source": "https://www.se.com/us/en/product/APDU11350ME/",
+  "description": "APC NetShelter Rack PDU Advanced Gen 2 Metered, 48 outlets, 0U, 415 V 30 A three-phase (24 A usable).",
+  "facts": [
+    {
+      "name": "Input (North America)",
+      "value": "415 V line-to-line, 3-phase wye, neutral + earth; 30 A nameplate / 24 A usable per phase; 17.3 kVA nominal."
+    },
+    {
+      "name": "Regional alternative",
+      "value": "400 V, 32 A IEC operation is listed at 22.1 kVA. The Library planning default uses the US 415 V / 24 A configuration, not the 32 A alternative."
+    },
+    {
+      "name": "Supply connection",
+      "value": "IEC 60309 530P6 / 3P+N+E, 6h, IP44 input plug; 3 m cord. Requires a matching three-phase circuit with neutral."
+    },
+    {
+      "name": "Output voltage",
+      "value": "200–240 V line-to-neutral over the documented 346–415 V input range; approximately 240 V at 415 V input."
+    },
+    {
+      "name": "Receptacles",
+      "value": "48 total: 24 × C13/C15 (odd numbers) and 24 × C13/C15/C19/C21 combination (even numbers)."
+    },
+    {
+      "name": "Outlet limits",
+      "value": "C13/C15: 10 A; combination receptacle: 16 A maximum, with C13/C15 mating limited to 10 A; 250 V maximum rating."
+    },
+    {
+      "name": "Protected banks",
+      "value": "Six single-pole 20 A breakers, eight outlets each. B1/B4: L1–N; B2/B5: L2–N; B3/B6: L3–N."
+    },
+    {
+      "name": "Branch planning ceiling",
+      "value": "16 A per bank (conservative 80% planning allowance on each 20 A breaker). The breaker nameplate is 20 A."
+    },
+    {
+      "name": "Metering",
+      "value": "Advanced Metered model, with input/branch monitoring. Do not treat it as switched or individually outlet-metered."
+    },
+    {
+      "name": "Network management",
+      "value": "APDU9640NMC3: one 10/100/1000BASE-T RJ45 Ethernet port; two sensor ports, two PDU link ports, USB and console interfaces. Link/sensor ports are not LAN connection endpoints."
+    },
+    {
+      "name": "Size and mounting",
+      "value": "0U vertical; 1780 × 56 × 75 mm (H × W × D); 8.4 kg; black; tool-less mounting pegs spaced 1555 mm."
+    },
+    {
+      "name": "Operating environment",
+      "value": "−5 to 60 °C; 5–95% relative humidity; up to 10,000 ft operating altitude."
+    },
+    {
+      "name": "Storage environment",
+      "value": "−25 to 65 °C; 5–95% relative humidity; up to 50,000 ft storage altitude."
+    },
+    {
+      "name": "Compliance",
+      "value": "UL 62368-1; CSA C22.2 No. 62368-1; EN 62368-1; CE; FCC Part 15 Class B; TAA."
+    },
+    {
+      "name": "Warranty",
+      "value": "3 years repair or replace, per manufacturer datasheet."
+    },
+    {
+      "name": "Identification",
+      "value": "APDU11350ME; UPC 731304752714; manufacturer submittal revision 0 approved 2025-02-03."
+    },
+    {
+      "name": "Installation confirmation",
+      "value": "Confirm site voltage, circuit rating and A/B feed assignment for each installed PDU. Library specifications do not confirm facility service availability."
+    }
+  ],
+  "components": [],
+  "unknowns": [
+    "Site supply voltage, independent A/B circuits and installation settings require facility confirmation."
+  ],
+  "drawing": {
+    "kind": "pdu",
+    "ports": 1,
+    "psus": 0,
+    "bays": 0,
+    "slots": 0,
+    "reference": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+    "audit": "Model-specific schematic from APC APDU11350ME revision 0 sheets 1–2 and the numbered manufacturer photograph. All 48 receptacles, six breakers, single Ethernet port and rear mounting pegs are represented. Shown horizontally for Library review; rack elevation uses the same outlet identities with whip down."
+  }
 }
 ]

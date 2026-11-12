@@ -1,0 +1,1009 @@
+{
+  "id": "catalog-apc-apdu11350me",
+  "sku": "APDU11350ME",
+  "vendor": "APC / Schneider Electric",
+  "model": "APDU11350ME",
+  "heightRU": 0,
+  "category": "pdu",
+  "rawData": {
+    "model": "APDU11350ME",
+    "pdu": {
+      "outlets": [
+        {
+          "n": 1,
+          "type": "C13/C15",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 2,
+          "type": "C13/C15/C19/C21",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 3,
+          "type": "C13/C15",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 4,
+          "type": "C13/C15/C19/C21",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 5,
+          "type": "C13/C15",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 6,
+          "type": "C13/C15/C19/C21",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 7,
+          "type": "C13/C15",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 8,
+          "type": "C13/C15/C19/C21",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 9,
+          "type": "C13/C15",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 10,
+          "type": "C13/C15/C19/C21",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 11,
+          "type": "C13/C15",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 12,
+          "type": "C13/C15/C19/C21",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 13,
+          "type": "C13/C15",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 14,
+          "type": "C13/C15/C19/C21",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 15,
+          "type": "C13/C15",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 16,
+          "type": "C13/C15/C19/C21",
+          "cb": 1,
+          "phase": "L1"
+        },
+        {
+          "n": 17,
+          "type": "C13/C15",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 18,
+          "type": "C13/C15/C19/C21",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 19,
+          "type": "C13/C15",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 20,
+          "type": "C13/C15/C19/C21",
+          "cb": 2,
+          "phase": "L2"
+        },
+        {
+          "n": 21,
+          "type": "C13/C15",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 22,
+          "type": "C13/C15/C19/C21",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 23,
+          "type": "C13/C15",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 24,
+          "type": "C13/C15/C19/C21",
+          "cb": 3,
+          "phase": "L3"
+        },
+        {
+          "n": 25,
+          "type": "C13/C15",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 26,
+          "type": "C13/C15/C19/C21",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 27,
+          "type": "C13/C15",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 28,
+          "type": "C13/C15/C19/C21",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 29,
+          "type": "C13/C15",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 30,
+          "type": "C13/C15/C19/C21",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 31,
+          "type": "C13/C15",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 32,
+          "type": "C13/C15/C19/C21",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 33,
+          "type": "C13/C15",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 34,
+          "type": "C13/C15/C19/C21",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 35,
+          "type": "C13/C15",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 36,
+          "type": "C13/C15/C19/C21",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 37,
+          "type": "C13/C15",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 38,
+          "type": "C13/C15/C19/C21",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 39,
+          "type": "C13/C15",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 40,
+          "type": "C13/C15/C19/C21",
+          "cb": 4,
+          "phase": "L1"
+        },
+        {
+          "n": 41,
+          "type": "C13/C15",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 42,
+          "type": "C13/C15/C19/C21",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 43,
+          "type": "C13/C15",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 44,
+          "type": "C13/C15/C19/C21",
+          "cb": 5,
+          "phase": "L2"
+        },
+        {
+          "n": 45,
+          "type": "C13/C15",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 46,
+          "type": "C13/C15/C19/C21",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 47,
+          "type": "C13/C15",
+          "cb": 6,
+          "phase": "L3"
+        },
+        {
+          "n": 48,
+          "type": "C13/C15/C19/C21",
+          "cb": 6,
+          "phase": "L3"
+        }
+      ]
+    },
+    "systemSpecs": {
+      "version": 1,
+      "description": "APC NetShelter Rack PDU Advanced Gen 2 Metered, 48 outlets, 0U, 415 V 30 A three-phase (24 A usable).",
+      "sourceUrl": "https://www.se.com/us/en/product/APDU11350ME/",
+      "status": "verified",
+      "notes": "Model data verified against APC submittal sheets 1–2, product photograph and manufacturer datasheet. North American planning profile: 415 V / 24 A. Facility supply must be confirmed separately. Artwork shows whip down; printed outlet identities are preserved.",
+      "components": [
+        {
+          "id": "apdu11350-nmc3-ethernet",
+          "kind": "network",
+          "manufacturer": "Schneider Electric",
+          "model": "APDU9640NMC3 Ethernet",
+          "quantity": 1,
+          "attributes": {
+            "protocol": "Ethernet",
+            "ports": "1",
+            "speedGbps": "1",
+            "supportedSpeedsGbps": "0.01,0.1,1",
+            "connector": "RJ45",
+            "slot": "management"
+          },
+          "notes": "Only the single Ethernet port is a network endpoint. Two sensor and two link ports are separate interfaces.",
+          "fieldReviews": {
+            "protocol": {
+              "value": "Ethernet",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            },
+            "ports": {
+              "value": "1",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            },
+            "speedGbps": {
+              "value": "1",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            },
+            "supportedSpeedsGbps": {
+              "value": "0.01,0.1,1",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            },
+            "connector": {
+              "value": "RJ45",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            },
+            "slot": {
+              "value": "management",
+              "model": "APDU9640NMC3 Ethernet",
+              "manufacturer": "Schneider Electric",
+              "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+              "reviewedAt": "2026-11-11"
+            }
+          }
+        }
+      ],
+      "custom": [
+        {
+          "name": "Input (North America)",
+          "value": "415 V line-to-line, 3-phase wye, neutral + earth; 30 A nameplate / 24 A usable per phase; 17.3 kVA nominal."
+        },
+        {
+          "name": "Regional alternative",
+          "value": "400 V, 32 A IEC operation is listed at 22.1 kVA. The Library planning default uses the US 415 V / 24 A configuration, not the 32 A alternative."
+        },
+        {
+          "name": "Supply connection",
+          "value": "IEC 60309 530P6 / 3P+N+E, 6h, IP44 input plug; 3 m cord. Requires a matching three-phase circuit with neutral."
+        },
+        {
+          "name": "Output voltage",
+          "value": "200–240 V line-to-neutral over the documented 346–415 V input range; approximately 240 V at 415 V input."
+        },
+        {
+          "name": "Receptacles",
+          "value": "48 total: 24 × C13/C15 (odd numbers) and 24 × C13/C15/C19/C21 combination (even numbers)."
+        },
+        {
+          "name": "Outlet limits",
+          "value": "C13/C15: 10 A; combination receptacle: 16 A maximum, with C13/C15 mating limited to 10 A; 250 V maximum rating."
+        },
+        {
+          "name": "Protected banks",
+          "value": "Six single-pole 20 A breakers, eight outlets each. B1/B4: L1–N; B2/B5: L2–N; B3/B6: L3–N."
+        },
+        {
+          "name": "Branch planning ceiling",
+          "value": "16 A per bank (conservative 80% planning allowance on each 20 A breaker). The breaker nameplate is 20 A."
+        },
+        {
+          "name": "Metering",
+          "value": "Advanced Metered model, with input/branch monitoring. Do not treat it as switched or individually outlet-metered."
+        },
+        {
+          "name": "Network management",
+          "value": "APDU9640NMC3: one 10/100/1000BASE-T RJ45 Ethernet port; two sensor ports, two PDU link ports, USB and console interfaces. Link/sensor ports are not LAN connection endpoints."
+        },
+        {
+          "name": "Size and mounting",
+          "value": "0U vertical; 1780 × 56 × 75 mm (H × W × D); 8.4 kg; black; tool-less mounting pegs spaced 1555 mm."
+        },
+        {
+          "name": "Operating environment",
+          "value": "−5 to 60 °C; 5–95% relative humidity; up to 10,000 ft operating altitude."
+        },
+        {
+          "name": "Storage environment",
+          "value": "−25 to 65 °C; 5–95% relative humidity; up to 50,000 ft storage altitude."
+        },
+        {
+          "name": "Compliance",
+          "value": "UL 62368-1; CSA C22.2 No. 62368-1; EN 62368-1; CE; FCC Part 15 Class B; TAA."
+        },
+        {
+          "name": "Warranty",
+          "value": "3 years repair or replace, per manufacturer datasheet."
+        },
+        {
+          "name": "Identification",
+          "value": "APDU11350ME; UPC 731304752714; manufacturer submittal revision 0 approved 2025-02-03."
+        },
+        {
+          "name": "Installation confirmation",
+          "value": "Confirm site voltage, circuit rating and A/B feed assignment for each installed PDU. Library specifications do not confirm facility service availability."
+        }
+      ]
+    },
+    "electricalProfile": {
+      "topology": "three-phase-wye",
+      "voltage": 415,
+      "limitAmps": 24,
+      "confirmed": false,
+      "branches": {
+        "B1": 16,
+        "B2": 16,
+        "B3": 16,
+        "B4": 16,
+        "B5": 16,
+        "B6": 16
+      },
+      "outlets": [
+        {
+          "n": 1,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 2,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 3,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 4,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 5,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 6,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 7,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 8,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 9,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 10,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 11,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 12,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 13,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 14,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 15,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 16,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B1",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 17,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 18,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 19,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 20,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B2",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 21,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 22,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 23,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 24,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B3",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 25,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 26,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 27,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 28,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 29,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 30,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 31,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 32,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 33,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 34,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 35,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 36,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 37,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 38,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 39,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 10
+        },
+        {
+          "n": 40,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B4",
+          "phase": "L1",
+          "limitAmps": 16
+        },
+        {
+          "n": 41,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 42,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 43,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 10
+        },
+        {
+          "n": 44,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B5",
+          "phase": "L2",
+          "limitAmps": 16
+        },
+        {
+          "n": 45,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 46,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 16
+        },
+        {
+          "n": 47,
+          "connectors": [
+            "C13",
+            "C15"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 10
+        },
+        {
+          "n": 48,
+          "connectors": [
+            "C13",
+            "C15",
+            "C19",
+            "C21"
+          ],
+          "branch": "B6",
+          "phase": "L3",
+          "limitAmps": 16
+        }
+      ],
+      "reference": {
+        "source": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_EN",
+        "photo": "https://download.se.com/files?p_Doc_Ref=APDU11350ME_FS",
+        "sha256": "9a1419cb1dea7a79935120aba474fbc972f1909d66fe935dcfada56953246c30",
+        "approved": "2025-02-03",
+        "breakerRatedAmps": 20,
+        "branchPlanningAmps": 16,
+        "branchPlanningBasis": "Conservative 80% ceiling, not a 16 A breaker nameplate.",
+        "outletMatingLimits": {
+          "C13": 10,
+          "C15": 10,
+          "C19": 16,
+          "C21": 16
+        },
+        "regionalAlternative": {
+          "voltage": 400,
+          "inputAmps": 32,
+          "capacityVA": 22100
+        },
+        "inputNameplateAmps": 30,
+        "plug": "IEC 60309 530P6, 3P+N+E, 6h",
+        "outletNumbering": "Manufacturer front photo, cord at top: odd C13/C15 on right, even combination on left, ascending from cord. Rotate 180 degrees for whip down; do not renumber."
+      }
+    }
+  }
+}

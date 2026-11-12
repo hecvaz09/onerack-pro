@@ -6,6 +6,8 @@ import {POCKET_BAYS,isPocket} from '@/lib/onerack-layout';
 import {catalogProfile,artworkUrl,isBlankingPanel} from '@/lib/catalog-artwork';
 import type {RackGridDevice} from './physical-rack-grid';
 import {ApcPduPanel} from './apc-pdu-panel';
+import {Apdu11350Panel} from './apdu11350-panel';
+import {isApdu11350} from '@/lib/apc-apdu11350';
 import {ModelPduOutlets} from './pdu-outlets';
 import {readDetails} from '@/lib/equipment-details';
 import {PX3_4068_ID} from '@/lib/pdu-models';
@@ -30,10 +32,11 @@ function DeviceFace({device,face,pocket}:{device:RackGridDevice;face:'front'|'re
 }
 // Reuse the exact 2D panel components; inert artwork cannot edit connections in 3D.
 function PduFace({device,devices,w,h}:{device:RackGridDevice;devices:RackGridDevice[];w:number;h:number}){
- const apc=/APDU10151ME/.test(device.catalogDevice.sku||device.catalogDevice.model||''),raritan=device.catalogDevice.pduModel===PX3_4068_ID;
+ const gen2=isApdu11350(device.catalogDevice.sku,device.catalogDevice.model),ApcPanel=gen2?Apdu11350Panel:ApcPduPanel;
+ const apc=gen2||/APDU10151ME/.test(device.catalogDevice.sku||device.catalogDevice.model||''),raritan=device.catalogDevice.pduModel===PX3_4068_ID;
  const assignments=readDetails(device.details).outlets,scale=w/100;
  return <div className="rack3-pdu-art" aria-hidden="true" inert><div className={`rack3-pdu-canvas ${apc?'apc-model-pdu':''}`} style={{width:100,height:1800,transform:`scale(${scale},${h/1800})`}}>
- {apc?<ApcPduPanel devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} outlets={device.catalogDevice.outlets||[]} assignments={assignments} disabled/>:raritan?<><div className="rack3-pdu-model-name">Raritan<br/>{device.catalogDevice.sku||device.catalogDevice.model}</div><ModelPduOutlets devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} letter={device.mounting.includes('left')?'B':'A'} assignments={assignments} disabled hidden={false} onOutlet={()=>{}}/></>:<div className="rack3-pdu-face"><strong>{device.label||device.catalogDevice.model}</strong>{(device.catalogDevice.outlets||[]).map(o=><i key={o.n} title={`P${o.n}`}/>)}</div>}
+ {apc?<ApcPanel devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} outlets={device.catalogDevice.outlets||[]} assignments={assignments} disabled/>:raritan?<><div className="rack3-pdu-model-name">Raritan<br/>{device.catalogDevice.sku||device.catalogDevice.model}</div><ModelPduOutlets devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} letter={device.mounting.includes('left')?'B':'A'} assignments={assignments} disabled hidden={false} onOutlet={()=>{}}/></>:<div className="rack3-pdu-face"><strong>{device.label||device.catalogDevice.model}</strong>{(device.catalogDevice.outlets||[]).map(o=><i key={o.n} title={`P${o.n}`}/>)}</div>}
  </div></div>;
 }
 function RailMarks({heightRU}:{heightRU:number}){return <div className="rack3-ru">{Array.from({length:heightRU},(_,i)=><span key={i}><b>{heightRU-i}</b><i/><i/><i/></span>)}</div>;}
