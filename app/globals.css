@@ -356,6 +356,9 @@ button[aria-pressed="true"] { border-color:var(--primary); }
 .physical-device-handle span { max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .physical-device-handle small { font:500 11px/1.3 var(--font-mono),ui-monospace,monospace; color:rgb(242 242 247 / 70%); letter-spacing:.04em; }
 .physical-device:hover { outline:1px solid var(--primary); outline-offset:-1px; }
+/* Cache each hardware face independently so a socket hover does not repaint
+   both full rack elevations. Keep the original SVGs and hit target geometry. */
+.onerack-physical :is(.physical-device,.physical-pdu) { transform:translateZ(0); }
 .physical-device:hover .device-remove-dot,.physical-device:focus-within .device-remove-dot,.physical-pdu:hover .device-remove-dot,.physical-pdu:focus-within .device-remove-dot { opacity:1; }
 .onerack-physical .device-remove-dot { width:15px; height:15px; font-size:14px; top:2px; right:2px; z-index:4; }
 .physical-preview { grid-column:1; z-index:3; pointer-events:none; background:#48a8e822; outline:2px solid #48a8e8; outline-offset:-2px; display:grid; place-items:center; color:#9dd7ff; font:10px ui-monospace,monospace; }
@@ -762,9 +765,11 @@ html.dark {
   background:var(--glass-surface);border-color:#ffffff40 #ffffff1c #ffffff14 #ffffff2b;
   box-shadow:var(--glass-shadow);color:var(--foreground);
 }
-/* Both browser implementations are supported; blur is never applied per device. */
+/* Both browser implementations are supported; blur is never applied per device.
+   The tall interactive elevation keeps the glass colors without a full-canvas
+   backdrop filter that must be recomposited as pointer highlights change. */
 @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
-  .bg-card:not(.bg-card .bg-card),.rack-status-pane,.appearance-menu>div,.equipment-dialog,.rack-context,.rack-navigation {
+  .bg-card:not(.bg-card .bg-card):not(.elevation-card),.rack-status-pane,.appearance-menu>div,.equipment-dialog,.rack-context,.rack-navigation {
     -webkit-backdrop-filter:blur(14px) saturate(112%);
     backdrop-filter:blur(14px) saturate(112%);
   }
