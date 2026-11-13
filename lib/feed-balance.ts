@@ -1,6 +1,6 @@
 import {isMeasuredPower} from './power-consumption.ts';
 import {B300_INPUT_IDENTITY,powerInputLabel} from './b300-power-inputs.ts';
-import {analyzeFeeds,outletVoltage,supplyDemand,type Cord,type Supply,type Load} from './feed-power.ts';
+import {analyzeFeeds,outletVoltage,supplyDemand,siteVerificationIssues,type Cord,type Supply,type Load} from './feed-power.ts';
 import {feedRack,type FeedEquipment} from './feed-rack.ts';
 import type {FeedInputs} from './feed-power.ts';
 import {readDetails} from './equipment-details.ts';
@@ -14,6 +14,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  // Planning can calculate distribution without undocumented PSU limits. All known
  // limits, wattage, PF, cord ampacity, outlet and supply data remain mandatory.
  const pending=new Set<string>();
+ if(options.planning)for(const issue of siteVerificationIssues(supplies))pending.add(issue);
  if(options.planning)for(const load of loads){
   if(!load.connector)pending.add(`${load.name}: cable compatibility is pending; outlet-only planning.`);
   if(load.assessment==='pdu-capacity'&&!load.cordLimitAmps)pending.add(`${load.name}: verify usable input cord current.`);

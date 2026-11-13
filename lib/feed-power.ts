@@ -38,10 +38,14 @@ export function outletVoltage(p:Supply,o:Supply['outlets'][number]){
  return p.topology==='three-phase-wye'&&!o.phase?.includes('-')?p.voltage/Math.sqrt(3):p.voltage;
 }
 export function supplyCapacityVA(p:Supply){return p.voltage*p.limitAmps*(p.topology&&p.topology!=='single-phase'?Math.sqrt(3):1);}
+export const SITE_SUPPLY_CHECK='confirm actual supply voltage, phase map and usable limits';
+// Site confirmation is distinct from the specifications needed to calculate a design.
+export function supplyDesignIssues(p:Supply){return supplyIssues(p).filter(issue=>issue!==SITE_SUPPLY_CHECK);}
+export function siteVerificationIssues(supplies:Supply[]){return supplies.filter(p=>p.confirmed!==true).map(p=>`${p.name}: ${SITE_SUPPLY_CHECK}.`);}
 export function supplyIssues(p:Supply):string[]{
  const errors:string[]=[],three=p.topology&&p.topology!=='single-phase';
  if(p.topology&&!['single-phase','three-phase-wye','three-phase-delta'].includes(p.topology))errors.push('choose a supported supply topology');
- if(p.confirmed===false)errors.push('confirm actual supply voltage, phase map and usable limits');
+ if(p.confirmed!==true)errors.push(SITE_SUPPLY_CHECK);
  if(!['A','B'].includes(p.feed))errors.push('feed A or B is not assigned');
  if(!Number.isFinite(p.voltage)||p.voltage<=0||!Number.isFinite(p.limitAmps)||p.limitAmps<=0)errors.push('supply limits are invalid');
  if(!p.outlets.length||!p.branches||p.outlets.some(o=>!o.branch||!Number.isFinite(p.branches?.[o.branch])||Number(p.branches?.[o.branch])<=0||!Number.isFinite(o.limitAmps)||Number(o.limitAmps)<=0))errors.push('branch mapping and outlet current ratings still need verification');

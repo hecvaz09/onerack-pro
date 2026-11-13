@@ -31,7 +31,7 @@ export function psuConnectionStatuses(equipment:FeedEquipment[],configuration:un
    // Historical notes are not validation state. Re-evaluate every saved input
    // using current Library data, settings and shared PDU loading (including B300).
    const {errors,pendingChecks,verificationNotes}=outletPlanningChecks(individualChecks(cord));
-   const status:PsuStatus=errors.length?{state:'issue',description:errors.join(' ')}:pendingChecks.length?{state:'pending',description:pendingChecks.join(' ')}:{state:'connected',description:'Saved outlet plan: PDU and outlet checks passed using entered demand. Equipment and cable verification is separate.'};
+   const status:PsuStatus=errors.length?{state:'issue',description:errors.join(' ')}:pendingChecks.length?{state:'pending',description:pendingChecks.join(' ')}:{state:'connected',description:'Saved outlet plan: design checks passed using entered demand and planned PDU limits. Site, equipment and cable verification is separate.'};
    inlets[inlet]={...status,...(verificationNotes.length?{verificationNotes}:{})};
   }
  }

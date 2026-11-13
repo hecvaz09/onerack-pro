@@ -1,5 +1,5 @@
 import {feedRack,type FeedEquipment} from './feed-rack.ts';
-import {supplyIssues,type FeedInputs} from './feed-power.ts';
+import {supplyDesignIssues,type FeedInputs} from './feed-power.ts';
 export type SetupCheck={deviceId:string;name:string;field?:string;target:'power-equipment'|'power-feeds';message:string;blocking:boolean};
 export function powerSetupAudit(equipment:FeedEquipment[],inputs:FeedInputs){
  const {loads,supplies}=feedRack(equipment,inputs),checks:SetupCheck[]=[];
@@ -16,6 +16,6 @@ export function powerSetupAudit(equipment:FeedEquipment[],inputs:FeedInputs){
   if(d.assessment!=='pdu-capacity'&&!d.psuAcCapacity)add('psuAcCapacity','Supported AC load per PSU is undocumented; planning verification remains pending. DC output watts are not an AC limit.',false);
  }
  if(!supplies.some(p=>p.feed==='A')||!supplies.some(p=>p.feed==='B'))checks.push({deviceId:'feeds',name:'Rack power feeds',target:'power-feeds',message:'Both independent feeds A and B are required.',blocking:true});
- for(const p of supplies)for(const message of supplyIssues(p))checks.push({deviceId:p.id,name:p.name,target:'power-feeds',message,blocking:true});
+ for(const p of supplies)for(const message of supplyDesignIssues(p))checks.push({deviceId:p.id,name:p.name,target:'power-feeds',message,blocking:true});
  return checks;
 }
