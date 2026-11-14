@@ -28,7 +28,7 @@ export function powerCapacityReview(equipment:FeedEquipment[],configuration:unkn
  const primary=breaches.find(b=>b.lost===null)||breaches[0];
  const assignments=[...model.cords,candidate];
  const ids=new Set(assignments.filter(c=>c.pduId===supply.id).map(c=>c.deviceId));
- const devices=model.loads.filter(d=>ids.has(d.id)).map(d=>({id:d.id,name:d.name,watts:d.watts,pf:d.pf,estimateSource:d.estimateSource,pfEstimateSource:d.pfEstimateSource,measurement:d.measurement,partialChassis:d.assessment==='pdu-capacity'&&assignments.filter(c=>c.deviceId===d.id).length!==d.cords}));
+ const devices=model.loads.filter(d=>ids.has(d.id)).map(d=>({id:d.id,name:d.name,watts:d.watts,pf:d.pf,estimateSource:d.estimateSource,pfEstimateSource:d.pfEstimateSource,measurement:d.measurement,assignedInputs:assignments.filter(c=>c.deviceId===d.id).length,requiredInputs:d.cords,partialChassis:d.assessment==='pdu-capacity'&&assignments.filter(c=>c.deviceId===d.id).length!==d.cords}));
  const context=primary.lost?`If Feed ${primary.lost} is lost`:'During normal operation';
  const message=`${context}, ${supply.name} / Feed ${supply.feed}: ${primary.label} reaches ${primary.amps.toFixed(2)} A against ${primary.limit.toFixed(2)} A usable (${(primary.amps-primary.limit).toFixed(2)} A over).`;
  return {supply:{id:supply.id,name:supply.name,feed:supply.feed,voltage:supply.voltage,topology:supply.topology},primary,breaches,scenarios,devices,headroomPercent:inputs.headroomPercent,message,

@@ -14,7 +14,15 @@ Whole-rack automatic balancing retains its required inputs and capacity checks. 
 
 Regression coverage exercises the actual React callbacks through the real server action with an isolated in-memory database adapter: selection, explicit planning save, double-click suppression, reload, independent PSU state and removal. Additional cases cover same-label devices, connected unknown loads, capacity limits, endpoint conflicts and unchanged automatic-plan blocking. These tests do not constitute live browser or production database verification.
 
-## Capacity review
+## Reviewing a complete proposal
+
+After Calculate connections, selecting a proposed PSU uses the complete current layout, including the other PSU inputs and all shared PDU loads. The panel shows the selected input's normal and feed-loss contributions and offers Save planning layout (or Save connections). It calls the existing transactional bulk action; it never saves an isolated input based on a completed-layout calculation. Save recomputes the plan under the rack lock and rejects a stale revision or any known capacity failure.
+
+Review next connection also opens the complete proposal. Direct manual outlet selection retains the individual save workflow. If that incomplete arrangement overloads a bank but a full calculated layout is available, Review complete layout opens the proposed assignment before any save. An alternative outside the reviewed proposal leaves the proposal review; changed rack data requires recalculation. Saved PSU indicators remain off until the save succeeds.
+
+Regression coverage includes four 4350 W / PF 0.9 PSU inputs at 415 V line-to-line wye: an isolated input draws a modeled 20.17 A, while the complete 2+2 arrangement contributes 5.04 A normally and 10.09 A per surviving input after a feed loss. Real overloads and manual single-input limits remain blocking. These are synthetic tests, not measured device values.
+
+## Individual capacity review
 
 A selected connection that exceeds a known PDU input, bank or neutral limit opens a capacity review instead of the missing-settings workflow. The review reads the existing calculator's current and projected scenario totals by PDU ID. It compares normal operation and both feed-loss cases, shows the amount over the usable limit, and lists the whole-system demand/PF values for devices assigned to the selected PDU. Review demand opens the exact device's existing watts field without editing or saving it. Unsaved settings still use the existing save-first workflow.
 
