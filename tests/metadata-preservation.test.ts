@@ -81,14 +81,15 @@ test('metadata actions retain controlled error behavior for synthetic transactio
 
 for(const [name,value] of [['missing',undefined],['null',null],['array',[]],['string','legacy'],['malformed section',{feed:'B',whip:'down',future:{keep:true},nodes:['keep'],outlets:[]}]] as const){
  test('applyPowerBalance handles '+name+' PDU details without losing unrelated fields',async()=>{
-  const f=powerFixture();const devices=f.rack.devices.map(d=>d.catalogDevice.category==='pdu'?{...d,details:value}:d);
+  const f=powerFixture();const devices=f.rack.devices.map(d=>d.catalogDevice.category==='pdu'?{...d,details:name==='malformed section'?{...value as object,feed:d.id==='pdu-a'?'A':'B'}:value}:d);
   const rack=deepFreeze({...f.rack,devices});
   const equipment=devices.map(d=>({id:d.id,name:`${d.label} · U${d.startRU}`,model:d.catalogDevice.model,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
   const plan=balancePx3(equipment,f.settings);assert.equal(plan.error,undefined);
   const h=await actionHarness({rack});assert.deepEqual(await h.power.applyPowerBalance('sample-rack',powerRevision(equipment,f.settings)),{ok:true});
   for(const id of ['pdu-a','pdu-b']){
    const actual=payload(h,id),outlets=actual.outlets as Record<string,ObjectValue>;
-   const original=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+   const savedDetails=devices.find(d=>d.id===id)!.details;
+   const original=savedDetails&&typeof savedDetails==='object'&&!Array.isArray(savedDetails)?savedDetails:{};
    assert.deepEqual(actual,{...original,outlets});assert.equal(Object.keys(outlets).length,1);
    const assigned=plan.assignments.find(c=>c.pduId===id)!;assert.equal(outlets[assigned.outlet].deviceId,assigned.deviceId);assert.equal(outlets[assigned.outlet].inlet,assigned.inlet);
   }

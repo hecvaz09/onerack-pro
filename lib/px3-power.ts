@@ -1,3 +1,4 @@
+import {pduFeed} from './pdu-placement.ts';
 import {isB300PowerDevice} from './b300-power-inputs.ts';
 import { PX3_4068_OUTLETS, PX3_4068_POWER, pduModelId } from "./pdu-models.ts";
 import { acDemand } from "./power-demand.ts";
@@ -45,8 +46,8 @@ export function analyzePx3(equipment:PowerEquipment[],settings:Px3Settings,assig
   const error=px3SettingsError(settings);
   if(error)return {issues:[{level:"incomplete",message:error}],pdus,ready:false,watts:0,settings};
   if(!settings.supplyConfirmed)issue("incomplete","Confirm independent A/B feeds, actual voltage, and upstream continuous current capacity.");
-  const installed=equipment.filter(d=>d.category==="pdu").sort((a,b)=>(a.mounting==="rear-right"?0:1)-(b.mounting==="rear-right"?0:1)||a.id.localeCompare(b.id)), loads=equipment.filter(d=>d.category!=="pdu");
-  if(installed.length!==2||installed.filter(d=>d.mounting==="rear-left").length!==1||installed.filter(d=>d.mounting==="rear-right").length!==1)issue("incomplete","Install one supported PDU on each rear rail: right A and left B.");
+  const installed=equipment.filter(d=>d.category==="pdu").sort((a,b)=>(pduFeed(a)==="A"?0:1)-(pduFeed(b)==="A"?0:1)||a.id.localeCompare(b.id)), loads=equipment.filter(d=>d.category!=="pdu");
+  if(installed.length!==2||installed.filter(d=>pduFeed(d)==="A").length!==1||installed.filter(d=>pduFeed(d)==="B").length!==1)issue("incomplete","Install one supported PDU on feed A and one on independent feed B.");
   for(const p of installed)if(!pduModelId(p.rawData))issue("incomplete",`${p.name}: this calculator only supports the verified PX3-4068YV-V2 profile.`);
   let watts=0;
   for(const d of loads){const b=settings.budgets[d.id];if(!b?.confirmed){issue("incomplete",`${d.name}: confirm its total AC budget, voltage/cord compatibility and full-load capability on either PSU group.`);continue;}if(!b.passive){watts+=deviceDemand(b,settings).watts;if(b.testOnly)issue("warning",`${d.name}: SYNTHETIC TEST assumptions; not a verified hardware plan.`);if(b.psuAcCapacity&&survivorCordDemand(b,settings).watts>b.psuAcCapacity+1e-9)issue("overload",`${d.name}: surviving PSU load exceeds its ${b.psuAcCapacity} W supported AC budget.`);}}
@@ -61,12 +62,12 @@ export function analyzePx3(equipment:PowerEquipment[],settings:Px3Settings,assig
     inlets.add(inlet);
   }
   for(const p of installed){
-    const totals:PduTotals={id:p.id,name:p.name,side:p.mounting==="rear-left"?"B":"A",watts:0,kva:0,phases:[0,0,0],breakers:Array(15).fill(0),outlets:[],spread:0};
+    const totals:PduTotals={id:p.id,name:p.name,side:pduFeed(p)==="B"?"B":"A",watts:0,kva:0,phases:[0,0,0],breakers:Array(15).fill(0),outlets:[],spread:0};
     for(const a of assignments.filter(a=>a.pduId===p.id)){
       const o=PX3_4068_OUTLETS.find(o=>o.n===a.outlet), d=loads.find(d=>d.id===a.deviceId), b=settings.budgets[a.deviceId];
       if(!o){issue("incomplete",`${p.name}: outlet ${a.outlet} does not exist.`);continue;}
       if(!d||!b?.confirmed)continue;
-      if((b.psusPerFeed??1)>1){const n=b.psusPerFeed!;if((p.mounting==="rear-right"&&a.inlet>n)||(p.mounting==="rear-left"&&a.inlet<=n))issue("incomplete",`${d.name}: PSU ${a.inlet} is on the wrong feed for its configured group.`);}
+      if((b.psusPerFeed??1)>1){const n=b.psusPerFeed!;if((pduFeed(p)==="A"&&a.inlet>n)||(pduFeed(p)==="B"&&a.inlet<=n))issue("incomplete",`${d.name}: PSU ${a.inlet} is on the wrong feed for its configured group.`);}
       if(b.passive){issue("incomplete",`${d.name}: passive equipment has a power cable.`);continue;}
       if(b.connector!==o.type)issue("incomplete",`${p.name} outlet ${o.n}: ${o.type} does not match ${d.name}'s ${b.connector} cord.`);
       if(settings.reserveDedicated&&o.cb<=3)issue("overload",`${p.name} outlet ${o.n}: dedicated breaker reserved for facility use.`);

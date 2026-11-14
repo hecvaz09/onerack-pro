@@ -1,4 +1,5 @@
 "use client";
+import {pduFeed} from '@/lib/pdu-placement';
 import Image from 'next/image';
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import type {RackConfig} from '@/lib/rack-config';
@@ -36,7 +37,7 @@ function PduFace({device,devices,w,h}:{device:RackGridDevice;devices:RackGridDev
  const apc=gen2||/APDU10151ME/.test(device.catalogDevice.sku||device.catalogDevice.model||''),raritan=device.catalogDevice.pduModel===PX3_4068_ID;
  const assignments=readDetails(device.details).outlets,scale=w/100;
  return <div className="rack3-pdu-art" aria-hidden="true" inert><div className={`rack3-pdu-canvas ${apc?'apc-model-pdu':''}`} style={{width:100,height:1800,transform:`scale(${scale},${h/1800})`}}>
- {apc?<ApcPanel devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} outlets={device.catalogDevice.outlets||[]} assignments={assignments} disabled/>:raritan?<><div className="rack3-pdu-model-name">Raritan<br/>{device.catalogDevice.sku||device.catalogDevice.model}</div><ModelPduOutlets devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} letter={device.mounting.includes('left')?'B':'A'} assignments={assignments} disabled hidden={false} onOutlet={()=>{}}/></>:<div className="rack3-pdu-face"><strong>{device.label||device.catalogDevice.model}</strong>{(device.catalogDevice.outlets||[]).map(o=><i key={o.n} title={`P${o.n}`}/>)}</div>}
+ {apc?<ApcPanel devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} outlets={device.catalogDevice.outlets||[]} assignments={assignments} disabled/>:raritan?<><div className="rack3-pdu-model-name">Raritan<br/>{device.catalogDevice.sku||device.catalogDevice.model}</div><ModelPduOutlets devices={devices} deviceId={device.id} ports={device.networkPorts} connected={device.connectedPorts} letter={pduFeed(device)||'?'} assignments={assignments} disabled hidden={false} onOutlet={()=>{}}/></>:<div className="rack3-pdu-face"><strong>{device.label||device.catalogDevice.model}</strong>{(device.catalogDevice.outlets||[]).map(o=><i key={o.n} title={`P${o.n}`}/>)}</div>}
  </div></div>;
 }
 function RailMarks({heightRU}:{heightRU:number}){return <div className="rack3-ru">{Array.from({length:heightRU},(_,i)=><span key={i}><b>{heightRU-i}</b><i/><i/><i/></span>)}</div>;}
@@ -93,7 +94,7 @@ export function RackOverview3D({heightRU,config,devices,onEdit}:{heightRU:number
  const frontFace=device.mounting==='rear'?'rear':'front',backFace=frontFace==='front'?'rear':'front';
  const name=`${device.label||device.catalogDevice.model} · ${location(device)}`;
  const pduFace=<PduFace device={device} devices={devices} w={w} h={h}/>;
- return <Box key={device.id} rotationY={0} x={x} y={y} z={z} w={pdu?depth:w} h={h} d={pdu?w:depth} name={name} className={`rack3-equipment ${blankPanel?'rack3-blanking-panel':''} ${pdu?(device.mounting.includes('left')?'rack3-pdu-facing-right':'rack3-pdu-facing-left'):''} ${pdu&&device.catalogDevice.pduModel===PX3_4068_ID?(device.mounting.includes('left')?'rack3-raritan-B':'rack3-raritan-A'):''} ${selectedId===device.id?'rack3-selected':''}`} onSelect={()=>{if(!moved.current)setSelected(device.id);}} left={pdu?(device.mounting.includes('left')?<div className="rack3-pdu-back"/>:pduFace):undefined} right={pdu?(device.mounting.includes('left')?pduFace:<div className="rack3-pdu-back"/>):undefined} front={pdu?undefined:<DeviceFace device={device} pocket={pocket} face={frontFace}/>} rear={pdu?undefined:<DeviceFace device={device} pocket={pocket} face={backFace}/>}/>;
+ return <Box key={device.id} rotationY={0} x={x} y={y} z={z} w={pdu?depth:w} h={h} d={pdu?w:depth} name={name} className={`rack3-equipment ${blankPanel?'rack3-blanking-panel':''} ${pdu?(device.mounting.includes('left')?'rack3-pdu-facing-right':'rack3-pdu-facing-left'):''} ${pdu&&device.catalogDevice.pduModel===PX3_4068_ID?(pduFeed(device)==='B'?'rack3-raritan-B':'rack3-raritan-A'):''} ${selectedId===device.id?'rack3-selected':''}`} onSelect={()=>{if(!moved.current)setSelected(device.id);}} left={pdu?(device.mounting.includes('left')?<div className="rack3-pdu-back"/>:pduFace):undefined} right={pdu?(device.mounting.includes('left')?pduFace:<div className="rack3-pdu-back"/>):undefined} front={pdu?undefined:<DeviceFace device={device} pocket={pocket} face={frontFace}/>} rear={pdu?undefined:<DeviceFace device={device} pocket={pocket} face={backFace}/>}/>;
  })}
  {cables&&<RackCableBundles devices={devices} heightRU={heightRU} width={outerW} depth={D} pockets={config.pockets}/> }
  </div><span className="rack3-hint">Drag to orbit · Arrow keys also rotate</span>

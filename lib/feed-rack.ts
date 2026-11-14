@@ -1,3 +1,4 @@
+import {pduFeed} from './pdu-placement.ts';
 import {isB300PowerDevice} from './b300-power-inputs.ts';
 import {libraryPowerLimits} from './library-power-limits.ts';
 import {readPx3Settings} from './px3-power.ts';
@@ -22,14 +23,14 @@ export function readFeedInputs(raw:unknown,equipment?:FeedEquipment[]):FeedInput
 export function feedRack(equipment:FeedEquipment[],inputs:FeedInputs){
   const supplies:Supply[]=[],loads:Load[]=[],cords:Cord[]=[];
   for(const e of equipment){
-    const raw=obj(e.rawData),details=obj(e.details);
+    const raw=obj(e.rawData);
     if(e.category==='pdu'){
       const profile=obj(raw.electricalProfile),preset=pduModelId(raw)?{
        topology:'three-phase-wye' as const,voltage:400,limitAmps:PX3_4068_POWER.inputAmps,confirmed:false,
        branches:Object.fromEntries(Array.from({length:15},(_,i)=>[String(i+1),PX3_4068_POWER.breakerAmps])),
        outlets:PX3_4068_OUTLETS.map(o=>({n:o.n,connectors:[o.type],branch:String(o.cb),phase:o.phase as 'L1'|'L2'|'L3',limitAmps:PX3_4068_POWER.outletAmps[o.type]}))
       }:undefined;
-      const plannedFeed=(details.feed==='A'||details.feed==='B'?details.feed:e.mounting?.startsWith('rear-right')?'A':e.mounting?.startsWith('rear-left')?'B':undefined) as Supply['feed'];
+      const plannedFeed=pduFeed(e) as Supply['feed'];
       const configured=inputs.supplies?.[e.id];
       supplies.push({feed:plannedFeed,topology:profile.topology as Supply['topology'],voltage:Number(profile.voltage)||0,limitAmps:Number(profile.limitAmps)||0,outlets:Array.isArray(profile.outlets)?profile.outlets as Supply['outlets']:[],branches:profile.branches as Supply['branches'],...(typeof profile.confirmed==='boolean'?{confirmed:profile.confirmed}:{}),...preset,...configured,id:e.id,name:e.name});
       for(const [n,a] of Object.entries(readDetails(e.details).outlets))if(a.deviceId)cords.push({pduId:e.id,outlet:Number(n),deviceId:a.deviceId,inlet:a.inlet||0,...(a.inputIdentity?{inputIdentity:a.inputIdentity}:{})});

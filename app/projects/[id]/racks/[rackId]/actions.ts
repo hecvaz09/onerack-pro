@@ -1,4 +1,6 @@
 "use server";
+import type {Prisma} from '@/generated/prisma/client';
+import {preparePduPlacement,preservedPduIdentity,type PduPlacement} from '@/lib/pdu-placement';
 import {powerWiringGuide} from '@/lib/power-wiring-guide';
 import {isB300PowerDevice,B300_INPUT_IDENTITY} from '@/lib/b300-power-inputs';
 import {validateVisualPower,visualPowerBalance,canSaveVisualPowerDraft} from '@/lib/visual-power';
@@ -20,6 +22,23 @@ export type PlaceDeviceValues = { catalogDeviceId: string; startRU: string; labe
 export type PlaceDeviceState = { error: string; values: PlaceDeviceValues } | { success: true } | null;
 export type MoveDeviceResult = { ok: true } | { ok: false; error: string };
 export type ConnectionResult = MoveDeviceResult;
+
+export async function savePduPlacement(rackId:string,placements:PduPlacement[],revision:string):Promise<MoveDeviceResult> {
+  try {
+    const result=await rackMutation(rackId,async tx=>{
+      const rack=await tx.rack.findUnique({where:{id:rackId},include:{devices:{include:{catalogDevice:true}}}});
+      if(!rack)return {error:'Rack not found.'};
+      const plan=preparePduPlacement(rack.devices,rack.configuration,placements,revision);
+      if('error' in plan)return plan;
+      for(const update of plan.updates)await tx.deviceInstance.update({where:{id:update.id},data:{mounting:update.mounting,details:update.details as Prisma.InputJsonValue}});
+      return {projectId:rack.projectId};
+    });
+    if('error' in result)return {ok:false,error:result.error!};
+    revalidatePath(`/projects/${result.projectId}/racks/${rackId}`);
+    revalidatePath(`/projects/${result.projectId}/racks/${rackId}/connections`);
+    return {ok:true};
+  }catch{return {ok:false,error:'Could not save PDU positions. No positions were changed.'};}
+}
 
 export async function saveRackSettings(rackId: string, form: FormData): Promise<MoveDeviceResult> {
   const settings = rackSettingsFromForm(form);
@@ -222,7 +241,7 @@ export async function moveDevice(rackId: string, deviceId: string, toStartRU: nu
       if (!device) return { error: "Device not found in this rack." };
       const error = mountingError(rack.heightRU, toStartRU, device.catalogDevice.heightRU, device.catalogDevice.category, mounting ?? device.mounting, rack.devices.map(d => ({ id: d.id, startRU: d.startRU, heightRU: d.catalogDevice.heightRU, mounting: d.mounting, name: d.label || d.catalogDevice.model })), deviceId,readRackConfig(rack.configuration));
       if (error) return { error };
-      await tx.deviceInstance.update({ where: { id: deviceId }, data: { startRU: toStartRU, ...(mounting ? { mounting } : {}) } });
+      await tx.deviceInstance.update({ where: { id: deviceId }, data: { startRU: toStartRU, ...(mounting ? { mounting } : {}), ...(device.catalogDevice.category === "pdu" && device.catalogDevice.heightRU === 0 && mounting && mounting !== device.mounting ? {details:preservedPduIdentity(device,rack.configuration) as Prisma.InputJsonValue} : {}) } });
       return { projectId: rack.projectId };
     });
     if ("error" in result) return { ok: false, error: result.error! };

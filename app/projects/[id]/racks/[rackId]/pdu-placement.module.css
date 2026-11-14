@@ -1,0 +1,31 @@
+.panel {border:1px solid var(--border);border-radius:14px;background:var(--glass-surface,var(--card));margin:12px 0;color:var(--foreground);}
+.panel summary {cursor:pointer;padding:14px 18px;font-size:14px;font-weight:650;}
+.panel summary span {margin-left:8px;color:var(--muted-foreground);font-size:12px;font-weight:400;}
+.content {padding:0 18px 16px;max-width:880px;}
+.content p {font-size:13px;line-height:1.5;margin:0 0 14px;color:var(--muted-foreground);}
+.content fieldset {border:0;padding:0;margin:0;min-width:0;}
+.content button,.content select {border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--foreground);padding:10px 14px;font:inherit;font-size:13px;min-height:42px;}
+.content button {cursor:pointer;font-weight:600;}
+.content button:hover:not(:disabled) {border-color:var(--primary);}
+.content :is(button,select):focus-visible {outline:2px solid var(--ring);outline-offset:3px;}
+.content button:disabled {opacity:.5;cursor:not-allowed;}
+.preview {display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 16px;}
+.preview section {min-width:0;}
+.preview h3 {font-size:13px;margin:0 0 8px;}
+.slots {display:flex;gap:8px;}
+.slot {flex:1;min-width:0;display:grid;gap:4px;border:1px solid var(--border);border-top:3px solid var(--border);border-radius:9px;background:color-mix(in srgb,var(--background) 30%,transparent);padding:12px;}
+.slot[data-feed=A] {border-top-color:#e37e86;}
+.slot[data-feed=B] {border-top-color:#7da9ef;}
+.slot small {text-transform:capitalize;font-size:11px;color:var(--muted-foreground);}
+.slot strong {font-size:16px;}
+.slot span {font-size:11px;color:var(--muted-foreground);overflow-wrap:anywhere;}
+.rows {display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin:20px 0 12px;}
+.rows label {display:flex;align-items:center;gap:12px;min-width:0;}
+.rows label>span {flex:1;min-width:0;display:grid;gap:4px;font-size:13px;}
+.rows small {font-size:11px;color:var(--muted-foreground);overflow-wrap:anywhere;}
+.rows select {max-width:58%;}
+.content .hint {font-size:12px;}
+.actions {display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.content .save {background:var(--primary);color:var(--primary-foreground);border-color:var(--primary);}
+.content [role=alert] {color:var(--destructive);}
+@media(max-width:600px){.content{padding:0 12px 12px}.panel summary span{display:block;margin:4px 0 0 16px}.preview{gap:10px}.slots{flex-direction:column}.rows{grid-template-columns:1fr}.slot{padding:10px}}

@@ -60,7 +60,7 @@ export function PlaceDeviceForm({
             </option>
           ))}
         </select>
-        <select name="mounting" aria-label="Mounting position" defaultValue={values?.mounting ?? "front"} className={inputClassName}><option value="front">Front face</option><option value="rear">Rear face</option><option value="rear-left">Rear left rail · PDU</option><option value="rear-right">Rear right rail · A1</option><option value="rear-left-2">Rear left second rail · B2</option><option value="rear-right-2">Rear right second rail · A2</option></select>
+        <select name="mounting" aria-label="Mounting position" defaultValue={values?.mounting ?? "front"} className={inputClassName}><option value="front">Front face</option><option value="rear">Rear face</option><option value="rear-left">Rear left · inner PDU rail</option><option value="rear-right">Rear right · inner PDU rail</option><option value="rear-left-2">Rear left · outer PDU rail</option><option value="rear-right-2">Rear right · outer PDU rail</option></select>
         <input
           type="number"
           name="startRU"

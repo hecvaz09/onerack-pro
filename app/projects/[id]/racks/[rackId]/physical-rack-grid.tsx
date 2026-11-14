@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Local rack SVG faceplates. */
+import {pduFeed,pduNumber,type PduFeed} from '@/lib/pdu-placement';
 import type {PsuStatuses,PsuStatus} from '@/lib/psu-connection-status';
 import {StandardRackFace} from "./standard-rack-face";
 import {standardFaceGeometry} from "@/lib/rack-face-geometry";
@@ -27,6 +28,7 @@ import { readDetails, type Outlet } from "@/lib/equipment-details";
 export type RackGridDevice = {
     id: string;
     pending?: boolean;
+    pduFeed?: PduFeed|null;
     details?: unknown;
     startRU: number;
     mounting: string;
@@ -203,7 +205,7 @@ function PduColumn({ side, heightRU, ruPitch, devices, controls }: {
     devices: RackGridDevice[];
     controls: Controls;
 }) {
-    const { setNodeRef, isOver } = useDroppable({ id: side, data: { ru: 1, mounting: side } }), device = devices.find(d => d.mounting === side && d.catalogDevice.heightRU === 0), letter = side.startsWith("rear-left") ? "B" : "A";
+    const { setNodeRef, isOver } = useDroppable({ id: side, data: { ru: 1, mounting: side } }), device = devices.find(d => d.mounting === side && d.catalogDevice.heightRU === 0), letter = device ? pduFeed(device) || "?" : "";
     const { setNodeRef: setDragRef, attributes: dragAttributes, listeners: dragListeners, isDragging: dragging } = useDraggable({ id: device ? "pdu:" + device.id : "pdu-empty:" + side, disabled: !device || controls.disabled || device.pending, data: { kind: "placed", deviceId: device?.id, mounting: side, startRU: 1, heightRU: 0 } });
     const hidden = !!device && (dragging || controls.draggingId === device.id);
     const assignments = readDetails(device?.details).outlets;
@@ -211,6 +213,6 @@ function PduColumn({ side, heightRU, ruPitch, devices, controls }: {
     const gen2=isApdu11350(device?.catalogDevice.sku,device?.catalogDevice.model);
     const ApcPanel=gen2?Apdu11350Panel:ApcPduPanel;
     const apcLayout=gen2||/APDU10151ME/.test(device?.catalogDevice.sku||device?.catalogDevice.model||"");
-    return <div ref={setNodeRef} data-mounting={side} className={`physical-pdu pdu-${letter} ${modelLayout ? "model-pdu" : ""} ${apcLayout?"apc-model-pdu":""} ${isOver ? "drop-over" : ""}`} style={{ height: heightRU * ruPitch }}><div className="physical-pdu-title">PDU-{letter}{side.endsWith("-2")?"2":devices.some(d=>d.mounting.endsWith("-2"))?"1":""}</div><button ref={setDragRef} {...(device ? dragAttributes : {})} {...(device ? dragListeners : {})} data-device-block={device ? true : undefined} style={{ visibility: hidden ? "hidden" : undefined, touchAction: "none" }} type="button" className={`physical-pdu-body ${modelLayout ? "pdu-model-handle" : device?.catalogDevice.outlets?.length ? "pdu-with-outlets" : ""}`} disabled={controls.disabled} aria-label={device ? `${device.label || device.catalogDevice.model} PDU-${letter}` : `Install PDU-${letter}`} onClick={() => device ? controls.onSelect?.(device.id) : controls.onPlace?.(1, side)} onContextMenu={e => { e.preventDefault(); if (device)
+    return <div ref={setNodeRef} data-mounting={side} className={`physical-pdu pdu-${letter} ${modelLayout ? "model-pdu" : ""} ${apcLayout?"apc-model-pdu":""} ${isOver ? "drop-over" : ""}`} style={{ height: heightRU * ruPitch }}><div className="physical-pdu-title">{device ? `PDU-${letter}${devices.some(d=>d.mounting.endsWith("-2"))?pduNumber(device):""}` : `${side.includes("left")?"Left":"Right"} rail${side.endsWith("-2")?" 2":""}`}</div><button ref={setDragRef} {...(device ? dragAttributes : {})} {...(device ? dragListeners : {})} data-device-block={device ? true : undefined} style={{ visibility: hidden ? "hidden" : undefined, touchAction: "none" }} type="button" className={`physical-pdu-body ${modelLayout ? "pdu-model-handle" : device?.catalogDevice.outlets?.length ? "pdu-with-outlets" : ""}`} disabled={controls.disabled} aria-label={device ? `${device.label || device.catalogDevice.model} PDU-${letter}` : `Install PDU on ${side.replaceAll("-"," ")}`} onClick={() => device ? controls.onSelect?.(device.id) : controls.onPlace?.(1, side)} onContextMenu={e => { e.preventDefault(); if (device)
         controls.onContext?.(device.id, e.clientX, e.clientY); }}><span>{modelLayout ? <>PX3-4068YV<br/>{`${device?.catalogDevice.sku ?? ""} ${device?.catalogDevice.model ?? ""}`.match(/PX3-4068YV-(V2(?:-K[12])?)/i)?.[1] || "V2"}<br/>51 outlets</> : device ? device.label || device.catalogDevice.model : "Drop PDU here"}</span></button>{device && <>{apcLayout?<ApcPanel devices={devices} deviceId={device.id} networkHref={device.networkHref} ports={device.networkPorts} connected={device.connectedPorts} outlets={device.catalogDevice.outlets||[]} assignments={assignments} disabled={(controls.disabled&&!controls.onPsu)||device.pending} onOutlet={o=>controls.onOutlet?.(device.id,o)}/>:modelLayout ? <ModelPduOutlets devices={devices} deviceId={device.id} networkHref={device.networkHref} ports={device.networkPorts} connected={device.connectedPorts} letter={letter} disabled={(controls.disabled&&!controls.onPsu) || device.pending} hidden={hidden} assignments={assignments} onOutlet={outlet=>controls.onOutlet?.(device.id,outlet)}/> : <div className="pdu-outlets" style={{ visibility: hidden ? "hidden" : undefined }}>{device.catalogDevice.outlets?.slice().sort((a,b)=>((device.details as {whip?:string})?.whip==="down"?b.n-a.n:a.n-b.n)).map(outlet => <button type="button" key={outlet.n} disabled={controls.disabled&&!controls.onPsu} data-power-pdu={device.id} data-power-outlet={outlet.n} aria-label={`PDU-${letter} outlet ${outlet.n} ${outlet.type} · ${outletDestination(assignments[outlet.n],devices)}`} title={`Outlet ${outlet.n} · ${outlet.type} · ${outlet.cb?`CB ${outlet.cb}`:"Breaker unverified"} · ${outlet.phase} · ${outletDestination(assignments[outlet.n],devices)}`} data-assigned={!!assignments[outlet.n]?.deviceId} className={`pdu-outlet ${outlet.type.toLowerCase()}`} onClick={() => controls.onOutlet?.(device.id, outlet)}><span>{outlet.n}</span><i /></button>)}</div>}<RemoveDot device={device} controls={controls}/></>}</div>;
 }

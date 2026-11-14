@@ -2,6 +2,8 @@ import {powerInputsRevision} from '@/lib/power-input-revision';
 import {ClearLayoutControls} from './clear-layout-controls';
 import {RackAssistantPanel} from './rack-assistant-panel';
 import {externalName} from '@/lib/external-connections';
+import {pduFeed,pduPositionItems,pduPlacementRevision} from '@/lib/pdu-placement';
+import {PduPlacementControls} from './pdu-placement-controls';
 import {RackStatusPane} from "./rack-status-pane";
 import {rackPowerPlanner} from "@/lib/rack-capabilities";
 import {FeedPowerPlanner} from "./feed-power-planner";
@@ -71,7 +73,7 @@ export default async function RackPage({ params, searchParams }: PageProps<"/pro
   const requestedTab = query.tab;
   const tab = requestedTab === "network" || requestedTab === "power" ? requestedTab : "elevation";
   const basePath = `/projects/${id}/racks/${rackId}`;
-  const gridDevices = rack.devices.map(({ id, startRU, label, mounting, details, catalogDevice }) => ({ id, startRU, label, mounting, details, networkHref:`${basePath}?tab=network`, networkPorts:networkPorts(catalogDevice.rawData), connectedPorts:connections.flatMap(c=>c.fromDeviceId===id&&c.fromPort?[c.fromPort]:c.toDeviceId===id&&c.toPort?[c.toPort]:[]), catalogDevice: { id:catalogDevice.id,sku:catalogDevice.sku,model: catalogDevice.model, vendor: catalogDevice.vendor, heightRU: catalogDevice.heightRU, category: catalogDevice.category, pduModel:pduModelId(catalogDevice.rawData),outlets:readOutlets(catalogDevice.rawData),nodeNames:readNodeNames(catalogDevice.rawData) } }));
+  const gridDevices = rack.devices.map(({ id, startRU, label, mounting, details, catalogDevice }) => ({ id, startRU, label, mounting, details, pduFeed:catalogDevice.category==='pdu'?pduFeed({id,mounting,details},rack.configuration)??null:undefined, networkHref:`${basePath}?tab=network`, networkPorts:networkPorts(catalogDevice.rawData), connectedPorts:connections.flatMap(c=>c.fromDeviceId===id&&c.fromPort?[c.fromPort]:c.toDeviceId===id&&c.toPort?[c.toPort]:[]), catalogDevice: { id:catalogDevice.id,sku:catalogDevice.sku,model: catalogDevice.model, vendor: catalogDevice.vendor, heightRU: catalogDevice.heightRU, category: catalogDevice.category, pduModel:pduModelId(catalogDevice.rawData),outlets:readOutlets(catalogDevice.rawData),nodeNames:readNodeNames(catalogDevice.rawData) } }));
   const powerSaveRevision=powerInputsRevision(rackId,rack);
   const powerEquipment=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
   const shownConnections = connections.filter(c => tab === "power" ? c.cableType === "Power" : c.cableType !== "Power");
@@ -85,6 +87,7 @@ export default async function RackPage({ params, searchParams }: PageProps<"/pro
     </header>
     <RackStatusPane devices={gridDevices} equipment={powerEquipment} configuration={rack.configuration} heightRU={rack.heightRU} pockets={config.pockets} basePath={basePath} networkCables={connections.filter(c=>c.cableType!=="Power").length}>
     <RackNavigation basePath={basePath} active={tab}/>
+    {(tab==="elevation"||tab==="power")&&<PduPlacementControls key={pduPlacementRevision(rack.devices,rack.configuration)} rackId={rackId} items={pduPositionItems(rack.devices,rack.configuration)} config={config} revision={pduPlacementRevision(rack.devices,rack.configuration)}/>}
     <RackAssistantPanel key={rackId} projectId={id} rackId={rackId} rackName={rack.name} basePath={basePath} aiEnabled={process.env.ONERACK_AI_ENABLED==='true'&&!!process.env.OPENAI_API_KEY&&!!process.env.ONERACK_AI_ALLOWANCE}/>
     {tab==='network'&&<ClearLayoutControls rackId={rackId} kind="network"/>}
     {Array.isArray(source?.notes)&&<details className="mb-4 rounded-xl border border-border p-4"><summary>Workbook import notes · unresolved specifications and original wiring</summary><ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">{source.notes.map(note=><li key={note}>{note}</li>)}</ul></details>}
