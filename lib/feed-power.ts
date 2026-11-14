@@ -38,6 +38,8 @@ export function outletVoltage(p:Supply,o:Supply['outlets'][number]){
  return p.topology==='three-phase-wye'&&!o.phase?.includes('-')?p.voltage/Math.sqrt(3):p.voltage;
 }
 export function supplyCapacityVA(p:Supply){return p.voltage*p.limitAmps*(p.topology&&p.topology!=='single-phase'?Math.sqrt(3):1);}
+export const SINGLE_PSU_CHECK="single PSU: independent A/B redundancy cannot be achieved through this PSU alone.";
+export function singlePsuIssue(load:Pick<Load,'name'>){return `${load.name}: ${SINGLE_PSU_CHECK}`;}
 export const SITE_SUPPLY_CHECK='confirm actual supply voltage, phase map and usable limits';
 // Site confirmation is distinct from the specifications needed to calculate a design.
 export function supplyDesignIssues(p:Supply){return supplyIssues(p).filter(issue=>issue!==SITE_SUPPLY_CHECK);}
@@ -75,7 +77,7 @@ export function supplyDemand(p:Supply,items:{outlet:Supply['outlets'][number];wa
 export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroomPercent=0){
   const issues=new Set<string>();
   if(!supplies.length||!loads.length)issues.add("Install PDUs and powered equipment before evaluating a plan.");
-  if(!supplies.some(p=>p.feed==='A')||!supplies.some(p=>p.feed==='B'))issues.add("Both independent feeds A and B are required.");
+  if(loads.some(d=>d.cords>1)&&(!supplies.some(p=>p.feed==='A')||!supplies.some(p=>p.feed==='B')))issues.add("Both independent feeds A and B are required.");
   if(!Number.isFinite(headroomPercent)||headroomPercent<0||headroomPercent>100){issues.add('Invalid headroom.');headroomPercent=0;}
   const seenOutlets=new Set<string>(),seenInlets=new Set<string>();
   const valid=cords.filter(c=>{
@@ -94,6 +96,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
   });
   for(const p of supplies)for(const error of supplyIssues(p))issues.add(`${p.name}: ${error}.`);
   for(const d of loads){
+    if(d.cords===1)issues.add(singlePsuIssue(d));
     if(!d.connector)issues.add(`${d.name}: cable compatibility is pending; outlet-only planning.`);
     if(d.pfEstimateSource||d.estimateSource&&!isMeasuredPower(d))issues.add(`${d.name}: power estimate uses unverified efficiency, power factor and load assumptions.`);
     if(!d.minVoltage||!d.maxVoltage)issues.add(`${d.name}: verify the PSU voltage range.`);
@@ -104,7 +107,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
     if(valid.filter(c=>c.deviceId===d.id).length!==d.cords)issues.add(`${d.name}: not all ${d.cords} power cords are connected.`);
   }
   const scenarios=([null,'A','B'] as const).map(lost=>{
-    const errors:string[]=[],active=valid.filter(c=>supplies.find(p=>p.id===c.pduId)?.feed!==lost);
+    const errors:string[]=[],unavailable:string[]=[],active=valid.filter(c=>supplies.find(p=>p.id===c.pduId)?.feed!==lost);
     const items=new Map<string,{outlet:Supply['outlets'][number];watts:number;pf:number}[]>();
     const totals=supplies.map(p=>({id:p.id,name:p.name,feed:p.feed,online:p.feed!==lost,limitAmps:p.limitAmps,...supplyDemand(p,[])}));
     for(const d of loads){
@@ -113,7 +116,8 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
       if(d.assessment==='pdu-capacity'&&valid.filter(c=>c.deviceId===d.id).length!==d.cords)continue;
       const connected=active.filter(c=>c.deviceId===d.id);
       if(d.assessment==='pdu-capacity'&&!connected.length)errors.push(`${d.name}: no assigned inputs remain for this PDU capacity scenario.`);
-      if(d.assessment!=='pdu-capacity'&&connected.length<d.minimumCords)errors.push(`${d.name}: ${connected.length} surviving cords; needs at least ${d.minimumCords}.`);
+      if(lost&&d.cords===1&&!connected.length)unavailable.push(d.name);
+      else if(d.assessment!=='pdu-capacity'&&connected.length<d.minimumCords)errors.push(`${d.name}: ${connected.length} surviving cords; needs at least ${d.minimumCords}.`);
       if(!connected.length||!Number.isFinite(d.watts)||Number(d.watts)<=0||!Number.isFinite(d.pf)||Number(d.pf)<=0||Number(d.pf)>1)continue;
       const watts=Number(d.watts)*(1+headroomPercent/100)/connected.length,va=watts/Number(d.pf);
       if(d.assessment!=='pdu-capacity'&&d.psuAcCapacity&&watts>d.psuAcCapacity)errors.push(`${d.name}: surviving PSU AC capacity exceeded.`);
@@ -133,7 +137,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
       const p=supplies.find(p=>p.id===t.id)!;
       for(const [b,a] of Object.entries(t.branches))if(p.branches?.[b]&&a>p.branches[b])errors.push(`${t.name}: branch ${b} overloaded.`);
     }
-    return {lost,totals,errors};
+    return {lost,totals,errors,unavailable};
   });
   return {ready:issues.size===0&&scenarios.every(s=>s.errors.length===0),issues:[...issues],scenarios,...(loads.some(d=>d.assessment==="pdu-capacity")?{scopeNotes:[B300_POWER_SCOPE]}:{})};
 }

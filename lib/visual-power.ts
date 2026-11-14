@@ -1,5 +1,5 @@
 import {B300_INPUT_IDENTITY} from './b300-power-inputs.ts';
-import {analyzeFeeds,SITE_SUPPLY_CHECK,type Cord} from './feed-power.ts';
+import {analyzeFeeds,SITE_SUPPLY_CHECK,SINGLE_PSU_CHECK,type Cord} from './feed-power.ts';
 import {feedRack,readFeedInputs,type FeedEquipment} from './feed-rack.ts';
 import {readDetails,readOutlets} from './equipment-details.ts';
 import {policyAllows} from './power-cable-policy.ts';
@@ -49,6 +49,7 @@ export function visualPowerBalance(equipment:FeedEquipment[],configuration:unkno
 export function canSaveVisualPowerDraft(review:ReturnType<typeof visualPowerBalance>){
  return review.errors.length>0&&review.errors.every(i=>
   i.endsWith(`: ${SITE_SUPPLY_CHECK}.`)||
+  i.endsWith(`: ${SINGLE_PSU_CHECK}`)||
   i.endsWith(': cable compatibility is pending; outlet-only planning.')||
   i.endsWith(': verify usable input cord current.')||
   i.endsWith(': verify the PSU voltage range.')||

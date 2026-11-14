@@ -22,8 +22,9 @@ import {individualPowerReview} from '@/lib/individual-power-review';
 import {outletPlanningChecks} from '@/lib/outlet-planning-checks';
 import {powerCapacityReview} from '@/lib/power-capacity-review';
 import {PowerCapacityReview} from './power-capacity-review';
+import {PowerAssignmentNotes} from './power-assignment-notes';
 import type {FeedEquipment} from '@/lib/feed-rack';
-import {SITE_SUPPLY_CHECK,type Cord} from '@/lib/feed-power';
+import {SITE_SUPPLY_CHECK,SINGLE_PSU_CHECK,type Cord} from '@/lib/feed-power';
 
 type Endpoint={pduId:string;outlet:number;deviceId?:string;inlet?:number;inputIdentity?:typeof B300_INPUT_IDENTITY};
 export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equipment:serverEquipment,configuration}:{equipment:FeedEquipment[];configuration:unknown;rackId:string;config:RackConfig;heightRU:number;devices:RackGridDevice[]}) {
@@ -179,6 +180,8 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
   <section className="simple-power-actions" aria-label="Automatic rack connections">
    <div><p className="text-sm text-muted-foreground">Calculate → Review → Save</p><h3 className="font-semibold">{reviewing?'Review your connections':complete?'Connection plan complete':'Plan your connections'}</h3><p className="text-sm" role="status" aria-live="polite">{previewRevision&&simplePlan.error?'Some settings need attention before a plan can be calculated.':previewRevision&&!reviewing?'The rack changed. Calculate a fresh plan.':reviewing?`${simplePlan.remaining.length} new connections proposed. Click a PSU to inspect its outlet.`:message==='Click a PSU to see the calculator’s recommended PDU outlet.'?'Use your saved Library data and rack settings. Existing cables stay fixed.':message}</p></div>
    <div className="power-connection-actions"><button type="button" className={`power-connection-button${reviewing?'':' is-primary'}`} disabled={pending||settingsPending} onClick={calculateLayout}>Calculate connections</button>{reviewing&&simplePlan.remaining.length>0&&<button type="button" className="power-connection-button is-primary" disabled={pending||settingsPending} onClick={saveLayout}>{pending?'Saving…':simplePlan.planning?'Save planning layout':'Save connections'}</button>}{previewRevision&&simplePlan.error&&<button type="button" className="power-connection-button" onClick={openAdvanced}>Review needed settings</button>}</div>
+   <p className="text-xs text-muted-foreground">Lowest rack unit first. A/B feeds progress independently; capacity, voltage, balance and redundancy take priority over outlet numbers.</p>
+   <PowerAssignmentNotes equipment={equipment} deviations={reviewing?simplePlan.deviations:[]} limitations={simplePlan.analysis.issues.filter(i=>i.endsWith(SINGLE_PSU_CHECK))}/>
    {complete&&<p role="status" className="text-sm font-medium">{rackPlan.confirmed}/{rackPlan.total} connections planned{sitePending?' — site verification pending':''}</p>}
    {reviewing&&simplePlan.remaining.length>0&&<p className="text-xs text-muted-foreground">Dashed outlines are proposed connections. PSU lights update only after saving.</p>}
    {reviewing&&simplePlan.planning&&<p className="text-sm text-muted-foreground">Design plan · uses saved demand and planned limits. Site and equipment verification are tracked separately.</p>}

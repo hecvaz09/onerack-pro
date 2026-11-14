@@ -19,7 +19,7 @@ export function powerOverview(equipment:FeedEquipment[],saved:FeedInputs){
   const connected=new Set(cords.filter(c=>(loads.find(d=>d.id===c.deviceId)?.assessment!=='pdu-capacity'||c.inputIdentity==='b300-module-input-v1')&&expected.has(`${c.deviceId}:${c.inlet}`)&&supplies.some(p=>p.id===c.pduId&&p.outlets.some(o=>o.n===c.outlet))).map(c=>`${c.deviceId}:${c.inlet}`));
   const documentation=rawAnalysis.issues.filter(issue=>issue.endsWith(': verify the PSU voltage range.')||issue.endsWith(': verify supported AC load per PSU and usable cord current.'));
   const findings=powerReviewSummary([...analysis.issues.filter(i=>!documentation.includes(i)&&!assignments.incompleteIssues.has(i)),...analysis.scenarios.flatMap(s=>s.errors.filter(i=>!assignments.incompleteScenarios.has(`${s.lost||'normal'}\n${i}`)).map(i=>scenarioDiagnostic(i,s.lost,equipment)))],equipment);
-  const feedsReady=supplies.length>0&&supplies.some(p=>p.feed==='A')&&supplies.some(p=>p.feed==='B')&&supplies.every(p=>supplyDesignIssues(p).length===0);
+  const feedsReady=supplies.length>0&&(!loads.some(l=>l.cords>1)||(supplies.some(p=>p.feed==='A')&&supplies.some(p=>p.feed==='B')))&&supplies.every(p=>supplyDesignIssues(p).length===0);
   const next=!loads.length?{target:'equipment',label:'Review rack equipment',text:'Install powered equipment in the rack elevation to begin planning.'}
     :missing.length?{target:'equipment',label:'Review equipment inputs',text:`${missing.length} ${missing.length===1?'system needs':'systems need'} consumption or power factor information.`}
     :!feedsReady?{target:'feeds',label:'Review power feeds',text:'Complete the planned PDU ratings and A/B assignments. Site verification can follow later.'}

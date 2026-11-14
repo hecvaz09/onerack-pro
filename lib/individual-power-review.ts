@@ -1,8 +1,9 @@
 import {feedRack,readFeedInputs,type FeedEquipment} from './feed-rack.ts';
-import type {Cord} from './feed-power.ts';
+import {SINGLE_PSU_CHECK,type Cord} from './feed-power.ts';
 import {validateVisualPower,visualPowerBalance} from './visual-power.ts';
 
 const pendingSuffixes=[
+ `: ${SINGLE_PSU_CHECK}`,
  ': cable compatibility is pending; outlet-only planning.',
  ': verify usable input cord current.',
  ': verify the PSU voltage range.',

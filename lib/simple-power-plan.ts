@@ -39,6 +39,6 @@ export function nextPowerQuestion(equipment:FeedEquipment[],inputs:FeedInputs){
  if(!model.loads.length)return {target:'power-equipment',title:'Add equipment to this rack',message:'Install your equipment in the rack elevation to begin.'};
  if(missing.length)return {target:'power-equipment',title:'How much power will this rack use?',message:`${missing.length} system${missing.length===1?' needs':'s need'} a consumption value. Use available Library estimates, or enter a measurement.`};
  if(model.loads.some(l=>!(Number(l.pf)>0&&Number(l.pf)<=1)))return {target:'power-equipment',title:'Confirm the power factor',message:'A saved consumption value is missing its power factor. Review that equipment before calculating.'};
- if(!model.supplies.length||!model.supplies.some(p=>p.feed==='A')||!model.supplies.some(p=>p.feed==='B')||model.supplies.some(p=>supplyDesignIssues(p).length))return {target:'power-feeds',title:'Complete the planned power feeds',message:'Review the planned A/B assignments, voltage, and PDU limits. Site confirmation can be completed later.'};
+ if(!model.supplies.length||(model.loads.some(l=>l.cords>1)&&(!model.supplies.some(p=>p.feed==='A')||!model.supplies.some(p=>p.feed==='B')))||model.supplies.some(p=>supplyDesignIssues(p).length))return {target:'power-feeds',title:'Complete the planned power feeds',message:'Review the planned A/B assignments, voltage, and PDU limits. Site confirmation can be completed later.'};
  return null;
 }
