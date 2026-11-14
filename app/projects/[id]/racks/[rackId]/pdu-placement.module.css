@@ -24,7 +24,7 @@
 .rows label>span {flex:1;min-width:0;display:grid;gap:4px;font-size:13px;}
 .rows small {font-size:11px;color:var(--muted-foreground);overflow-wrap:anywhere;}
 .rows select {max-width:58%;}
-.content .hint {font-size:12px;}
+.content .hint {font-size:12px;margin-top:12px;}
 .actions {display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
 .content .save {background:var(--primary);color:var(--primary-foreground);border-color:var(--primary);}
 .content [role=alert] {color:var(--destructive);}

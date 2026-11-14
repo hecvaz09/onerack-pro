@@ -96,3 +96,23 @@ test('every four-rail permutation preserves electrical modeling and cannot relab
   const rejected=preparePduPlacement(rack.devices,unknown,swapPduSides(items),pduPlacementRevision(rack.devices,unknown));assert.ok('error' in rejected);
   assert.equal(pduFeed({mounting:'rear-left',pduFeed:null}),undefined);
 });
+
+test('two installed outer-rail PDUs keep simple labels and save correctly in a four-rail rack',async()=>{
+  const rack=fixture();rack.devices=rack.devices.filter(d=>!['a1','b1'].includes(d.id));
+  const revision=pduPlacementRevision(rack.devices,rack.configuration),h=await actionHarness({rack});
+  assert.deepEqual(await h.actions.savePduPlacement(rack.id,swapPduSides(pduPositionItems(rack.devices,rack.configuration)),revision),{ok:true});
+  const saved=h.snapshot() as unknown as typeof rack;
+  const html=renderToStaticMarkup(createElement(RackGrid,{heightRU:42,config:readRackConfig(saved.configuration),devices:saved.devices,rear:true,disabled:true}));
+  assert.match(html,/physical-pdu-title">PDU-A</);assert.match(html,/physical-pdu-title">PDU-B</);
+  assert.doesNotMatch(html,/physical-pdu-title">PDU-[AB][12]</);
+  assert.equal(saved.devices.find(d=>d.id==='a2')!.mounting,'rear-left-2');
+  assert.deepEqual(feedRack(individualEquipment(saved),readFeedInputs(saved.configuration)),feedRack(individualEquipment(rack),readFeedInputs(rack.configuration)));
+});
+
+test('PDU removal invalidates a pending four-PDU arrangement and incomplete installations cannot save it',async()=>{
+  const rack=fixture(),revision=pduPlacementRevision(rack.devices,rack.configuration),positions=swapPduSides(pduPositionItems(rack.devices,rack.configuration));
+  rack.devices=rack.devices.filter(d=>d.id!=='a2');const h=await actionHarness({rack});
+  assert.equal((await h.actions.savePduPlacement(rack.id,positions,revision)).ok,false);
+  assert.equal((await h.actions.savePduPlacement(rack.id,swapPduSides(pduPositionItems(rack.devices,rack.configuration)),pduPlacementRevision(rack.devices,rack.configuration))).ok,false);
+  assert.equal(h.updates.length,0);
+});

@@ -25,6 +25,10 @@ export function pduNumber(device:Identity):1|2 {
   const number=detailsObject(device.details).pduNumber;
   return number===1||number===2?number:device.mounting?.endsWith('-2')?2:1;
 }
+export function pduLabel(feed:PduFeed|undefined,number:1|2,installedFeeds:(PduFeed|undefined)[]) {
+  const numbered=installedFeeds.length>2||installedFeeds.filter(f=>f===feed).length>1;
+  return `PDU-${feed||'?'}${numbered?number:''}`;
+}
 export function pduPositionItems(devices:PduPositionDevice[],configuration:unknown):PduPositionItem[] {
   return devices.filter(d=>d.catalogDevice.category==='pdu'&&d.catalogDevice.heightRU===0).map(d=>({id:d.id,mounting:d.mounting,name:d.label||d.catalogDevice.model,feed:pduFeed(d,configuration),number:pduNumber(d)})).sort((a,b)=>(a.feed||'').localeCompare(b.feed||'')||a.number-b.number||a.id.localeCompare(b.id));
 }
@@ -52,6 +56,7 @@ export function preservedPduIdentity(device:Identity,configuration:unknown) {
 export function preparePduPlacement(devices:PduPositionDevice[],configuration:unknown,placements:PduPlacement[],revision:string):{error:string}|{updates:{id:string;mounting:string;details:ReturnType<typeof preservedPduIdentity>}[]} {
   if(revision!==pduPlacementRevision(devices,configuration))return {error:'PDU positions or feeds changed. Reload and arrange them again.'} as const;
   const items=pduPositionItems(devices,configuration),allowed=new Set<string>(availablePduPositions(configuration).map(p=>p.value));
+  if(items.length!==2&&items.length!==4)return {error:'Side arrangements require two or four installed vertical PDUs. Reload after installing or removing a PDU.'};
   if(!Array.isArray(placements)||placements.length!==items.length||placements.length>4||placements.some(p=>!p||!items.some(d=>d.id===p.id)||!allowed.has(p.mounting))||new Set(placements.map(p=>p.id)).size!==items.length)return {error:'Choose an enabled position for every installed vertical PDU.'} as const;
   if(new Set(placements.map(p=>p.mounting)).size!==placements.length)return {error:'Each PDU needs its own position. Choose a different rail or swap the PDUs.'} as const;
   if(!items.every(p=>p.feed))return {error:'Set each PDU’s A/B feed in Power settings before moving it.'} as const;

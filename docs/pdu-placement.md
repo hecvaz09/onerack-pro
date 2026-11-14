@@ -1,6 +1,8 @@
 # Moving vertical PDUs
 
-Open **Arrange PDUs** on Rack Map or Power Layout. Positions are described from the rear of the rack. **Swap left/right** mirrors the installed PDUs, including both inner/outer pairs on a four-PDU rack. The individual position selectors exchange the chosen PDU with an occupied destination. Changes remain a preview until **Save positions**; **Reset** discards the draft.
+Open **Arrange PDUs** on Rack Map or Power Layout. The controls use the number of installed vertical PDUs, not the number of enabled rails or equipment PSUs. Two installed PDUs show a simple **Swap left/right** control and A/B labels, even when spare outer rails are enabled. Four installed PDUs also show individual A1/A2/B1/B2 position selectors with inner/outer choices. Zero, one or three installed PDUs do not show this panel; ordinary rack installation controls remain available.
+
+Positions are described from the rear of the rack. **Swap left/right** mirrors the installed positions, retaining an occupied inner or outer rail when moving between sides. On a four-PDU rack, the individual selectors exchange the chosen PDU with an occupied destination. Changes remain a preview until **Save positions**; **Reset** discards the draft.
 
 The saved mounting positions drive the shared rear elevation and 3D view. An A-feed PDU remains on feed A when moved left, and vice versa. Existing outlet assignments, network ports, model artwork, demand values, electrical limits and site confirmation remain attached to their existing records. Physical position does not change capacity or prove independent facility feeds.
 
