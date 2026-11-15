@@ -4,8 +4,9 @@ The existing `balanceFeeds` calculator still selects outlets bottom-up and
 checks voltage, connectors, outlet/bank/input limits, phase balance and both
 feed-loss cases. All hard electrical limits must pass first. Among valid
 choices, it prefers the PSU's physical side, distributes that side's inputs
-across A/B when possible, balances phases/banks there, then uses distance as
-a tie-break. A slightly better electrical balance alone must
+across A/B when possible, prefers matching outlet numbers on equivalent PDU
+outlet maps, balances phases/banks there, then uses distance as a tie-break.
+A slightly better electrical balance alone must
 not send a cable across the chassis when a valid local connection is available.
 
 For four PDUs with distinct A1/A2/B1/B2 identities, Arrange PDUs offers
@@ -13,6 +14,24 @@ For four PDUs with distinct A1/A2/B1/B2 identities, Arrange PDUs offers
 positions and keeps feed identities. Two-PDU racks retain their simple swap.
 The preset does not silently rewrite saved wiring. Existing connections need
 an explicitly reviewed recalculation before the actual cable routes change.
+
+Mirrored outlet numbers are the default preference in the shared calculator
+for every project and current or future rack, including two-PDU, four-PDU and
+twelve-input systems. Each device's outlet sets are matched across PDUs with
+the same numbered connector/phase/bank map; labels and PSU numbering do not
+define physical position or feed identity. Repeated inputs on the same PDU use
+distinct outlets. Single-input systems do not acquire fictional redundancy.
+Matching numbers organize cabling, rather than proving feed independence.
+
+All normal and feed-loss limits are checked before a mirror is considered.
+Occupied/reserved outlets, compatibility, cable policy and hard limits win.
+If a greedy mirror choice prevents a later device from fitting, the same
+allocator retries the complete rack without the mirror preference and checks
+the result again. It does not report an electrically feasible rack as invalid
+just to enforce symmetry. Review notes explain unmatched outlets and unlike
+PDU maps. This is a bounded preference, not an exhaustive optimal search.
+Saved manual wiring remains fixed in normal calculations; an approved update
+of existing saved layouts must explicitly recalculate, review and save them.
 
 Once those outlets are selected, `routePowerAssignments` matches **only new,
 unfixed inputs on the same device** to the checked endpoints. The current load

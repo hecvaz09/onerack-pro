@@ -9,16 +9,39 @@ import {powerInputPositions,powerRailPosition,powerEndpointKey,routePowerAssignm
 
 export function feedRevision(equipment:FeedEquipment[],inputs:FeedInputs){return JSON.stringify({equipment,inputs});}
 type FeedCounts={A:number;B:number};
-export type PowerAssignmentDecision=Cord&{feed:'A'|'B';reason:string;skippedOutlet?:number};
+export type PowerAssignmentDecision=Cord&{feed:'A'|'B';reason:string;skippedOutlet?:number;mirrorException?:boolean};
 const compareScore=(a:number[],b:number[])=>{for(let i=0;i<a.length;i++)if(Math.abs(a[i]-b[i])>1e-9)return a[i]-b[i];return 0;};
+type BalanceOptions={planning?:boolean;retainPduForSavedInputs?:boolean};
 
 // Rack order organizes work; the shared electrical model decides which outlets
 // fit. Saved constraints are retained throughout. This remains a greedy planner.
-export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options:{planning?:boolean}={}){
+export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options:BalanceOptions={}){
+ const mirrored=allocateFeeds(equipment,inputs,options,true);
+ if(!mirrored.error)return mirrored;
+ // A preference must not make a previously feasible whole-rack plan fail.
+ // Retry the same allocator, constraints and validation without that preference.
+ const balanced=allocateFeeds(equipment,inputs,options,false);
+ return balanced.error?mirrored:balanced;
+}
+function allocateFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options:BalanceOptions,preferMirrors:boolean){
  const {supplies,loads,cords}=feedRack(equipment,inputs);
+ // An explicitly reviewed saved-layout conversion may unlock outlet numbers
+ // while keeping every existing PSU on its current PDU and electrical feed.
+ const retainedPdus=new Map(options.retainPduForSavedInputs?cords.map(c=>[`${c.deviceId}:${c.inlet}`,c.pduId]):[]);
  const baseline=analyzeFeeds(supplies,loads,cords,inputs.headroomPercent);
  const devices=new Map(equipment.map(e=>[e.id,e])),loadById=new Map(loads.map(l=>[l.id,l])),supplyById=new Map(supplies.map(p=>[p.id,p]));
  const outlets=new Map(supplies.map(p=>[p.id,new Map(p.outlets.map(o=>[o.n,o]))]));
+ // Only compare like outlet maps. A number on a different connector/phase/bank
+ // layout is not an equivalent mirror, even when a PDU has the same feed label.
+ const layouts=new Map(supplies.map(p=>[p.id,JSON.stringify([p.topology,p.voltage,[...p.outlets].sort((a,b)=>a.n-b.n).map(o=>[o.n,[...o.connectors].sort(),o.phase,o.branch])])]));
+ const peers=(a:string,b:string)=>a!==b&&layouts.get(a)===layouts.get(b);
+ function mirrorTargets(rows:Cord[],deviceId:string,pduId:string){
+  const own=new Set(rows.filter(c=>c.deviceId===deviceId&&c.pduId===pduId).map(c=>c.outlet));
+  const targets=new Map<number,number>();
+  for(const c of rows)if(c.deviceId===deviceId&&peers(pduId,c.pduId)&&!own.has(c.outlet))targets.set(c.outlet,(targets.get(c.outlet)||0)+1);
+  return targets;
+ }
+ const mirrorCount=(rows:Cord[])=>rows.reduce((n,c,i)=>n+rows.slice(i+1).filter(d=>d.deviceId===c.deviceId&&peers(c.pduId,d.pduId)&&c.outlet===d.outlet).length,0);
  const pending=new Set<string>();
  if(options.planning)for(const issue of siteVerificationIssues(supplies))pending.add(issue);
  if(options.planning)for(const load of loads){
@@ -89,8 +112,8 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
   const inputPositions=powerInputPositions(devices.get(load.id)!);
   const knownRails=supplyOrder.every(p=>powerRailPosition(devices.get(p.id))!==undefined);
   const routingDistance=(inlet:number,pduId:string)=>{const x=inputPositions.get(inlet),rail=powerRailPosition(devices.get(pduId));return !knownRails||x===undefined||rail===undefined?0:(x-rail)**2;};
-  // First keep a physically local cable when an electrically valid choice
-  // exists. Balance phases/banks among those choices; distance breaks ties.
+  // First keep a physically local cable and local A/B diversity. Prefer
+  // equivalent mirrored outlets, then phase/bank balance and distance.
   // A feed name is never a physical side, and input numbering is not geometry.
   const crossesChassis=(inlet:number,pduId:string)=>{const x=inputPositions.get(inlet),rail=powerRailPosition(devices.get(pduId));return !knownRails||x===undefined||rail===undefined?0:Number((x<.5)!==(rail<.5));};
   let best:{rows:Cord[];counts:FeedCounts;decisions:PowerAssignmentDecision[];score:number[]}|undefined,lastFailure='No compatible receptacle fits the planned limits.';
@@ -105,41 +128,58 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
     if(knownRails&&inputPositions.has(inlet))for(const c of rows){
      if(c.deviceId===load.id&&inputPositions.has(c.inlet)&&(inputPositions.get(inlet)!<.5)===(inputPositions.get(c.inlet)!<.5))localFeeds[supplyById.get(c.pduId)!.feed]++;
     }
-    const candidates=supplyOrder.filter(p=>assigned[p.feed]<distribution[p.feed]).flatMap(p=>{
-     // Electrically identical free outlets have the same score. Evaluate only
-     // the lowest number in each group, preserving the sequential tie-break.
-     const groups=new Set<string>();
+    const retainedPdu=retainedPdus.get(`${load.id}:${inlet}`);
+    const candidates=supplyOrder.filter(p=>assigned[p.feed]<distribution[p.feed]&&(!retainedPdu||p.id===retainedPdu)).flatMap(p=>{
+     // Keep the first equivalent outlet plus any mirror targets, which may
+     // have a later number (including a peer's existing saved connection).
+     const groups=new Set<string>(),mirrors=mirrorTargets(rows,load.id,p.id);
      return [...p.outlets].sort((a,b)=>a.n-b.n).flatMap(o=>{
      if(used.has(`${p.id}:${o.n}`)||endpointProblem(load,p,o))return [];
      const group=JSON.stringify([o.phase||'L1',o.branch,o.limitAmps]);
-     if(groups.has(group))return [];groups.add(group);
+     if(groups.has(group)&&!(preferMirrors&&mirrors.has(o.n)))return [];groups.add(group);
      const cord:Cord={pduId:p.id,outlet:o.n,deviceId:load.id,inlet,...(load.assessment==='pdu-capacity'?{inputIdentity:B300_INPUT_IDENTITY}:{})};
      const check=projected([...rows,cord],counts);if(check.error){lastFailure=check.error;return [];}
-     return [{p,o,cord,score:check.score}];
-    });}).sort((a,b)=>crossesChassis(inlet,a.p.id)-crossesChassis(inlet,b.p.id)||localFeeds[a.p.feed]-localFeeds[b.p.feed]||compareScore(a.score,b.score)||routingDistance(inlet,a.p.id)-routingDistance(inlet,b.p.id)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
+     return [{p,o,cord,score:check.score,mirrors:preferMirrors?(mirrors.get(o.n)||0):0}];
+    });}).sort((a,b)=>crossesChassis(inlet,a.p.id)-crossesChassis(inlet,b.p.id)||localFeeds[a.p.feed]-localFeeds[b.p.feed]||b.mirrors-a.mirrors||compareScore(a.score,b.score)||routingDistance(inlet,a.p.id)-routingDistance(inlet,b.p.id)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
     const choice=candidates[0];if(!choice){failed=true;break;}
     const first=[...choice.p.outlets].sort((a,b)=>a.n-b.n).find(o=>!used.has(`${choice.p.id}:${o.n}`))!;
     let reason=`Feed ${choice.p.feed}; ${distribution.A} input${distribution.A===1?'':'s'} on A and ${distribution.B} on B. Normal and feed-loss capacity checked.`;
     if(load.cords===1)reason=`Best available calculated connection on feed ${choice.p.feed}. Independent A/B redundancy is unavailable through this PSU alone.`;
     if(first.n!==choice.o.n){
      const problem=endpointProblem(load,choice.p,first)||projected([...rows,{...choice.cord,outlet:first.n}],counts).error;
-     reason=`P${first.n} skipped: ${problem||'another receptacle gives better PDU, phase or branch balance'}. P${choice.o.n} selected. ${reason}`;
+     reason=`P${first.n} skipped: ${problem||(choice.mirrors?'matching the checked peer outlet while preserving valid phase and bank balance':'another receptacle gives better PDU, phase or branch balance')}. P${choice.o.n} selected. ${reason}`;
     }
     trialDecisions.push({...choice.cord,feed:choice.p.feed,reason,...(first.n!==choice.o.n?{skippedOutlet:first.n}:{})});
     rows.push(choice.cord);used.add(`${choice.p.id}:${choice.o.n}`);
    }
    if(failed)continue;
    const check=projected(rows,counts);if(check.error){lastFailure=check.error;continue;}
-   if(!best||compareScore(check.score,best.score)<0)best={rows,counts:distribution,decisions:trialDecisions,score:check.score};
+   const mirrorDifference=best&&preferMirrors?mirrorCount(best.rows)-mirrorCount(rows):0;
+   if(!best||mirrorDifference<0||mirrorDifference===0&&compareScore(check.score,best.score)<0)best={rows,counts:distribution,decisions:trialDecisions,score:check.score};
   }
   if(!best)return fail(`${load.name}: no compatible outlet arrangement fits capacity and redundancy requirements. ${lastFailure} Review fixed cables or capacity.`);
   assignments=best.rows;targets.set(load.id,best.counts);decisions.push(...best.decisions);
  }
- const routed=routePowerAssignments(equipment,assignments,fixed);assignments=routed.assignments;
+ const routed=routePowerAssignments(equipment,assignments,options.retainPduForSavedInputs?cords:fixed);assignments=routed.assignments;
  const byEndpoint=new Map(assignments.map(c=>[powerEndpointKey(c),c]));
  for(const decision of decisions){const cord=byEndpoint.get(powerEndpointKey(decision))!;decision.inlet=cord.inlet;const note=routed.notes.find(n=>n.deviceId===cord.deviceId);if(note)decision.reason+=` ${note.message}`;}
+ for(const decision of decisions){
+  const matches=assignments.filter(c=>c.deviceId===decision.deviceId&&peers(c.pduId,decision.pduId)&&c.outlet===decision.outlet);
+  if(matches.length)decision.reason+=` P${decision.outlet} mirrors ${matches.map(c=>supplyById.get(c.pduId)!.name).join(', ')}. Matching numbers organize cabling; independent feeds and feed-loss checks provide redundancy.`;
+  if(assignments.some(c=>c.deviceId===decision.deviceId&&c.pduId!==decision.pduId&&!peers(c.pduId,decision.pduId))){decision.mirrorException=true;decision.reason+=' Mirroring is not assumed across different PDU outlet maps; connector, phase and bank locations differ.';}
+  const own=assignments.filter(c=>c.deviceId===decision.deviceId&&c.pduId===decision.pduId).map(c=>c.outlet).sort((a,b)=>a-b);
+  const candidates=supplyOrder.filter(p=>peers(decision.pduId,p.id)).flatMap(p=>{
+   const other=assignments.filter(c=>c.deviceId===decision.deviceId&&c.pduId===p.id).map(c=>c.outlet).sort((a,b)=>a-b);
+   const unmatched=own.filter(n=>!other.includes(n)),target=other.filter(n=>!own.includes(n))[unmatched.indexOf(decision.outlet)];
+   return target===undefined?[]:[target];
+  }).sort((a,b)=>a-b);
+  if(!candidates.length)continue;
+  const n=candidates[0],p=supplyById.get(decision.pduId)!,o=outlets.get(p.id)!.get(n),load=loadById.get(decision.deviceId)!;
+  const reason=assignments.some(c=>c.pduId===p.id&&c.outlet===n)?'that outlet is already assigned':!o?'that outlet is unavailable':endpointProblem(load,p,o)||projected(assignments.map(c=>powerEndpointKey(c)===powerEndpointKey(decision)?{...c,outlet:n}:c),targets).error||'the complete layout requires a different outlet to preserve routing, capacity and feed balance';
+  decision.mirrorException=true;decision.reason+=` P${n} could not be mirrored: ${reason}. P${decision.outlet} selected; saved connections remain fixed.`;
+ }
  const rank=new Map(orderedLoads.map((l,i)=>[l.id,i]));assignments.sort((a,b)=>rank.get(a.deviceId)!-rank.get(b.deviceId)!||a.inlet-b.inlet);
  const analysis=analyzeFeeds(supplies,loads,assignments,inputs.headroomPercent);
  const passes=analysis.issues.every(i=>pending.has(i))&&analysis.scenarios.every(s=>s.errors.length===0);
- return {assignments,analysis,pendingChecks:[...pending],decisions,deviations:decisions.filter(d=>d.skippedOutlet!==undefined),routingNotes:routed.notes,...(!passes?{error:'The proposed plan fails feed-loss checks. Review fixed cables and capacity; no changes can be saved.'}:{})};
+ return {assignments,analysis,pendingChecks:[...pending],decisions,deviations:decisions.filter(d=>d.skippedOutlet!==undefined||d.mirrorException),routingNotes:routed.notes,...(!passes?{error:'The proposed plan fails feed-loss checks. Review fixed cables and capacity; no changes can be saved.'}:{})};
 }

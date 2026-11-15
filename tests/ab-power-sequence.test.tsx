@@ -66,7 +66,7 @@ test('a documented line-pair voltage mismatch skips P1 for a suitable line-neutr
 test('saved PSU1 on feed B stays fixed; PSU numbering does not impose a feed',()=>{
  const f=fixture([{id:'server',ru:1,watts:600,cords:2,minimum:1}]);
  const e=withCables(f.equipment,[{deviceId:'server',inlet:1,pduId:'pdu-B',outlet:6}]);const before=structuredClone(e),plan=simplePowerPlan(e,{feedPower:f.inputs});
- assert.equal(plan.error,undefined);assert.deepEqual(plan.assignments,[{deviceId:'server',inlet:1,pduId:'pdu-B',outlet:6},{deviceId:'server',inlet:2,pduId:'pdu-A',outlet:1}]);assert.deepEqual(e,before);
+ assert.equal(plan.error,undefined);assert.deepEqual(plan.assignments,[{deviceId:'server',inlet:1,pduId:'pdu-B',outlet:6},{deviceId:'server',inlet:2,pduId:'pdu-A',outlet:6}]);assert.deepEqual(e,before);
 });
 
 test('PSU1 may be assigned to B first when that improves calculated balance',()=>{

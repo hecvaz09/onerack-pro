@@ -33,6 +33,7 @@ test('five GPU systems, adjacent storage PSUs and switches all use local A/B fee
  for(const id of ['gpu1','gpu2','gpu3','gpu4','gpu5'])for(const side of [[1,2],[3,4]]){
   assert.deepEqual(plan.assignments.filter(c=>c.deviceId===id&&side.includes(c.inlet)).map(c=>c.pduId[0]).sort(),['A','B']);
  }
+ for(const id of ['gpu1','gpu2','gpu3','gpu4','gpu5','fabric','management'])assert.equal(new Set(plan.assignments.filter(c=>c.deviceId===id).map(c=>c.outlet)).size,1,`${id} should mirror across PDUs`);
  for(const p of f.equipment.filter(e=>e.category==='pdu'))p.mounting=p.mounting!.replace(/left|right/,s=>s==='left'?'right':'left');
  const swapped=balanceFeeds(f.equipment,f.inputs,{planning:true});assert.equal(swapped.error,undefined);
  for(const c of swapped.assignments)assert.equal(powerInputPositions(f.equipment.find(e=>e.id===c.deviceId)!).get(c.inlet)!<.5,powerRailPosition(f.equipment.find(e=>e.id===c.pduId))<.5);
