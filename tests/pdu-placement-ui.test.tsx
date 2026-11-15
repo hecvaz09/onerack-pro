@@ -57,3 +57,11 @@ test('four installed PDUs retain four position selectors; incomplete installatio
  assert.equal(nodes(tree).filter(p=>typeof p.onChange==='function').length,4);
  for(const count of [0,1,3]){const h=await harness(2,count);assert.equal(h.render(),null);assert.equal(h.calls.length,0);}
 });
+
+test('pairing puts independent feeds on each side as a preview, saving only after the user chooses save',async()=>{
+ const h=await harness();click(h.render(),'Pair A/B on each side');const tree=h.render();
+ for(const [name,position] of [['A1','rear-left-2'],['B1','rear-left'],['A2','rear-right'],['B2','rear-right-2']])assert.equal(find(tree,p=>p['aria-label']===`Position for PDU-${name}`).value,position);
+ assert.equal(h.calls.length,0);click(tree,'Save positions');assert.equal(h.calls.length,1);
+ h.finish({ok:true});await Promise.all(h.queue);assert.equal(h.refreshes(),1);
+ const two=await harness(1);assert.doesNotMatch(text(two.render()),/Pair A\/B/);
+});

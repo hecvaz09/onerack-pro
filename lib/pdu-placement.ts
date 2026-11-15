@@ -43,6 +43,12 @@ export function pduPlacementRevision(devices:PduPositionDevice[],configuration:u
 export function swapPduSides(placements:PduPlacement[]):PduPlacement[] {
   return placements.map(p=>({...p,mounting:p.mounting.includes('left')?p.mounting.replace('left','right'):p.mounting.replace('right','left')}));
 }
+export function pairPduFeedsBySide(items:PduPositionItem[]):PduPlacement[]|undefined {
+  if(items.length!==4||new Set(items.map(p=>`${p.feed}${p.number}`)).size!==4||items.some(p=>!p.feed))return;
+  // Rear view, outer-to-inner on the left and inner-to-outer on the right.
+  const positions={A1:'rear-left-2',B1:'rear-left',A2:'rear-right',B2:'rear-right-2'};
+  return items.map(p=>({id:p.id,mounting:positions[`${p.feed}${p.number}` as keyof typeof positions]}));
+}
 export function movePduInDraft(placements:PduPlacement[],id:string,mounting:string):PduPlacement[] {
   const original=placements.find(p=>p.id===id);
   if(!original)return placements;

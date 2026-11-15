@@ -89,6 +89,10 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
   const inputPositions=powerInputPositions(devices.get(load.id)!);
   const knownRails=supplyOrder.every(p=>powerRailPosition(devices.get(p.id))!==undefined);
   const routingDistance=(inlet:number,pduId:string)=>{const x=inputPositions.get(inlet),rail=powerRailPosition(devices.get(pduId));return !knownRails||x===undefined||rail===undefined?0:(x-rail)**2;};
+  // First keep a physically local cable when an electrically valid choice
+  // exists. Balance phases/banks among those choices; distance breaks ties.
+  // A feed name is never a physical side, and input numbering is not geometry.
+  const crossesChassis=(inlet:number,pduId:string)=>{const x=inputPositions.get(inlet),rail=powerRailPosition(devices.get(pduId));return !knownRails||x===undefined||rail===undefined?0:Number((x<.5)!==(rail<.5));};
   let best:{rows:Cord[];counts:FeedCounts;decisions:PowerAssignmentDecision[];score:number[]}|undefined,lastFailure='No compatible receptacle fits the planned limits.';
   for(const distribution of distributions(load)){
    const counts=new Map(targets);counts.set(load.id,distribution);
@@ -97,6 +101,10 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
    for(let inlet=1;inlet<=load.cords;inlet++){
     if(rows.some(c=>c.deviceId===load.id&&c.inlet===inlet))continue;
     const assigned=feedCounts(load,rows),preferred=assigned.A<=assigned.B?'A':'B';
+    const localFeeds:FeedCounts={A:0,B:0};
+    if(knownRails&&inputPositions.has(inlet))for(const c of rows){
+     if(c.deviceId===load.id&&inputPositions.has(c.inlet)&&(inputPositions.get(inlet)!<.5)===(inputPositions.get(c.inlet)!<.5))localFeeds[supplyById.get(c.pduId)!.feed]++;
+    }
     const candidates=supplyOrder.filter(p=>assigned[p.feed]<distribution[p.feed]).flatMap(p=>{
      // Electrically identical free outlets have the same score. Evaluate only
      // the lowest number in each group, preserving the sequential tie-break.
@@ -108,7 +116,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
      const cord:Cord={pduId:p.id,outlet:o.n,deviceId:load.id,inlet,...(load.assessment==='pdu-capacity'?{inputIdentity:B300_INPUT_IDENTITY}:{})};
      const check=projected([...rows,cord],counts);if(check.error){lastFailure=check.error;return [];}
      return [{p,o,cord,score:check.score}];
-    });}).sort((a,b)=>compareScore(a.score,b.score)||routingDistance(inlet,a.p.id)-routingDistance(inlet,b.p.id)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
+    });}).sort((a,b)=>crossesChassis(inlet,a.p.id)-crossesChassis(inlet,b.p.id)||localFeeds[a.p.feed]-localFeeds[b.p.feed]||compareScore(a.score,b.score)||routingDistance(inlet,a.p.id)-routingDistance(inlet,b.p.id)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
     const choice=candidates[0];if(!choice){failed=true;break;}
     const first=[...choice.p.outlets].sort((a,b)=>a.n-b.n).find(o=>!used.has(`${choice.p.id}:${o.n}`))!;
     let reason=`Feed ${choice.p.feed}; ${distribution.A} input${distribution.A===1?'':'s'} on A and ${distribution.B} on B. Normal and feed-loss capacity checked.`;

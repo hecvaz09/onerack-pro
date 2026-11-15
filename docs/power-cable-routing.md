@@ -2,8 +2,17 @@
 
 The existing `balanceFeeds` calculator still selects outlets bottom-up and
 checks voltage, connectors, outlet/bank/input limits, phase balance and both
-feed-loss cases. Electrical scores take precedence over routing. Among
-electrically equal choices, it prefers the nearer mounted PDU rail.
+feed-loss cases. All hard electrical limits must pass first. Among valid
+choices, it prefers the PSU's physical side, distributes that side's inputs
+across A/B when possible, balances phases/banks there, then uses distance as
+a tie-break. A slightly better electrical balance alone must
+not send a cable across the chassis when a valid local connection is available.
+
+For four PDUs with distinct A1/A2/B1/B2 identities, Arrange PDUs offers
+**Pair A/B on each side**: A1/B1 left and A2/B2 right in rear view. It previews
+positions and keeps feed identities. Two-PDU racks retain their simple swap.
+The preset does not silently rewrite saved wiring. Existing connections need
+an explicitly reviewed recalculation before the actual cable routes change.
 
 Once those outlets are selected, `routePowerAssignments` matches **only new,
 unfixed inputs on the same device** to the checked endpoints. The current load
