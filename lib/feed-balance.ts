@@ -5,6 +5,7 @@ import {feedRack,type FeedEquipment} from './feed-rack.ts';
 import type {FeedInputs} from './feed-power.ts';
 import {readDetails} from './equipment-details.ts';
 import {policyAllows,equipmentRU} from './power-cable-policy.ts';
+import {powerInputPositions,powerRailPosition,powerEndpointKey,routePowerAssignments,type PowerRoutingNote} from './power-cable-routing.ts';
 
 export function feedRevision(equipment:FeedEquipment[],inputs:FeedInputs){return JSON.stringify({equipment,inputs});}
 type FeedCounts={A:number;B:number};
@@ -29,11 +30,12 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
   if(load.assessment!=='pdu-capacity'&&(!load.psuAcCapacity||!load.cordLimitAmps))pending.add(`${load.name}: verify supported AC load per PSU and usable cord current.`);
  }
  const decisions:PowerAssignmentDecision[]=[];
- const fail=(error:string)=>({error,assignments:cords,analysis:baseline,pendingChecks:[...pending],decisions:[] as PowerAssignmentDecision[],deviations:[] as PowerAssignmentDecision[]});
+ const fail=(error:string)=>({error,assignments:cords,analysis:baseline,pendingChecks:[...pending],decisions:[] as PowerAssignmentDecision[],deviations:[] as PowerAssignmentDecision[],routingNotes:[] as PowerRoutingNote[]});
  if(loads.some(l=>!Number.isInteger(l.cords)||l.cords<1||l.cords>(l.assessment==='pdu-capacity'?12:6)||!Number.isInteger(l.minimumCords)||l.minimumCords<1||l.minimumCords>l.cords))return fail('Enter a supported PSU arrangement with 1–6 cords and a valid minimum surviving PSU count.');
  const blocking=baseline.issues.filter(i=>!i.includes('power cords are connected.')&&!pending.has(i));
  if(blocking.length)return fail(`${blocking.length} electrical or configuration issues must be resolved before calculating cables. Review the missing-information list below.`);
  let assignments:Cord[]=cords.filter(c=>readDetails(devices.get(c.pduId)?.details).outlets[c.outlet]?.locked!==false);
+ const fixed=[...assignments];
  for(const c of assignments){
   const p=supplyById.get(c.pduId),o=p?.outlets.find(o=>o.n===c.outlet),e=devices.get(c.deviceId);
   if(o&&!policyAllows(inputs.cablePolicy,e?.category,o))return fail(`${e?.name}: fixed cable at ${p?.name} P${c.outlet} conflicts with the saved cable policy. Review or unlock it before recalculating.`);
@@ -84,6 +86,9 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
  }
  for(const load of orderedLoads){
   if(assignments.filter(c=>c.deviceId===load.id).length===load.cords)continue;
+  const inputPositions=powerInputPositions(devices.get(load.id)!);
+  const knownRails=supplyOrder.every(p=>powerRailPosition(devices.get(p.id))!==undefined);
+  const routingDistance=(inlet:number,pduId:string)=>{const x=inputPositions.get(inlet),rail=powerRailPosition(devices.get(pduId));return !knownRails||x===undefined||rail===undefined?0:(x-rail)**2;};
   let best:{rows:Cord[];counts:FeedCounts;decisions:PowerAssignmentDecision[];score:number[]}|undefined,lastFailure='No compatible receptacle fits the planned limits.';
   for(const distribution of distributions(load)){
    const counts=new Map(targets);counts.set(load.id,distribution);
@@ -103,7 +108,7 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
      const cord:Cord={pduId:p.id,outlet:o.n,deviceId:load.id,inlet,...(load.assessment==='pdu-capacity'?{inputIdentity:B300_INPUT_IDENTITY}:{})};
      const check=projected([...rows,cord],counts);if(check.error){lastFailure=check.error;return [];}
      return [{p,o,cord,score:check.score}];
-    });}).sort((a,b)=>compareScore(a.score,b.score)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
+    });}).sort((a,b)=>compareScore(a.score,b.score)||routingDistance(inlet,a.p.id)-routingDistance(inlet,b.p.id)||(a.p.feed===preferred?0:1)-(b.p.feed===preferred?0:1)||a.o.n-b.o.n||pduRank.get(a.p.id)!-pduRank.get(b.p.id)!);
     const choice=candidates[0];if(!choice){failed=true;break;}
     const first=[...choice.p.outlets].sort((a,b)=>a.n-b.n).find(o=>!used.has(`${choice.p.id}:${o.n}`))!;
     let reason=`Feed ${choice.p.feed}; ${distribution.A} input${distribution.A===1?'':'s'} on A and ${distribution.B} on B. Normal and feed-loss capacity checked.`;
@@ -122,8 +127,11 @@ export function balanceFeeds(equipment:FeedEquipment[],inputs:FeedInputs,options
   if(!best)return fail(`${load.name}: no compatible outlet arrangement fits capacity and redundancy requirements. ${lastFailure} Review fixed cables or capacity.`);
   assignments=best.rows;targets.set(load.id,best.counts);decisions.push(...best.decisions);
  }
+ const routed=routePowerAssignments(equipment,assignments,fixed);assignments=routed.assignments;
+ const byEndpoint=new Map(assignments.map(c=>[powerEndpointKey(c),c]));
+ for(const decision of decisions){const cord=byEndpoint.get(powerEndpointKey(decision))!;decision.inlet=cord.inlet;const note=routed.notes.find(n=>n.deviceId===cord.deviceId);if(note)decision.reason+=` ${note.message}`;}
  const rank=new Map(orderedLoads.map((l,i)=>[l.id,i]));assignments.sort((a,b)=>rank.get(a.deviceId)!-rank.get(b.deviceId)!||a.inlet-b.inlet);
  const analysis=analyzeFeeds(supplies,loads,assignments,inputs.headroomPercent);
  const passes=analysis.issues.every(i=>pending.has(i))&&analysis.scenarios.every(s=>s.errors.length===0);
- return {assignments,analysis,pendingChecks:[...pending],decisions,deviations:decisions.filter(d=>d.skippedOutlet!==undefined),...(!passes?{error:'The proposed plan fails feed-loss checks. Review fixed cables and capacity; no changes can be saved.'}:{})};
+ return {assignments,analysis,pendingChecks:[...pending],decisions,deviations:decisions.filter(d=>d.skippedOutlet!==undefined),routingNotes:routed.notes,...(!passes?{error:'The proposed plan fails feed-loss checks. Review fixed cables and capacity; no changes can be saved.'}:{})};
 }

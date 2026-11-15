@@ -1,7 +1,8 @@
 'use client';
 import type {PsuStatus} from '@/lib/psu-connection-status';
-import {b300PowerInputBoxes,powerInputLabel} from '@/lib/b300-power-inputs';
-import {arista7010NetworkBox,arista7010PsuBoxes} from '@/lib/arista-7010tx-layout';
+import {powerInputLabel} from '@/lib/b300-power-inputs';
+import {catalogPowerInputs} from '@/lib/power-input-geometry';
+import {arista7010NetworkBox} from '@/lib/arista-7010tx-layout';
 import {b300NetworkBox} from '@/lib/b300-network-layout';
 import type {CatalogProfile} from '@/lib/catalog-artwork';
 import type {NetworkPort} from '@/lib/network-ports';
@@ -43,17 +44,7 @@ export function FaceConnections({profile,face,ports=[],connected=[],psus=[],psuS
  const groups=new Map<string,{box:Box;ports:NetworkPort[]}>();
  for(const p of ports){const box=portBox(p);if(!box)continue;const id=p.parentId||p.id;const group=groups.get(id);if(group)group.ports.push(p);else groups.set(id,{box,ports:[p]});}
  const inputLabel=(n:number)=>powerInputLabel({sku:profile.skus[0]},n);
- let power:{n:number;box:Box}[]=[];
- if(face==='rear'){
-  if(key==='smc-b3008u')power=b300PowerInputBoxes;
-  if(profile.category==='switch')power=key==='arista-7050cx3'?[{n:1,box:{x:40,y:46,w:24,h:29}},{n:2,box:{x:633,y:46,w:24,h:29}}]:[{n:1,box:{x:42,y:44,w:22,h:30}},{n:2,box:{x:716,y:44,w:22,h:30}}];
-  if(key==='arista-7010tx')power=arista7010PsuBoxes.map(({n,box})=>({n,box:{...box}}));
-  if(key==='fs-s3900')power=[{n:1,box:{x:35,y:43,w:30,h:30}},{n:2,box:{x:732,y:43,w:30,h:30}}];
-  if(key==='asus-esc8000a')power=[43,283,417,625].map((x,i)=>({n:i+1,box:{x:x+83,y:208,w:28,h:31}}));
-  if(key==='smc-641e')power=[{n:2,box:{x:39,y:48,w:27,h:28}},{n:1,box:{x:39,y:99,w:27,h:28}}];
-  if(key==='smc-510p')power=[2,1].map((n,i)=>({n,box:{x:37+i*88,y:47,w:23,h:29}}));
-  if(key==='smc-821gv')power=[1,2,3,4].map((n,i)=>({n,box:{x:32+i*184,y:326,w:180,h:88}})).concat([{n:5,box:{x:32,y:128,w:180,h:92}},{n:6,box:{x:584,y:128,w:180,h:92}}]);
- }
+ const power=face==='rear'?catalogPowerInputs(profile):[];
  return <g className="face-connection-overlays">
  {[...groups].map(([id,{box,ports:group}])=>{const used=group.filter(p=>connected.includes(p.id));const p=used[0]||group[0];return <a key={id} data-connected={used.length>0} aria-label={`${p.parentEndpoint||p.name} · ${used.length?'Connected':'Available'}${group.length>1?` · ${used.length}/4 legs`:''}`} href={href?`${href}&fromDeviceId=${encodeURIComponent(deviceId)}&fromPort=${encodeURIComponent(p.id)}`:undefined} onPointerDown={e=>e.stopPropagation()}><rect className="connection-socket" x={box.x} y={box.y} width={box.w} height={box.h} rx="1"/><circle className="connection-led" cx={box.x+box.w-3} cy={box.y+3} r="2"/>{group.length>1&&group.map((leg,i)=><rect key={leg.id} className="breakout-leg-light" data-connected={connected.includes(leg.id)} x={box.x+i*box.w/4} y={box.y+box.h-3} width={box.w/4-1} height="3"/>)}</a>;})}
  {power.map(({n,box})=><a key={`psu${n}`} className="psu-hit" href="#power-connection" data-psu-device={deviceId} data-psu-inlet={n} onPointerDown={e=>e.stopPropagation()} data-psu-state={psuStatus?.(n)?.state} data-connected={psus.includes(n)} aria-label={psuDescription?.(n)||`${inputLabel(n)} · ${psus.includes(n)?"Connected":"Not connected"}`}><title>{psuDescription?.(n)||`${inputLabel(n)} · ${psus.includes(n)?"Connected":"Not connected"}`}</title><rect className="connection-socket" x={box.x-(box.w<60?3:0)} y={box.y-(box.w<60?3:0)} width={box.w+(box.w<60?6:0)} height={box.h+(box.w<60?6:0)} rx="2"/><circle className="connection-led" cx={box.x+box.w-3} cy={box.y+3} r="2"/>{profile.category==='switch'&&<g transform={`translate(${box.x+box.w/2+(box.x<400?70:-70)} ${box.y+box.h/2})${vertical?' rotate(90)':''}`}>

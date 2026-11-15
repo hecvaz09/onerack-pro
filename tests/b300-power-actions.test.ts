@@ -33,7 +33,7 @@ test('actual manual outlet save accepts physical input 12 and rejects invalid or
  const saved=readDetails((h.snapshot() as typeof f.rack).devices.find(d=>d.id===c.pduId)!.details).outlets[c.outlet];assert.equal(saved.inputIdentity,B300_INPUT_IDENTITY);assert.equal(saved.notes,'keep note');
  const writes=h.updates.length;
  for(const n of [0,13])assert.equal((await h.actions.saveOutlet(f.rack.id,'pdu-a',12,'b300','',n)).ok,false);
- assert.equal((await h.actions.saveOutlet(f.rack.id,c.pduId,1,'b300','',12)).ok,false);assert.equal(h.updates.length,writes);
+ assert.equal((await h.actions.saveOutlet(f.rack.id,c.pduId,c.outlet===1?2:1,'b300','',12)).ok,false);assert.equal(h.updates.length,writes);
 });
 test('actual bulk apply saves exact input identities and preserves future metadata and unrelated wiring',async()=>{
  const f=b300PowerFixture(),h=await actionHarness({rack:f.rack});
