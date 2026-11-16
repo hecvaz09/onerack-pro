@@ -51,7 +51,10 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   const requiredChecks=setupChecks.filter(c=>c.blocking),installationChecks=setupChecks.filter(c=>!c.blocking);
   function renderChecks(checks:SetupCheck[]){
     const groups=[...new Set(checks.map(c=>c.message))].map(message=>({message,checks:checks.filter(c=>c.message===message)}));
-    return <ul className="space-y-2">{groups.map(g=><li key={g.message} className="text-sm"><p>{g.message}</p><details><summary>{g.checks.length} affected device(s)</summary>{g.checks.map((c,i)=><p key={`${c.deviceId}:${i}`}><strong>{c.name}</strong> <button type="button" className="text-primary underline" onClick={()=>revealProblem(c)}>{c.blocking?'Review setting':'View details'}</button></p>)}</details></li>)}</ul>;
+    return <ul className="space-y-2">{groups.map(g=>{
+      const devices=g.checks.filter(c=>c.scope!=='rack');
+      return <li key={g.message} className="text-sm">{g.checks.filter(c=>c.scope==='rack').map(c=><strong key={c.deviceId}>{c.name}</strong>)}<p>{g.message}</p>{devices.length>0&&<details><summary>{devices.length} affected device(s)</summary>{devices.map((c,i)=><p key={`${c.deviceId}:${i}`}><strong>{c.name}</strong> <button type="button" className="text-primary underline" onClick={()=>revealProblem(c)}>{c.blocking?'Review setting':'View details'}</button></p>)}</details>}</li>;
+    })}</ul>;
   }
   const libraryFactors=libraryPowerFactors(equipment,inputs);
   const estimates=missingPowerEstimates(equipment,inputs),question=nextPowerQuestion(equipment,saved);
