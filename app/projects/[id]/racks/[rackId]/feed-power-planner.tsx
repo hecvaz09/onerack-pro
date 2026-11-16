@@ -1,5 +1,5 @@
 'use client';
-import {powerSetupAudit} from '@/lib/power-setup-audit';
+import {powerSetupAudit,type SetupCheck} from '@/lib/power-setup-audit';
 import {PowerSiteNotice} from './power-site-notice';
 import {libraryPowerFactors} from '@/lib/library-power-factor';
 import {PowerViewStateContext} from '@/lib/power-view-state';
@@ -48,7 +48,11 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
   const advanced=useRef<HTMLDetailsElement>(null);
   const problem=powerSettingsProblem(inputs,equipment);
   const setupChecks=powerSetupAudit(equipment,inputs);
-  const setupGroups=[...new Set(setupChecks.map(c=>c.message))].map(message=>({message,checks:setupChecks.filter(c=>c.message===message)}));
+  const requiredChecks=setupChecks.filter(c=>c.blocking),installationChecks=setupChecks.filter(c=>!c.blocking);
+  function renderChecks(checks:SetupCheck[]){
+    const groups=[...new Set(checks.map(c=>c.message))].map(message=>({message,checks:checks.filter(c=>c.message===message)}));
+    return <ul className="space-y-2">{groups.map(g=><li key={g.message} className="text-sm"><p>{g.message}</p><details><summary>{g.checks.length} affected device(s)</summary>{g.checks.map((c,i)=><p key={`${c.deviceId}:${i}`}><strong>{c.name}</strong> <button type="button" className="text-primary underline" onClick={()=>revealProblem(c)}>{c.blocking?'Review setting':'View details'}</button></p>)}</details></li>)}</ul>;
+  }
   const libraryFactors=libraryPowerFactors(equipment,inputs);
   const estimates=missingPowerEstimates(equipment,inputs),question=nextPowerQuestion(equipment,saved);
   function revealProblem(issue:Omit<PowerSettingsProblem,'field'>&{field?:string}){
@@ -68,7 +72,7 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
     {editor.conflict&&<div role="alert" className="rounded-lg border border-border p-3 text-sm"><p>{POWER_INPUT_CONFLICT}</p><p>The saved overview and wiring on this page may be out of date.</p><a className="text-primary underline" href={latestHref||''} target="_blank" rel="noreferrer">Open latest rack in a new tab</a></div>}
     <header><h2 className="text-xl font-semibold">Connect your rack</h2><p className="mt-2 text-sm text-muted-foreground">Calculate connections, review them on your rack, then save the layout.</p></header>
     <PowerSiteNotice supplies={feedRack(equipment,saved).supplies}/>
-    {setupChecks.length>0&&<details open={setupChecks.some(c=>c.blocking)||undefined} className="rounded-xl border border-border p-4" aria-label="Power setup checklist"><summary className="font-semibold">{setupChecks.some(c=>c.blocking)?`Power setup: ${setupChecks.filter(c=>c.blocking).length} required settings; ${setupChecks.filter(c=>!c.blocking).length} deferred checks`:`Equipment verification · ${setupChecks.length} checks for later`}</summary><p className="my-2 text-sm">Library values are inherited. Complete required design inputs before calculating. Deferred equipment checks can be reviewed before installation.</p><ul className="space-y-2">{setupGroups.map(g=><li key={g.message} className="text-sm"><p>{g.message}</p><details><summary>{g.checks.length} affected device(s)</summary>{g.checks.map((c,i)=><p key={`${c.deviceId}:${i}`}><strong>{c.name}</strong> <button type="button" className="text-primary underline" onClick={()=>revealProblem(c)}>Review setting</button></p>)}</details></li>)}</ul></details>}
+    {requiredChecks.length>0&&<details open className="rounded-xl border border-border p-4" aria-label="Power setup checklist"><summary className="font-semibold">Power setup · {requiredChecks.length} required settings</summary><p className="my-2 text-sm">Library values are inherited. Complete these inputs to finish checking the power design.</p>{renderChecks(requiredChecks)}</details>}
     {libraryFactors.changes.length>0&&<section className="rounded-xl border border-border p-4 space-y-3" aria-label="Library power factors"><h3 className="font-semibold">Power factor available from your Library</h3><p className="text-sm">Use PF {libraryFactors.changes[0].pf} for {libraryFactors.changes.length} matching server(s) with missing power factor. This is the lowest reported PSU test value at 230 V, used as a planning assumption. Your entered watts and measurements stay unchanged.</p><details><summary>Source and affected servers</summary>{libraryFactors.changes.map(c=><p className="text-sm mt-2" key={c.id}>{c.name}: {c.source}</p>)}</details><button type="button" disabled={pending||!viewCurrent} className="power-connection-button is-primary" onClick={()=>save(libraryFactors.inputs)}>Use Library power factors and save</button></section>}
     {question&&!dirty&&<section className="rounded-xl border border-border p-4 space-y-3" aria-label="Next setup step"><h3 className="font-semibold">{question.title}</h3><p className="text-sm text-muted-foreground">{question.message}</p>
       {question.target==='power-equipment'&&estimates.changes.length>0&&<><button type="button" disabled={pending||!viewCurrent} className="power-connection-button is-primary" onClick={()=>save(estimates.inputs)}>Use and save Library estimates</button><details><summary className="text-sm">Review {estimates.changes.length} estimated system{estimates.changes.length===1?'':'s'}</summary><p className="text-sm text-muted-foreground">Planning values only; existing consumption values and measurements stay unchanged. No electrical limits are assumed.</p>{estimates.changes.map(e=><p key={e.id} className="text-sm">{e.name}: {e.watts} W estimated</p>)}</details></>}
@@ -79,6 +83,7 @@ export function FeedPowerPlanner({rackId,equipment,initial,saveRevision,latestHr
       {(dirty||!viewCurrent)&&<div role="status" className="space-y-2"><p>{problem?problem.message:'Save your settings before calculating connections. Zoom and saved-connection inspection remain available.'}</p><button type="button" disabled={pending||editor.conflict} className="power-connection-button is-primary" onClick={()=>save()}>Save settings</button>{problem&&<button id="power-review-needed" type="button" className="power-connection-button" onClick={()=>revealProblem(problem)}>Complete required setting</button>}{dirty&&<button type="button" disabled={pending} className="power-connection-button" onClick={discardEdits}>Discard unsaved changes</button>}</div>}
       <PowerViewStateContext.Provider value={dirty||!viewCurrent}>{children}</PowerViewStateContext.Provider>
     </section>
+    {installationChecks.length>0&&<details className="power-extra" aria-label="Installation checks"><summary>Installation checks · {installationChecks.length} items for later</summary><p className="my-3 text-sm text-muted-foreground">These reminders do not block calculating or saving the outlet plan. Review the equipment and cable specifications before physical installation.</p>{renderChecks(installationChecks)}</details>}
     <details ref={advanced} id="power-advanced" className="power-extra"><summary>Advanced settings &amp; electrical checks</summary><div className="mt-5 space-y-6">
     <PowerOverview equipment={equipment} saved={saved} dirty={dirty}/>
 

@@ -20,7 +20,7 @@ import {powerReviewSummary} from '@/lib/power-review-summary';
 import {powerWiringGuide} from '@/lib/power-wiring-guide';
 import {visualPowerBalance,canSaveVisualPowerDraft} from '@/lib/visual-power';
 import {individualPowerReview} from '@/lib/individual-power-review';
-import {outletPlanningChecks} from '@/lib/outlet-planning-checks';
+import {designPowerAnalysis,outletPlanningChecks} from '@/lib/outlet-planning-checks';
 import {powerCapacityReview} from '@/lib/power-capacity-review';
 import {PowerCapacityReview} from './power-capacity-review';
 import {PowerAssignmentNotes} from './power-assignment-notes';
@@ -52,7 +52,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
  const guide=useMemo(()=>powerWiringGuide(equipment,configuration,target,candidate),[equipment,configuration,target,candidate]);
  const sides=useMemo(()=>powerFeedProgress(equipment,configuration,rackPlan.assignments||[]),[equipment,configuration,rackPlan.assignments]);
  const pendingConnections=sides.flatMap(side=>side.pending.map(c=>({...c,feed:side.feed})));
- const complete=!rackPlan.error&&Number(rackPlan.total)>0&&pendingConnections.length===0;
+ const complete=!settingsPending&&!rackPlan.error&&designPowerAnalysis(simplePlan.analysis).ready&&Number(rackPlan.total)>0&&pendingConnections.length===0;
  const changedSuggestions=candidate&&guide.assignments&&rackPlan.assignments?guide.assignments.filter(c=>c.deviceId!==candidate.deviceId||c.inlet!==candidate.inlet).filter(c=>rackPlan.assignments!.some(previous=>previous.deviceId===c.deviceId&&previous.inlet===c.inlet&&(previous.pduId!==c.pduId||previous.outlet!==c.outlet))).length:0;
  const [clearing,setClearing]=useState(false);
  const review=visualPowerBalance(equipment,configuration,candidate);
@@ -186,7 +186,7 @@ export function VisualPowerMap({rackId,config,heightRU,devices:serverDevices,equ
  function openAdvanced(){const advanced=document.getElementById('power-advanced');if(advanced instanceof HTMLDetailsElement)advanced.open=true;advanced?.scrollIntoView({block:'start'});}
  return <div className="visual-power-map" style={{"--power-feedback":feedback} as CSSProperties} onKeyDown={e=>{if(e.key==='Escape'&&!pending){setSelected(null);setHover(null);setTarget(undefined);setCandidate(undefined);setClearing(false);}}}>
   <section className="simple-power-actions" aria-label="Automatic rack connections">
-   <div><p className="text-sm text-muted-foreground">Calculate → Review → Save</p><h3 className="font-semibold">{reviewing?'Review your connections':complete?'Connection plan complete':'Plan your connections'}</h3><p className="text-sm" role="status" aria-live="polite">{previewRevision&&simplePlan.error?'Some settings need attention before a plan can be calculated.':previewRevision&&!reviewing?'The rack changed. Calculate a fresh plan.':reviewing?`${simplePlan.remaining.length} new connections proposed. Click a PSU to inspect its outlet.`:message==='Click a PSU to see the calculator’s recommended PDU outlet.'?'Use your saved Library data and rack settings. Existing cables stay fixed.':message}</p></div>
+   <div>{!complete&&<p className="text-sm text-muted-foreground">Calculate → Review → Save</p>}<h3 className="font-semibold">{reviewing?'Review your connections':complete?'Power design complete':'Plan your connections'}</h3><p className="text-sm" role="status" aria-live="polite">{previewRevision&&simplePlan.error?'Some settings need attention before a plan can be calculated.':previewRevision&&!reviewing?'The rack changed. Calculate a fresh plan.':reviewing?`${simplePlan.remaining.length} new connections proposed. Click a PSU to inspect its outlet.`:message==='Click a PSU to see the calculator’s recommended PDU outlet.'?(complete?'All power connections are saved and pass the design checks using the saved power settings.':'Use your saved Library data and rack settings. Existing cables stay fixed.'):message}</p></div>
    <div className="power-connection-actions"><button type="button" className={`power-connection-button${reviewing?'':' is-primary'}`} disabled={pending||settingsPending} onClick={calculateLayout}>Calculate connections</button>{reviewing&&simplePlan.remaining.length>0&&<button type="button" className="power-connection-button is-primary" disabled={pending||settingsPending} onClick={saveLayout}>{pending?'Saving…':simplePlan.planning?'Save planning layout':'Save connections'}</button>}{previewRevision&&simplePlan.error&&<button type="button" className="power-connection-button" onClick={openAdvanced}>Review needed settings</button>}</div>
    <p className="text-xs text-muted-foreground">Lowest rack unit first. A/B feeds progress independently; capacity, voltage, balance and redundancy take priority over outlet numbers.</p>
    <PowerAssignmentNotes routingNotes={reviewing?simplePlan.routingNotes:[]} equipment={equipment} deviations={reviewing?simplePlan.deviations:[]} limitations={simplePlan.analysis.issues.filter(i=>i.endsWith(SINGLE_PSU_CHECK))}/>
