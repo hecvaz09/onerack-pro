@@ -2,7 +2,7 @@ import {PsuTestReference} from './psu-test-reference';
 import {equipmentRecord} from '@/lib/equipment-record';
 import {isMeasuredPower} from '@/lib/power-consumption';
 export function EquipmentRecordSummary({sku,model,raw,installation,catalogHref,powerInputContext=false}:{sku?:string;model:string;raw:unknown;installation?:unknown;catalogHref?:string;powerInputContext?:boolean}){
- const record=equipmentRecord(model,raw,installation,sku);
+ const record=equipmentRecord(model,raw,installation,sku,powerInputContext);
  const measurement=installation&&typeof installation==='object'&&isMeasuredPower(installation)?true:false;
  return <details className="mt-4 rounded-lg border border-border p-4"><summary className="cursor-pointer font-medium">Equipment record · specifications and sources</summary><p className="my-3 text-sm text-muted-foreground">{powerInputContext?'Model references are not selected installation demand or proof of installed hardware. Current edits apply to this device only and still need saving.':'Model facts are shared. Saved installation values apply here only. Unknown values are not treated as zero.'}</p><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b border-border"><th className="py-2 pr-4">Specification</th><th className="py-2 pr-4">Value</th><th className="py-2">Where it comes from</th></tr></thead><tbody>{record.facts.map(f=>{
   const demand=powerInputContext&&f.key==='watts';

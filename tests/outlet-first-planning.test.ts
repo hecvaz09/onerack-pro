@@ -7,7 +7,7 @@ import {psuConnectionStatuses} from '../lib/psu-connection-status';
 import {actionHarness} from './helpers/action-harness';
 import type {FeedEquipment} from '../lib/feed-rack';
 function fixture(){
- const f=b300PowerFixture();const d=f.rack.devices.find(d=>d.id==='b300')!;d.catalogDevice.model='Synthetic server';d.catalogDevice.sku='SYNTHETIC';d.catalogDevice.rawData={};
+ const f=b300PowerFixture();const d=f.rack.devices.find(d=>d.id==='b300')!;d.catalogDevice.model='Synthetic server';d.catalogDevice.sku='SYNTHETIC';d.catalogDevice.rawData={powerLoad:{cords:2}};
  f.inputs.budgets.b300={watts:556,pf:.87};
  const equipment=f.rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details})) as FeedEquipment[];
  return {...f,equipment};

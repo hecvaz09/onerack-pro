@@ -2,6 +2,10 @@
 // Never infer AC demand by multiplying redundant PSU capacities or input amps.
 type ModelPowerReference={model:string;aliases?:string[];maximumAcWatts:number|null;psuWatts:number|null;psuCount:number;minVoltage:number|null;maxVoltage:number|null;inputAmps:number|null;source:string;section:string;reviewedAt:string;notes?:string};
 export const MODEL_POWER_REFERENCES:readonly ModelPowerReference[] = [
+  {model:'DCS-7050CX3-32S',maximumAcWatts:null,psuWatts:500,psuCount:2,minVoltage:100,maxVoltage:240,inputAmps:null,
+    source:'https://www.arista.com/en/qsg-7050-series-1ru-gen3/7050-series-1ru-gen3-overview',
+    section:'Table 3: PWR-500AC input range; AC and DC options are distinct',reviewedAt:'2026-11-15',
+    notes:'100–240 VAC applies only to an explicitly AC-connected installation. Published whole-switch power figures differ across manufacturer documents; retain the selected installation demand. The 500 W module rating is DC output.'},
   {model:'N9K-C9336C-FX2',aliases:['Nexus 9336C-FX2','N9336C-FX2'],maximumAcWatts:719,psuWatts:null,psuCount:2,minVoltage:100,maxVoltage:240,inputAmps:null,
     source:'https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-742282.html',
     section:'Table 2: maximum AC input consumption and standard AC voltage',reviewedAt:'2026-10-21',
@@ -32,10 +36,13 @@ export function modelPowerReference(model:string){
     return at>=0&&!/[A-Z0-9-]/.test(normalized[at-1]||' ')&&!/[A-Z0-9-]/.test(normalized[at+name.length]||' ');
   }));
 }
-// Only an explicitly AC-connected installation can inherit standard AC voltage.
+// AC-option references apply only to AC connectors or the AC outlet planner.
 // Never infer PSU AC capacity, cord ampacity or PF from a model's DC output.
-export function modelAcLimits(model:string,connector:unknown){
+export function modelAcLimits(model:string,connector:unknown,acPlanning=false){
  const ref=modelPowerReference(model);
- return (connector==='C13'||connector==='C19')&&ref?.model.startsWith('N9K-')&&ref.minVoltage&&ref.maxVoltage
+ // The shared planner models AC PDU outlets. An unselected cord may use the
+ // documented AC-option range there, without asserting an installed AC PSU.
+ // A conflicting explicit connector/variant still needs its own reference.
+ return (connector==='C13'||connector==='C19'||acPlanning&&!connector)&&(ref?.model.startsWith('N9K-')||ref?.model==='DCS-7050CX3-32S')&&ref.minVoltage&&ref.maxVoltage
   ?{minVoltage:ref.minVoltage,maxVoltage:ref.maxVoltage}:{};
 }

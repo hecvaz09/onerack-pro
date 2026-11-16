@@ -12,7 +12,13 @@ export function readFeedInputs(raw:unknown,equipment?:FeedEquipment[]):FeedInput
   const v=obj(obj(raw).feedPower);
   if(!obj(raw).feedPower&&obj(raw).px3Power&&equipment){
    const old=readPx3Settings(raw),budgets:FeedInputs['budgets']={};
-   for(const [id,b] of Object.entries(old.budgets))if(!b.passive)budgets[id]={watts:b.watts,pf:b.pf??old.pf,cords:(b.psusPerFeed??1)*2,minimumCords:b.psusPerFeed??1,connector:b.connector,cordLimitAmps:b.cordAmps??(b.connector==='C19'?16:12),psuAcCapacity:b.psuAcCapacity,...(!b.confirmed||b.testOnly?{estimateSource:'Imported unconfirmed/test power assumptions; enter verified AC watts and PSU limits.'}:{})};
+   for(const [id,b] of Object.entries(old.budgets))if(!b.passive)budgets[id]={
+    watts:b.watts,pf:b.pf??old.pf,
+    pfEstimateSource:b.pf===undefined?'Imported shared rack power-factor assumption; not a device measurement.':'Imported device power factor; measurement provenance unrecorded.',
+    estimateSource:('Imported planning demand'+(b.testOnly?' (synthetic test)':'')+(b.source?': '+b.source:': source unrecorded.')).slice(0,1000),
+    cords:(b.psusPerFeed??1)*2,minimumCords:b.psusPerFeed??1,connector:b.connector,
+    ...(b.cordAmps!==undefined?{cordLimitAmps:b.cordAmps,cordLimitSource:'Imported saved planning limit; installed cable rating remains unverified.'}:{}),psuAcCapacity:b.psuAcCapacity,
+   };
    const inputs:FeedInputs={headroomPercent:old.headroomPercent??0,budgets};
    const supplies=feedRack(equipment,inputs).supplies;
    inputs.supplies=Object.fromEntries(supplies.filter(p=>pduModelId(equipment.find(e=>e.id===p.id)?.rawData)).map(p=>[p.id,{...p,voltage:old.voltage,limitAmps:old.inputLimit,confirmed:old.supplyConfirmed,outlets:p.outlets.map(o=>({...o,reserved:old.reserveDedicated&&Number(o.branch)<=3}))}]));
@@ -35,10 +41,10 @@ export function feedRack(equipment:FeedEquipment[],inputs:FeedInputs){
       supplies.push({feed:plannedFeed,topology:profile.topology as Supply['topology'],voltage:Number(profile.voltage)||0,limitAmps:Number(profile.limitAmps)||0,outlets:Array.isArray(profile.outlets)?profile.outlets as Supply['outlets']:[],branches:profile.branches as Supply['branches'],...(typeof profile.confirmed==='boolean'?{confirmed:profile.confirmed}:{}),...preset,...configured,id:e.id,name:e.name});
       for(const [n,a] of Object.entries(readDetails(e.details).outlets))if(a.deviceId)cords.push({pduId:e.id,outlet:Number(n),deviceId:a.deviceId,inlet:a.inlet||0,...(a.inputIdentity?{inputIdentity:a.inputIdentity}:{})});
     }else if(e.category!=='accessory'){
-      const p=libraryPowerLimits(e.sku||e.model||'',raw,inputs.budgets[e.id]),b=inputs.budgets[e.id];
+      const p=libraryPowerLimits(e.sku||e.model||'',raw,inputs.budgets[e.id],true),b=inputs.budgets[e.id];
       const b300=isB300PowerDevice(e);
       const psus=readSystemSpecs(raw).components.filter(c=>c.kind==='psu').reduce((n,c)=>n+c.quantity,0);
-      loads.push({id:e.id,name:e.name,watts:b?.watts,pf:b?.pf,pfEstimateSource:b?.pfEstimateSource,estimateSource:b?.estimateSource,measurement:b?.measurement,cords:b300?12:Number(p.cords)||psus||2,minimumCords:b300?1:Number(p.minimumCords)||1,...(b300?{assessment:"pdu-capacity" as const}:{}),connector:String(p.connector||''),minVoltage:Number(p.minVoltage)||undefined,maxVoltage:Number(p.maxVoltage)||undefined,cordLimitAmps:Number(p.cordLimitAmps)||undefined,psuAcCapacity:Number(p.psuAcCapacity)||undefined});
+      loads.push({id:e.id,name:e.name,watts:b?.watts,pf:b?.pf,pfEstimateSource:b?.pfEstimateSource,estimateSource:b?.estimateSource,measurement:b?.measurement,cords:b300?12:Number(p.cords)||psus,minimumCords:b300?1:Number(p.minimumCords)||1,...(b300?{assessment:"pdu-capacity" as const}:{}),connector:String(p.connector||''),minVoltage:Number(p.minVoltage)||undefined,maxVoltage:Number(p.maxVoltage)||undefined,cordLimitAmps:Number(p.cordLimitAmps)||undefined,cordLimitSource:typeof p.cordLimitSource==='string'?p.cordLimitSource:undefined,psuAcCapacity:Number(p.psuAcCapacity)||undefined});
     }
   }
   return {supplies,loads,cords};

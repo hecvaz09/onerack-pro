@@ -49,6 +49,7 @@ export function systemSpecsError(value:unknown):string|null{
       if(v&&field[2].includes('|')&&!field[2].split('|').includes(String(v)))return `Choose a supported value for ${field[1]}.`;
     }
     if(c.kind==='network'&&attrs.supportedSpeedsGbps&&supportedNetworkSpeeds(String(attrs.supportedSpeedsGbps))===null)return 'Enter supported speeds as positive numbers separated by commas.';
+    if(c.kind==='network'&&attrs.speedGbps&&attrs.supportedSpeedsGbps&&!supportedNetworkSpeeds(String(attrs.supportedSpeedsGbps))?.includes(Number(attrs.speedGbps)))return 'Selected network speed must be included in the supported speeds.';
     if(c.kind==='network'&&attrs.startPort&&(Number(attrs.startPort)>512||Number(attrs.startPort)+Number(attrs.ports||1)-1>512))return 'Physical port numbers must be between 1 and 512.';
     if(c.kind==='network'&&attrs.breakoutPorts){
       const ports=breakoutPortNumbers(String(attrs.breakoutPorts)),first=Number(attrs.startPort)||1,count=Number(attrs.ports)||0;
@@ -70,4 +71,14 @@ export function catalogInputError(input:CatalogInput):string|null{
   if(!CATEGORIES.includes(input.category as typeof CATEGORIES[number])||!Number.isInteger(input.heightRU)||input.heightRU<0||input.heightRU>60||(input.heightRU===0&&!['pdu','node'].includes(input.category)))return 'Use 1–60 RU, or 0 RU for a vertical PDU or chassis node.';
   return systemSpecsError(input.specs);
 }
-export function mergeSystemSpecs(raw:unknown,specs:SystemSpecs):Record<string,unknown>&{systemSpecs:SystemSpecs}{return {...record(raw),systemSpecs:specs};}
+export function mergeSystemSpecs(raw:unknown,specs:SystemSpecs):Record<string,unknown>&{systemSpecs:SystemSpecs}{
+ const data=record(raw),clean=structuredClone(specs);
+ for(const c of clean.components)if(c.fieldReviews){
+  c.fieldReviews=Object.fromEntries(Object.entries(c.fieldReviews).filter(([key,r])=>r.value===c.attributes[key]&&r.model===c.model&&r.manufacturer===c.manufacturer));
+  if(!Object.keys(c.fieldReviews).length)delete c.fieldReviews;
+ }
+ const count=clean.components.filter(c=>c.kind==='psu').reduce((n,c)=>n+c.quantity,0);
+ // Keep legacy count metadata consistent, but never reinterpret ambiguous old
+ // watts as AC consumption or the DC rating of each PSU.
+ return {...data,...(data.psu&&count?{psu:{...record(data.psu),count}}:{}),systemSpecs:clean};
+}

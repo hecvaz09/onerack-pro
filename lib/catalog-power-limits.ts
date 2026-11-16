@@ -24,5 +24,9 @@ export function catalogPowerLimits(raw:unknown){
  const connectors=psus.map(p=>field(p,'inlet')==='C14'?'C13':field(p,'inlet')==='C20'?'C19':undefined);
  const min=ranges.every(Boolean)?Math.max(...ranges.map(r=>Number(r![1]))):0;
  const max=ranges.every(Boolean)?Math.min(...ranges.map(r=>Number(r![2]))):0;
- return {...(min>0&&max>=min?{minVoltage:min,maxVoltage:max}:{}),...(capacities.every(n=>Number.isFinite(n)&&n>0)?{psuAcCapacity:Math.min(...capacities)}:{}),...(connectors.every(c=>c&&c===connectors[0])?{connector:connectors[0]}:{})};
+ // Only a reviewed, homogeneous N+N arrangement with a matching module count
+ // establishes this requirement. Paired-input platforms override it separately.
+ const redundancy=psus.length===1?field(psus[0],'redundancy')?.match(/^\s*(\d+)\s*\+\s*\1\s*$/):null;
+ const minimum=redundancy?Number(redundancy[1]):0;
+ return {...(minimum>0&&psus[0].quantity===minimum*2?{minimumCords:minimum}:{}),...(min>0&&max>=min?{minVoltage:min,maxVoltage:max}:{}),...(capacities.every(n=>Number.isFinite(n)&&n>0)?{psuAcCapacity:Math.min(...capacities)}:{}),...(connectors.every(c=>c&&c===connectors[0])?{connector:connectors[0]}:{})};
 }

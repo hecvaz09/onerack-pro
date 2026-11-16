@@ -8,8 +8,8 @@ export type EquipmentFact={key:string;label:string;value:string;origin:'model'|'
 const object=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
 const positive=(v:unknown)=>{const n=Number(v);return Number.isFinite(n)&&n>0?n:undefined;};
 // Read-only consolidation. Existing IDs, wiring, budgets and raw records remain untouched.
-export function equipmentRecord(model:string,raw:unknown,installation?:unknown,sku?:string){
- const specs=readSystemSpecs(raw),reference=modelPowerReference(sku||model),power=libraryPowerLimits(sku||model,raw),saved=object(installation);
+export function equipmentRecord(model:string,raw:unknown,installation?:unknown,sku?:string,acPlanning=false){
+ const specs=readSystemSpecs(raw),reference=modelPowerReference(sku||model),saved=object(installation),power=libraryPowerLimits(sku||model,raw,{connector:saved.connector},acPlanning);
  const b300=isB300PowerDevice({model});
  const facts:EquipmentFact[]=[];
  const add=(key:string,label:string,base:unknown,unit:string,basis:string,source?:string)=>{
@@ -25,9 +25,11 @@ export function equipmentRecord(model:string,raw:unknown,installation?:unknown,s
  const uniform=psuRatings.length&&psuRatings.every(w=>w!==undefined&&w===psuRatings[0])?psuRatings[0]:undefined;
  add('psuDcWatts','DC output per PSU',uniform??(!psus.length||psuRatings.every(w=>w===undefined)?reference?.psuWatts:undefined),' W',uniform?'Catalog PSU rating; review hardware.':reference?.model==='MQM8700-HS2F'?'User-supplied rating; exact PSU part unverified.':'Manufacturer PSU capacity.',uniform?specs.sourceUrl||undefined:reference?.model==='MQM8700-HS2F'?undefined:reference?.source);
  add('psuAcCapacity',b300?'Per-PSU AC capacity (outside this check)':'Supported AC budget per PSU',b300?undefined:power.psuAcCapacity,' W','Library AC capacity; distinct from DC output.',specs.sourceUrl||undefined);
- add('minVoltage','Minimum input voltage',power.minVoltage,' V','Library voltage range.',specs.sourceUrl||undefined);
- add('maxVoltage','Maximum input voltage',power.maxVoltage,' V','Library voltage range.',specs.sourceUrl||undefined);
- add('cordLimitAmps','Usable cord current',power.cordLimitAmps,' A','Library cord limit.',specs.sourceUrl||undefined);
+ const acOption=acPlanning&&!libraryPowerLimits(sku||model,raw,{connector:saved.connector}).minVoltage&&power.minVoltage;
+ const voltageBasis=acOption?'Manufacturer AC-option range used for AC outlet planning; installed PSU type still needs verification.':'Library voltage range.';
+ add('minVoltage','Minimum input voltage',power.minVoltage,' V',voltageBasis,acOption?reference?.source:specs.sourceUrl||undefined);
+ add('maxVoltage','Maximum input voltage',power.maxVoltage,' V',voltageBasis,acOption?reference?.source:specs.sourceUrl||undefined);
+ add('cordLimitAmps','Planning cable-current limit',power.cordLimitAmps,' A','Library cord limit.',specs.sourceUrl||undefined);
  const psuTest=psuTestReference(sku||model,raw);
  return {model,specs,facts,psuTest,sourceUrls:[...new Set([specs.sourceUrl,reference?.source,psuTest?.source].filter((s):s is string=>!!s))]};
 }

@@ -4,7 +4,7 @@ import type {Supply} from '../../lib/feed-power';
 
 export function individualPowerFixture(unknownPdu=true){
  const f=b300PowerFixture(),server=f.rack.devices.find(d=>d.id==='b300')!;
- server.id='server';server.label='Same server label';server.catalogDevice.sku='SYNTHETIC-1U';server.catalogDevice.model='Synthetic server';server.catalogDevice.rawData={};
+ server.id='server';server.label='Same server label';server.catalogDevice.sku='SYNTHETIC-1U';server.catalogDevice.model='Synthetic server';server.catalogDevice.rawData={powerLoad:{cords:2}};
  delete f.inputs.budgets.b300;
  f.inputs.budgets.server={watts:556,pf:.87,connector:'C13',minVoltage:100,maxVoltage:240,cordLimitAmps:10,psuAcCapacity:1000};
  for(const d of f.rack.devices.filter(d=>d.catalogDevice.category==='pdu')){

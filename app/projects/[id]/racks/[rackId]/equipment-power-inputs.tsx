@@ -1,4 +1,5 @@
 'use client';
+import {cableLimitSource} from '@/lib/cable-limit-source';
 import {isB300PowerDevice} from '@/lib/b300-power-inputs';
 import type {Dispatch,SetStateAction,FormEvent} from 'react';
 import {isMeasuredPower} from '@/lib/power-consumption';
@@ -97,9 +98,10 @@ export function EquipmentPowerInputs({invalidField,equipment,loads,inputs,initia
         {isB300PowerDevice(device)&&<p className="mt-3 text-sm">Six PSU modules · two AC inputs each · 12 input assignments. Enter the cord connector, input voltage range and usable cord current below. Internal PSU redundancy and module output capacity are outside this PDU check.</p>}
         <div className="power-fields mt-3">{(['cords','minimumCords','connector','minVoltage','maxVoltage','cordLimitAmps','psuAcCapacity'] as const).filter(field=>!isB300PowerDevice(device)||!['cords','minimumCords','psuAcCapacity'].includes(field)).map(field=>{
           const labels={cords:'PSU cords used for planning',minimumCords:'Minimum PSUs needed after feed loss',connector:'Cord connector (C13 / C19)',minVoltage:'Minimum PSU voltage (V)',maxVoltage:'Maximum PSU voltage (V)',cordLimitAmps:'Planning cable-current limit (A)',psuAcCapacity:'Supported AC load per PSU (W)'};
-          return <label key={field}>{labels[field]}<input data-power-field={field} type={field==='connector'?'text':'number'} value={budget?.[field]??load?.[field]??''} onChange={event=>update({[field]:field==='connector'?event.target.value:event.target.value?Number(event.target.value):undefined},'Unsaved PSU limit for this device. Review and save power inputs.')}/></label>;
+          return <label key={field}>{labels[field]}<input data-power-field={field} type={field==='connector'?'text':'number'} value={budget?.[field]??load?.[field]??''} onChange={event=>update({[field]:field==='connector'?event.target.value:event.target.value?Number(event.target.value):undefined,...(field==='cordLimitAmps'?{cordLimitSource:event.target.value?'Manually entered planning limit; installed cable rating remains unverified.':undefined}:{})},'Unsaved PSU limit for this device. Review and save power inputs.')}/></label>;
         })}</div>
         <p className="mt-3 text-sm text-muted-foreground">Cable-current limits constrain the calculation; saved or inherited values do not confirm the installed cable rating. You can review physical cables later. A blank cable limit does not block outlet planning, and PDU and outlet limits still apply.</p>
+        {load&&cableLimitSource(load)&&<p className="mt-3 text-xs text-muted-foreground">{cableLimitSource(load)}</p>}
         <EquipmentRecordSummary sku={device.sku||undefined} model={device.model||''} raw={device.rawData} installation={budget} powerInputContext/>
       </details>
     </article>;

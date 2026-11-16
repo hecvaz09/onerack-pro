@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {connection} from 'next/server';
 import type {Prisma} from '@/generated/prisma/client';
 import {prisma} from '@/lib/prisma';
+import {libraryReadiness} from '@/lib/library-readiness';
 import {readSystemSpecs} from '@/lib/system-specs';
 
 type Query=Record<string,string|string[]|undefined>;
@@ -60,10 +61,10 @@ export default async function EquipmentLibrary({searchParams}:{searchParams:Prom
       <table className="w-full min-w-[900px] border-collapse text-left text-sm">
         <caption className="sr-only">Equipment configurations, specifications and usage across all racks</caption>
         <thead className="sticky top-0 z-10 bg-card text-xs text-muted-foreground"><tr>{['Model / configuration','Manufacturer','Type','Size','Specifications','Installed','Actions'].map(h=><th scope="col" key={h} className="border-b border-border px-4 py-3 font-medium">{h}</th>)}</tr></thead>
-        <tbody className="divide-y divide-border bg-card/70">{devices.map(d=>{const specs=readSystemSpecs(d.rawData),reviewed=specs.status==='verified';return <tr key={d.id} className="group hover:bg-primary/5 focus-within:bg-primary/5">
+        <tbody className="divide-y divide-border bg-card/70">{devices.map(d=>{const specs=readSystemSpecs(d.rawData),readiness=libraryReadiness(d.sku||'',d.category,d.rawData),reviewed=readiness.label==='Reviewed';return <tr key={d.id} className="group hover:bg-primary/5 focus-within:bg-primary/5">
           <th scope="row" className="max-w-[430px] px-4 py-3 font-normal"><Link href={`/equipment/${d.id}`} className="font-semibold text-foreground hover:text-primary hover:underline">{d.model}</Link><p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">{d.sku||'No SKU'}</p></th>
           <td className="px-4 py-3">{d.vendor}</td><td className="px-4 py-3 capitalize text-muted-foreground">{d.category||'Uncategorized'}</td><td className="whitespace-nowrap px-4 py-3 tabular-nums">{d.heightRU===0?(d.category==='pdu'?'0U / rail':'0U'):`${d.heightRU}U`}</td>
-          <td className="px-4 py-3"><span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs ${reviewed?'text-primary':'text-muted-foreground'}`}><span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${reviewed?'bg-primary':'bg-muted-foreground'}`}/>{reviewed?'Reviewed':'Draft'}</span><p className="mt-1 whitespace-nowrap text-xs text-muted-foreground">{specs.components.length} component groups</p></td>
+          <td className="px-4 py-3"><span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs ${reviewed?'text-primary':'text-muted-foreground'}`}><span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${reviewed?'bg-primary':'bg-muted-foreground'}`}/>{readiness.label}</span><p className="mt-1 whitespace-nowrap text-xs text-muted-foreground">{specs.components.length} component groups</p></td>
           <td className="px-4 py-3 tabular-nums"><span className={d._count.instances?'font-semibold':'text-muted-foreground'}>{d._count.instances}</span><span className="ml-1.5 text-xs text-muted-foreground">{d._count.instances===1?'system':'systems'}</span></td>
           <td className="px-4 py-3"><div className="flex gap-4"><Link aria-label={`Edit ${d.model}`} href={`/equipment/${d.id}`} className="text-primary hover:underline">Edit</Link><Link aria-label={`Research ${d.model}`} href={`/equipment/${d.id}#ai-research`} className="text-primary hover:underline">AI assistant</Link><Link aria-label={`Duplicate ${d.model}`} href={`/equipment/new?copy=${d.id}`} className="text-muted-foreground hover:text-foreground hover:underline">Duplicate</Link></div></td>
         </tr>;})}</tbody>

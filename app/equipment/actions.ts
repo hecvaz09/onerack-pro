@@ -5,6 +5,7 @@ import {catalogInputError,mergeSystemSpecs,type CatalogInput} from '@/lib/system
 import {catalogRevision} from '@/lib/catalog-revision';
 import {networkShape} from '@/lib/network-ports';
 import {isNetworkEnrichment,enrichmentConnectionError} from '@/lib/network-library-update';
+import {synchronizeLibraryArtwork} from '@/lib/library-reference-maintenance';
 
 export async function saveCatalogEquipment(id:string|null,revision:string,input:CatalogInput):Promise<{ok:true;id:string}|{ok:false;error:string}>{
   const error=catalogInputError(input);if(error)return {ok:false,error};
@@ -23,7 +24,7 @@ export async function saveCatalogEquipment(id:string|null,revision:string,input:
           if(connectionError)return {ok:false as const,error:connectionError};
         }
       }
-      const data={sku:input.sku.trim(),vendor:input.vendor.trim(),model:input.model.trim(),heightRU:input.heightRU,category:input.category,rawData:JSON.parse(JSON.stringify(mergeSystemSpecs(previous?.rawData,input.specs)))};
+      const data={sku:input.sku.trim(),vendor:input.vendor.trim(),model:input.model.trim(),heightRU:input.heightRU,category:input.category,rawData:JSON.parse(JSON.stringify(synchronizeLibraryArtwork(input.sku.trim(),mergeSystemSpecs(previous?.rawData,input.specs))))};
       const saved=previous?await tx.catalogDevice.update({where:{id:previous.id},data}):await tx.catalogDevice.create({data});
       return {ok:true as const,id:saved.id};
     },{isolationLevel:'Serializable'});

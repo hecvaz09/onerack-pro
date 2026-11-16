@@ -1481,7 +1481,7 @@
     },
     {
       "name": "Paired power inputs",
-      "value": "Rear illustration has six PSU modules and two AC inputs per module. Paired-input topology is not supported by the existing single-input visual power mapper; rear power click targets are intentionally absent."
+      "value": "Six PSU modules expose twelve physical AC inputs in the power mapper. PDU capacity is checked using the planned input assignments; internal PSU redundancy is not evaluated."
     }
   ],
   "components": [
@@ -1569,7 +1569,7 @@
     "Actual ConnectX-8 fabric mode, link rate, optics and cables",
     "Installed CPU, memory, storage and optional DPUs",
     "Exact PSU FRU: manufacturer references disagree on its part number",
-    "Paired-input PSU grouping, twelve-cord assignments and failover validation are not implemented; six PSU modules must not be interpreted as six physical AC cords"
+    "Internal PSU redundancy and module-specific AC capacity remain unverified. Twelve physical AC inputs are mapped; PDU feed-loss calculations do not certify internal PSU redundancy."
   ],
   "drawing": {
     "kind": "server",
@@ -1578,7 +1578,7 @@
     "psus": 6,
     "slots": 2,
     "reference": "https://www.supermicro.com/en/support/manuals/product/system/as-8126gs-nb3rt/Content/introduction/chassis-features/front-view-as-8126gs-nb3rt.htm",
-    "audit": "Front/rear geometry reviewed against user-supplied manufacturer photographs: eight top-front OSFP cages; lower front storage, two expansion bays and service I/O; rear ten fan modules, six dual-input PSU modules and two dummy-fan positions. Network overlays preserve existing port IDs. Rear AC inputs are reference artwork only; paired-input power mapping remains unvalidated."
+    "audit": "Front/rear geometry reviewed against user-supplied manufacturer photographs: eight top-front OSFP cages; lower front storage, two expansion bays and service I/O; rear ten fan modules, six dual-input PSU modules and two dummy-fan positions. Network overlays preserve existing port IDs. Twelve rear AC input targets support PDU capacity planning. Internal PSU redundancy and installed modules remain unverified."
   }
 },
 {
