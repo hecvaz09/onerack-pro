@@ -887,27 +887,29 @@
       },
       {
         "id": "ref-grandtwin-A-aiom1",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node A AIOM1 — adapter not specified",
+        "model": "Node A AIOM1 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "A",
-          "slot": "AIOM1"
+          "type": "Optional expansion slot",
+          "location": "Node A AIOM1",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-A-aiom2",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node A AIOM2 — adapter not specified",
+        "model": "Node A AIOM2 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "A",
-          "slot": "AIOM2"
+          "type": "Optional expansion slot",
+          "location": "Node A AIOM2",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-B-bmc",
@@ -927,27 +929,29 @@
       },
       {
         "id": "ref-grandtwin-B-aiom1",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node B AIOM1 — adapter not specified",
+        "model": "Node B AIOM1 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "B",
-          "slot": "AIOM1"
+          "type": "Optional expansion slot",
+          "location": "Node B AIOM1",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-B-aiom2",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node B AIOM2 — adapter not specified",
+        "model": "Node B AIOM2 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "B",
-          "slot": "AIOM2"
+          "type": "Optional expansion slot",
+          "location": "Node B AIOM2",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-C-bmc",
@@ -967,27 +971,29 @@
       },
       {
         "id": "ref-grandtwin-C-aiom1",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node C AIOM1 — adapter not specified",
+        "model": "Node C AIOM1 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "C",
-          "slot": "AIOM1"
+          "type": "Optional expansion slot",
+          "location": "Node C AIOM1",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-C-aiom2",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node C AIOM2 — adapter not specified",
+        "model": "Node C AIOM2 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "C",
-          "slot": "AIOM2"
+          "type": "Optional expansion slot",
+          "location": "Node C AIOM2",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-D-bmc",
@@ -1007,27 +1013,41 @@
       },
       {
         "id": "ref-grandtwin-D-aiom1",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node D AIOM1 — adapter not specified",
+        "model": "Node D AIOM1 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "D",
-          "slot": "AIOM1"
+          "type": "Optional expansion slot",
+          "location": "Node D AIOM1",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
       },
       {
         "id": "ref-grandtwin-D-aiom2",
-        "kind": "network",
+        "kind": "other",
         "manufacturer": "",
-        "model": "Node D AIOM2 — adapter not specified",
+        "model": "Node D AIOM2 optional expansion position",
         "quantity": 1,
         "attributes": {
-          "node": "D",
-          "slot": "AIOM2"
+          "type": "Optional expansion slot",
+          "location": "Node D AIOM2",
+          "specification": "Population unconfirmed; add the exact installed adapter as a network interface."
         },
-        "notes": "Physical AIOM position only. Enter installed adapter and its port count to make its data ports available for cabling."
+        "notes": "A slot alone does not create network ports. Verify installed adapters for this configuration."
+      },
+      {
+        "id": "grandtwin-high-line-ac-reference",
+        "kind": "psu",
+        "manufacturer": "Supermicro",
+        "model": "SYS-211GT-HNTR shared AC supply reference; installed FRU unconfirmed",
+        "quantity": 2,
+        "attributes": {
+          "inputVoltage": "200-240 VAC",
+          "redundancy": "1+1"
+        },
+        "notes": "Base-model shared redundant PSU reference from MNL-2513. Verify installed FRU and output derating; DC output is not measured AC demand."
       }
     ],
     "unknowns": [
@@ -1339,7 +1359,7 @@
       "bays": 8,
       "slots": 0,
       "reference": "https://www.se.com/us/en/product/APDU10151ME/apc-netshelter-rack-pdu-advanced-metered-5-0kw-1phase-208v-30a-l630p-40-outlet/",
-      "audit": "Workbook PDU photograph and outlet schedule: 40 numbered outlets; odd C13/C15, even universal. Branch mapping not validated. Mounting back shown schematically."
+      "audit": "Workbook PDU photograph and outlet schedule: 40 numbered outlets; odd C13/C15, even universal. Branch mapping and ratings are defined by the saved electrical profile. Mounting back shown schematically."
     }
   },
   {

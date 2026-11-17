@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {prisma} from '@/lib/prisma';
 import {parseTestBom} from '@/lib/bom-import';
 import {revalidatePath} from 'next/cache';
+import {onboardingMetadata} from '@/lib/library-onboarding';
 
 export async function importTestBom(source:string):Promise<{ok:true;id:string;existing:boolean}|{ok:false;error:string}>{
   try{
@@ -14,8 +15,9 @@ export async function importTestBom(source:string):Promise<{ok:true;id:string;ex
       const catalogIds=new Map<string,string>();
       for(const [index,c] of bom.configurations.entries()){
         const catalogId=`${id}-config-${index}`;catalogIds.set(c.sku,catalogId);
+        const raw={systemSpecs:c.specs,bomImport:{testOnly:true,sourceSku:c.sku},...(c.pduModel?{model:c.pduModel}:{})};
         await tx.catalogDevice.create({data:{id:catalogId,sku:`TEST-${digest}-${index}`,vendor:c.vendor,model:`[TEST] ${c.model}`,heightRU:c.heightRU,category:c.category,
-          rawData:JSON.parse(JSON.stringify({systemSpecs:c.specs,bomImport:{testOnly:true,sourceSku:c.sku},...(c.pduModel?{model:c.pduModel}:{})}))}});
+          rawData:JSON.parse(JSON.stringify({...raw,libraryOnboarding:onboardingMetadata({...c,sku:`TEST-${digest}-${index}`,model:`[TEST] ${c.model}`},raw)}))}});
       }
       const configs=new Map(bom.configurations.map(c=>[c.sku,c]));
       await tx.project.create({data:{id,name:`[TEST] ${bom.project}`,customer:bom.customer,notes:'Synthetic BOM import. Component specifications and demand budgets are test assumptions. No cables have been created.',

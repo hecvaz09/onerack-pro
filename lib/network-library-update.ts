@@ -3,7 +3,11 @@ import {networkPorts,portCompatibility} from './network-ports.ts';
 // nor overwrite a capability already used to plan a saved connection.
 export function isNetworkEnrichment(before:unknown,after:unknown){
  const old=networkPorts(before),next=networkPorts(after);
- if(old.length!==next.length)return false;
+ if(next.length<old.length||new Set(next.map(p=>p.id)).size!==next.length)return false;
+ // A newly documented interface may be appended. Resizing an existing port
+ // group/card population still changes its topology and requires a variant.
+ const component=(id:string)=>JSON.parse(id)[0] as string;
+ for(const id of new Set(old.map(p=>component(p.id))))if(old.filter(p=>component(p.id)===id).length!==next.filter(p=>component(p.id)===id).length)return false;
  return old.every(p=>{const n=next.find(v=>v.id===p.id);return !!n&&
   ['node','aiom','slot','endpoint','position','number','parentId','lane','parentEndpoint'].every(k=>p[k as keyof typeof p]===n[k as keyof typeof n])&&
   (!p.protocol||p.protocol==='Other'||p.protocol===n.protocol)&&(!p.connector||p.connector===n.connector||p.connector==='QSFP'&&n.connector==='QSFP28')&&(!p.speedGbps||p.speedGbps===n.speedGbps)&&(!p.supportedSpeedsGbps?.length||p.supportedSpeedsGbps.every(v=>n.supportedSpeedsGbps?.includes(v)));

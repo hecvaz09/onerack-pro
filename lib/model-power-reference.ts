@@ -22,10 +22,10 @@ export const MODEL_POWER_REFERENCES:readonly ModelPowerReference[] = [
     minVoltage:100,maxVoltage:240,inputAmps:2,
     source:'https://resource.fs.com/mall/resource/s3900-r-series-switches-data-sheet.pdf',
     section:'Table 2: Power supply and fan specifications',reviewedAt:'2026-10-20'},
-  {model:'MQM8700-HS2F',maximumAcWatts:null,psuWatts:1100,psuCount:2,
+  {model:'MQM8700-HS2F',aliases:['QM8700'],maximumAcWatts:null,psuWatts:1100,psuCount:2,
     minVoltage:200,maxVoltage:240,inputAmps:4.4,
     source:'https://networking-docs.nvidia.com/qm87xx/public-view/specifications',
-    section:'Power: 100–127 V / 4.5 A and 200–240 V / 4.4 A; consumption requires NVOnline reference 1080832',reviewedAt:'2026-10-20'},
+    section:'Power: separate 100–127 V and 200–240 V bands; high-line AC planning reference only',reviewedAt:'2026-11-16',notes:'Use 200–240 V for the high-line design reference. Low-line operation requires an explicit 100–127 V installation range. Never bridge the unsupported gap between the two bands; published input amps are not measured demand.'},
 ];
 export function modelPowerReference(model:string){
   // Catalog display labels may include a customer suffix; require a full model token.
@@ -43,6 +43,6 @@ export function modelAcLimits(model:string,connector:unknown,acPlanning=false){
  // The shared planner models AC PDU outlets. An unselected cord may use the
  // documented AC-option range there, without asserting an installed AC PSU.
  // A conflicting explicit connector/variant still needs its own reference.
- return (connector==='C13'||connector==='C19'||acPlanning&&!connector)&&(ref?.model.startsWith('N9K-')||ref?.model==='DCS-7050CX3-32S')&&ref.minVoltage&&ref.maxVoltage
+ return (connector==='C13'||connector==='C19'||acPlanning&&!connector)&&(ref?.model.startsWith('N9K-')||ref?.model==='DCS-7050CX3-32S'||ref?.model==='MQM8700-HS2F')&&ref.minVoltage&&ref.maxVoltage
   ?{minVoltage:ref.minVoltage,maxVoltage:ref.maxVoltage}:{};
 }
