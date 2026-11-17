@@ -1,6 +1,7 @@
 'use client';
 import type {PsuStatus} from '@/lib/psu-connection-status';
 import {powerInputLabel} from '@/lib/b300-power-inputs';
+import {r940NetworkBox} from '@/lib/dell-r940-layout';
 import {catalogPowerInputs} from '@/lib/power-input-geometry';
 import {arista7010NetworkBox} from '@/lib/arista-7010tx-layout';
 import {b300NetworkBox} from '@/lib/b300-network-layout';
@@ -11,6 +12,7 @@ type Box={x:number;y:number;w:number;h:number};
 export function FaceConnections({profile,face,ports=[],connected=[],psus=[],psuStatus,psuDescription,href,deviceId,vertical=false}:{profile:CatalogProfile;face:'front'|'rear';ports?:NetworkPort[];connected?:string[];psus?:number[];psuStatus?:(inlet:number)=>PsuStatus|undefined;psuDescription?:(inlet:number)=>string;href?:string;deviceId:string;vertical?:boolean}){
  const key=profile.key;
  function portBox(p:NetworkPort):Box|undefined{
+  if(key==='dell-r940')return face==='rear'?r940NetworkBox(p.position,p.number):undefined;
   if(key==='smc-b3008u')return face==='front'?b300NetworkBox(p):undefined;
   if(key==='arista-7010tx')return face==='front'?arista7010NetworkBox(p.position,p.number):undefined;
   if(key==='asus-esc8000a'&&face==='rear'){

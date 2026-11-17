@@ -1,3 +1,4 @@
+import {r940PowerInputs} from './dell-r940-layout.ts';
 import type {CatalogProfile} from './catalog-artwork.ts';
 import {b300PowerInputBoxes} from './b300-power-inputs.ts';
 import {arista7010PsuBoxes} from './arista-7010tx-layout.ts';
@@ -10,6 +11,7 @@ export const tnmrPsuModules=[{x:12,y:106},{x:208,y:106},{x:404,y:106},{x:600,y:1
 export const tnmrPowerInputs:PowerInputBox[]=tnmrPsuModules.map((p,i)=>({n:i+1,box:{x:p.x+9,y:p.y+19,w:30,h:40}}));
 export function catalogPowerInputs(profile:CatalogProfile):PowerInputBox[]{
  const key=profile.key;
+ if(key==='dell-r940')return r940PowerInputs;
  if(key==='smc-b3008u')return b300PowerInputBoxes;
  if(key==='smc-grandtwin')return grandTwinPowerInputs;
  if(key==='smc-as8126')return tnmrPowerInputs;

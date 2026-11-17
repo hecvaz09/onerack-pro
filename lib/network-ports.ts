@@ -4,7 +4,7 @@ import {breakoutPortNumbers,BREAKOUT_CABLE} from './network-breakout.ts';
 import { readSystemSpecs } from './system-specs.ts';
 import {reviewedComponentField} from './component-review.ts';
 
-export type NetworkPort = { id:string; name:string; protocol:string; connector:string; speedGbps:number|null; supportedSpeedsGbps?:number[]; reviewed:boolean; slot?:number; node?:string; aiom?:number; endpoint?:string; position?:'mgmt'|'lan'|'switch-data'; number?:number; parentId?:string; lane?:number; parentEndpoint?:string };
+export type NetworkPort = { id:string; name:string; protocol:string; connector:string; speedGbps:number|null; supportedSpeedsGbps?:number[]; reviewed:boolean; slot?:number; node?:string; aiom?:number; endpoint?:string; position?:'mgmt'|'lan'|'switch-data'|'rndc'; number?:number; parentId?:string; lane?:number; parentEndpoint?:string };
 export function adapterSlots(value:string,quantity:number):number[]{
   const clean=value.trim().replace(/^PCIe\s*/i,'').replace(/^slots?\s*/i,'');
   const range=clean.match(/^(\d+)\s*[-–]\s*(\d+)$/);
@@ -35,6 +35,7 @@ export function networkPorts(raw:unknown):NetworkPort[] {
     const component=specs.components.find(c=>c.id===JSON.parse(port.id)[0]);
     if(component?.id==='raritan-mgmt'&&port.position==='mgmt'){port.name=`ETH${port.number}`;port.endpoint=`ETH${port.number}`;}
     const node=(component?.attributes.node||'').trim().replace(/^Node\s*/i,'');
+    if(/^rNDC$/i.test(component?.attributes.slot||'')){port.position='rndc';port.name=`rNDC · P${port.number}`;port.endpoint=`rNDC-P${port.number}`;}
     const match=(component?.attributes.slot||'').match(/^AIOM\s*([12])$/i);
     if(match){port.aiom=Number(match[1]);port.name=`AIOM${port.aiom} · P${port.number}`;port.endpoint=`AIOM${port.aiom}-P${port.number}`;}
     if(node){port.node=node;port.name=`Node ${node} · ${port.name}`;if(port.endpoint)port.endpoint=`Node${node}-${port.endpoint}`;}

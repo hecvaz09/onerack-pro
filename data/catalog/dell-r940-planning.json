@@ -1,0 +1,236 @@
+{
+  "id": "catalog-dell-r940-2x2400-57414",
+  "sku": "DELL-R940-2X2400-57414",
+  "vendor": "Dell",
+  "model": "PowerEdge R940 - 2x2400W / 57414 (planning)",
+  "heightRU": 3,
+  "category": "chassis",
+  "rawData": {
+    "systemSpecs": {
+      "version": 1,
+      "description": "R940 selected planning variant: 2 x 2400 W AC, 1+1, Broadcom 57414 rNDC.",
+      "sourceUrl": "https://i.dell.com/sites/doccontent/shared-content/data-sheets/en/Documents/PowerEdge-R940-Technical-Guide.pdf",
+      "status": "draft",
+      "notes": "Manufacturer fields reviewed individually. This is an approved planning configuration, not an installed inventory. Measured whole-system AC demand and PF remain blank. No CPU, RAM or drive population is assumed. Front art shows the 24-bay chassis reference. Physical PSU identity is independent of A/B feed assignment.",
+      "components": [
+        {
+          "id": "r940-2400w",
+          "kind": "psu",
+          "manufacturer": "Dell",
+          "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+          "quantity": 2,
+          "attributes": {
+            "outputWatts": "2400",
+            "inputVoltage": "200-240 VAC",
+            "inlet": "C20",
+            "redundancy": "1+1",
+            "efficiency": "80 PLUS Platinum"
+          },
+          "notes": "Selected planning option: two matching modules, two independent AC inputs. Use the high-line band for full rated DC output. Low-line 100-120 VAC is documented at 1400 W DC per module but is outside this variant. Enable redundant mode in BIOS; Hot Spare affects load sharing. C20 inlet / C19 equipment-end cord planning interface is corroborated by the rear drawing and Dell R940-compatible cord reference. Installed cords and their current ratings remain unconfirmed. DC output and nameplate amps are not whole-server AC demand or a supported AC budget.",
+          "fieldReviews": {
+            "outputWatts": {
+              "value": "2400",
+              "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/psu-specifications?guid=guid-2e8f0921-b06b-40c4-9ba2-d648fdbd60ea&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            },
+            "inputVoltage": {
+              "value": "200-240 VAC",
+              "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/psu-specifications?guid=guid-2e8f0921-b06b-40c4-9ba2-d648fdbd60ea&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            },
+            "inlet": {
+              "value": "C20",
+              "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/en-in/shop/dell-c19-c20-250-v-jumper-power-cord-06-meter-16a-india-bis/apd/450-agdg/power-cooling-data-center-infrastructure",
+              "reviewedAt": "2026-11-16"
+            },
+            "redundancy": {
+              "value": "1+1",
+              "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+              "manufacturer": "Dell",
+              "source": "https://i.dell.com/sites/doccontent/shared-content/data-sheets/en/Documents/PowerEdge-R940-Technical-Guide.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "efficiency": {
+              "value": "80 PLUS Platinum",
+              "model": "2400 W Platinum AC hot-plug (450-AGFW / N6VJH)",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/psu-specifications?guid=guid-2e8f0921-b06b-40c4-9ba2-d648fdbd60ea&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            }
+          }
+        },
+        {
+          "id": "r940-57414-rndc",
+          "kind": "network",
+          "manufacturer": "Broadcom / Dell",
+          "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+          "quantity": 1,
+          "attributes": {
+            "slot": "rNDC",
+            "ports": "2",
+            "protocol": "Ethernet",
+            "connector": "SFP28",
+            "supportedSpeedsGbps": "10,25"
+          },
+          "notes": "User-selected planning adapter. Dell tested 9XY73 in R940. Both ports share the configured speed; 10G/25G mixed operation on the two ports is unsupported. Plan 25GbE on both; negotiated speed remains unset. Confirm matching optics/DAC, firmware, FEC and auto-negotiation at installation. No additional PCIe adapters are selected.",
+          "fieldReviews": {
+            "slot": {
+              "value": "rNDC",
+              "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+              "manufacturer": "Broadcom / Dell",
+              "source": "https://infohub.delltechnologies.com/static/media/8091bac1-0a8c-4f5f-92df-9e89e3762f6b.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "ports": {
+              "value": "2",
+              "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+              "manufacturer": "Broadcom / Dell",
+              "source": "https://dl.dell.com/manuals/all-products/esuprt_data_center_infra_int/esuprt_data_center_infra_network_adapters/broadcom-netxtreme-adapters_users-guide4_en-us.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "protocol": {
+              "value": "Ethernet",
+              "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+              "manufacturer": "Broadcom / Dell",
+              "source": "https://dl.dell.com/manuals/all-products/esuprt_data_center_infra_int/esuprt_data_center_infra_network_adapters/broadcom-netxtreme-adapters_users-guide4_en-us.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "connector": {
+              "value": "SFP28",
+              "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+              "manufacturer": "Broadcom / Dell",
+              "source": "https://dl.dell.com/manuals/all-products/esuprt_data_center_infra_int/esuprt_data_center_infra_network_adapters/broadcom-netxtreme-adapters_users-guide4_en-us.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "supportedSpeedsGbps": {
+              "value": "10,25",
+              "model": "57414 dual-port 10/25GbE SFP28 rNDC (9XY73)",
+              "manufacturer": "Broadcom / Dell",
+              "source": "https://dl.dell.com/manuals/all-products/esuprt_data_center_infra_int/esuprt_data_center_infra_network_adapters/broadcom-netxtreme-adapters_users-guide4_en-us.pdf",
+              "reviewedAt": "2026-11-16"
+            }
+          }
+        },
+        {
+          "id": "r940-idrac",
+          "kind": "network",
+          "manufacturer": "Dell",
+          "model": "iDRAC9 dedicated management",
+          "quantity": 1,
+          "attributes": {
+            "slot": "MGMT",
+            "ports": "1",
+            "protocol": "Ethernet",
+            "connector": "RJ45",
+            "supportedSpeedsGbps": "1"
+          },
+          "notes": "Dedicated rear 1GbE management port. Management network and negotiated speed are installation settings; license features are separate.",
+          "fieldReviews": {
+            "slot": {
+              "value": "MGMT",
+              "model": "iDRAC9 dedicated management",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/remote-management-port-specifications?guid=guid-77709341-36af-4234-b703-1cbd5e626160&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            },
+            "ports": {
+              "value": "1",
+              "model": "iDRAC9 dedicated management",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/remote-management-port-specifications?guid=guid-77709341-36af-4234-b703-1cbd5e626160&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            },
+            "protocol": {
+              "value": "Ethernet",
+              "model": "iDRAC9 dedicated management",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/remote-management-port-specifications?guid=guid-77709341-36af-4234-b703-1cbd5e626160&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            },
+            "connector": {
+              "value": "RJ45",
+              "model": "iDRAC9 dedicated management",
+              "manufacturer": "Dell",
+              "source": "https://i.dell.com/sites/doccontent/shared-content/data-sheets/en/Documents/PowerEdge-R940-Technical-Guide.pdf",
+              "reviewedAt": "2026-11-16"
+            },
+            "supportedSpeedsGbps": {
+              "value": "1",
+              "model": "iDRAC9 dedicated management",
+              "manufacturer": "Dell",
+              "source": "https://www.dell.com/support/manuals/en-us/poweredge-r940/per940_techspec_mlk_pub/remote-management-port-specifications?guid=guid-77709341-36af-4234-b703-1cbd5e626160&lang=en-us",
+              "reviewedAt": "2026-11-16"
+            }
+          }
+        }
+      ],
+      "custom": [
+        {
+          "name": "Planning configuration",
+          "value": "3U R940; 2 x 2400 W AC PSUs; 1+1; Broadcom 57414 rNDC with two 25GbE-capable SFP28 ports. This is a selected planning variant, not a factory inventory."
+        },
+        {
+          "name": "Chassis dimensions",
+          "value": "482 mm wide including ears (434 mm body); 130.3 mm high. Dell depth references: Zb 726.2 mm, Zc 777.046 mm; allow separate rail/cable clearance."
+        },
+        {
+          "name": "Chassis capacity",
+          "value": "Two- or four-socket configurations; up to 48 DIMM sockets and 13 PCIe Gen3 slots. CPU, RAM and storage populations are not selected."
+        },
+        {
+          "name": "Front reference",
+          "value": "24 x 2.5-inch bay chassis shown without bezel; bay outlines describe capacity, not fitted drives. An 8-bay chassis option also exists."
+        },
+        {
+          "name": "Rack rails",
+          "value": "Dell B12 ReadyRails II reference: 773 mm minimum mounting depth without cable manager, 926 mm with CMA, 877 mm with strain relief bar; verify rack and rail kit compatibility."
+        },
+        {
+          "name": "Power measurement policy",
+          "value": "Whole-device AC demand and power factor stay blank until measured. 2400 W is the DC output rating of each PSU, not device consumption; 1+1 does not provide a 4800 W redundant budget."
+        },
+        {
+          "name": "Network speed coupling",
+          "value": "BCM57414 ports must operate at a common speed (10/10 or 25/25 Gb/s). Both ports share one interface-row speed setting in this template. No measured or negotiated link speed is asserted."
+        },
+        {
+          "name": "PSU option source",
+          "value": "https://www.dell.com/en-in/shop/dell-2400-watt-hot-plug-power-supply-single-250-volt-power-cord-required-for-use-customer-install/apd/450-agfw/computer-chassis-components"
+        },
+        {
+          "name": "Network adapter source",
+          "value": "https://infohub.delltechnologies.com/static/media/8091bac1-0a8c-4f5f-92df-9e89e3762f6b.pdf"
+        },
+        {
+          "name": "Network operating constraints",
+          "value": "https://dl.dell.com/manuals/all-products/esuprt_data_center_infra_int/esuprt_data_center_infra_network_adapters/broadcom-netxtreme-adapters_users-guide4_en-us.pdf"
+        },
+        {
+          "name": "Cord interface reference",
+          "value": "https://www.dell.com/en-in/shop/dell-c19-c20-250-v-jumper-power-cord-06-meter-16a-india-bis/apd/450-agdg/power-cooling-data-center-infrastructure"
+        }
+      ]
+    },
+    "catalogReference": {
+      "profile": "dell-r940",
+      "basis": "selected-planning-configuration",
+      "source": "https://i.dell.com/sites/doccontent/shared-content/data-sheets/en/Documents/PowerEdge-R940-Technical-Guide.pdf",
+      "frontSvg": "/equipment-artwork/dell-r940-front.svg",
+      "rearSvg": "/equipment-artwork/dell-r940-rear.svg"
+    },
+    "libraryOnboarding": {
+      "version": 1,
+      "modelReady": true,
+      "pending": [],
+      "frontReference": "/equipment-artwork/dell-r940-front.svg",
+      "rearReference": "/equipment-artwork/dell-r940-rear.svg",
+      "measurementPolicy": "measured-only"
+    }
+  }
+}

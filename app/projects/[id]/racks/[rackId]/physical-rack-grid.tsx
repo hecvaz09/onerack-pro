@@ -1,4 +1,5 @@
 "use client";
+import {R940_FACE_HEIGHT} from '@/lib/dell-r940-layout';
 /* eslint-disable @next/next/no-img-element -- Local rack SVG faceplates. */
 import {pduFeed,pduNumber,pduLabel,type PduFeed} from '@/lib/pdu-placement';
 import type {PsuStatuses,PsuStatus} from '@/lib/psu-connection-status';
@@ -152,9 +153,9 @@ function Device({ device, face, controls, row, pocket = false, standardBay = fal
     const artFace=controls.onPsu&&device.catalogDevice.category==='switch'?'rear':(rear===(device.mounting==='rear'))?'front':'rear';
     const twin=!pocket&&art?.key==='smc-grandtwin';
     const standardFace=(standardBay||art?.key==='arista-7010tx')&&!!art&&!!standardFaceGeometry(art.key,artFace,device.catalogDevice.heightRU,pocket);
-    const fitted=!!art&&['asus-esc8000a','smc-641e','fs-s3900','nvidia-qm8700'].includes(art.key)&&!pocket;
-    const faceHeight=b300?640:device.catalogDevice.heightRU<=1?112:device.catalogDevice.heightRU===2?160:device.catalogDevice.heightRU===4?280:440;
-    const crop=fitted?(device.catalogDevice.heightRU<=1?(art?.key==='nvidia-qm8700'&&artFace==='rear'?'22 25 756 70':'22 29 756 61'):art?.key==='asus-esc8000a'&&artFace==='rear'?'22 0 756 256':'22 29 756 227'):`0 0 800 ${faceHeight}`;
+    const fitted=!!art&&['asus-esc8000a','smc-641e','fs-s3900','nvidia-qm8700','dell-r940'].includes(art.key)&&!pocket;
+    const faceHeight=art?.key==='dell-r940'?R940_FACE_HEIGHT:b300?640:device.catalogDevice.heightRU<=1?112:device.catalogDevice.heightRU===2?160:device.catalogDevice.heightRU===4?280:440;
+    const crop=art?.key==='dell-r940'?`0 0 800 ${R940_FACE_HEIGHT}`:fitted?(device.catalogDevice.heightRU<=1?(art?.key==='nvidia-qm8700'&&artFace==='rear'?'22 25 756 70':'22 29 756 61'):art?.key==='asus-esc8000a'&&artFace==='rear'?'22 0 756 256':'22 29 756 227'):`0 0 800 ${faceHeight}`;
     const illustrated=!!art&&!chassisPanel&&art.category!=='pdu';
     return <div ref={setNodeRef} onPointerDown={event=>{
       const target=event.target instanceof Element?event.target:null;
