@@ -22,3 +22,10 @@ This block is written and re-added by `next dev` â€” verify at `node_module
 - Check front and rear references in the Equipment Library before describing a hardware addition as complete. Verify exact model identity, proportions, readable labels and connector placement against manufacturer references.
 - Preserve original artwork and already-correct rack layouts. Never borrow a different model's drawing to fill a missing reference.
 - Test both desktop and narrow layouts. Distinguish actual rendered visual inspection from source/markup checks, and explicitly report missing artwork or blocked visual verification.
+
+## Assistant-owned device onboarding
+
+- The user provides the manufacturer and exact model in chat. Follow `docs/LIBRARY-ONBOARDING.md`: the assistant researches and completes the template, prepares exact-model artwork, and checks Power Layout and Network Layout inheritance. Do not ask the user to find manufacturer specifications or fill the checklist.
+- Keep unfinished research outside the reusable Library. Add a new device only after reviewing all model requirements. Identify a specific unresolved model fact before publication instead of adding an incomplete record and making the user discover it in a layout.
+- Distinguish fixed model facts from optional installed parts and installation measurements. Ask only for configuration facts that cannot be established from manufacturer documentation. Missing whole-device AC demand and power factor stay blank until measured; preserve existing saved budgets. Disclose any installation-dependent inputs in the completed review.
+- Reuse existing calculators, field reviews, artwork standards and save/update paths. A complete model record does not certify every rack's capacity, site feeds or physical cabling. Do not enable the paused in-app paid research service merely to implement this chat-based workflow.
