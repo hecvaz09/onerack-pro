@@ -14,7 +14,7 @@ const obj=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isA
 // are deliberately absent: missing measured W/PF must never become fake defaults.
 export function libraryOnboarding(input:CatalogInput,previousRaw?:unknown){
  const raw:Record<string,unknown>={...obj(previousRaw),systemSpecs:input.specs},specs=readSystemSpecs(raw);
- const profile=catalogProfile(input.sku,input.model),checks:OnboardingCheck[]=[];
+ const profile=catalogProfile(input.sku,input.model,raw),checks:OnboardingCheck[]=[];
  const add=(id:string,label:string,details:string[],target:string)=>checks.push({id,label,ready:details.length===0,details,target});
  const identity:string[]=[];
  const error=catalogInputError(input);if(error)identity.push(error);
@@ -64,6 +64,6 @@ export function libraryModelTemplate(input:CatalogInput):CatalogInput|null{
 }
 
 export function onboardingMetadata(input:CatalogInput,raw:unknown){
- const result=libraryOnboarding(input,raw),profile=catalogProfile(input.sku,input.model);
- return {version:result.version,modelReady:result.ready,pending:result.checks.filter(c=>!c.ready).map(c=>c.id),...(profile?{frontReference:artworkUrl(profile,'front',input.sku),rearReference:artworkUrl(profile,'rear',input.sku)}:{}),measurementPolicy:'measured-only'};
+ const result=libraryOnboarding(input,raw),profile=catalogProfile(input.sku,input.model,raw);
+ return {version:result.version,modelReady:result.ready,pending:result.checks.filter(c=>!c.ready).map(c=>c.id),...(profile?{frontReference:artworkUrl(profile,'front',input.sku,raw),rearReference:artworkUrl(profile,'rear',input.sku,raw)}:{}),measurementPolicy:'measured-only'};
 }

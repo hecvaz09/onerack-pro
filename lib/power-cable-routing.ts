@@ -7,7 +7,7 @@ export type PowerRoutingNote={deviceId:string;message:string;attention:boolean};
 const railX:Record<string,number>={'rear-left-2':-.2,'rear-left':-.1,'rear-right':1.1,'rear-right-2':1.2};
 export const powerRailPosition=(device:FeedEquipment|undefined)=>railX[device?.mounting||''];
 export function powerInputPositions(device:FeedEquipment){
- const profile=catalogProfile(device.sku||'',device.model||'');
+ const profile=catalogProfile(device.sku||'',device.model||'',device.rawData);
  const boxes=/AS-?\s*8126GS-TNMR/i.test(device.model||'')?tnmrPowerInputs:profile?catalogPowerInputs(profile):[];
  // Pocket faces rotate. Without rack pocket geometry, do not apply flat-face
  // coordinates; likewise a rear-mounted server exposes its front here.

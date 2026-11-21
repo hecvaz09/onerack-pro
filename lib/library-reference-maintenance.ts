@@ -4,8 +4,8 @@ import {catalogProfile,artworkUrl} from './catalog-artwork.ts';
 const obj=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
 export const B300_PLANNING_NOTE='Twelve physical AC inputs are mapped for PDU capacity planning. Internal PSU redundancy and the installed module/cord configuration still require verification.';
 export function synchronizeLibraryArtwork(sku:string,raw:Record<string,unknown>){
- const profile=catalogProfile(sku),reference=obj(raw.catalogReference);
- return profile&&raw.catalogReference?{...raw,catalogReference:{...reference,profile:profile.key,frontSvg:artworkUrl(profile,'front',sku),rearSvg:artworkUrl(profile,'rear',sku)}}:raw;
+ const profile=catalogProfile(sku,'',raw),reference=obj(raw.catalogReference);
+ return profile&&raw.catalogReference?{...raw,catalogReference:{...reference,profile:profile.key,frontSvg:artworkUrl(profile,'front',sku,raw),rearSvg:artworkUrl(profile,'rear',sku,raw)}}:raw;
 }
 // Explicit maintenance operation. Ordinary Library saves synchronize metadata,
 // but do not silently apply newly researched specifications to existing models.

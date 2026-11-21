@@ -1112,3 +1112,14 @@ html.dark :is(select,input,textarea):disabled {opacity:.5;cursor:not-allowed;}
 .psu-status-legend [data-state="pending"] {color:#efbd52;}
 .psu-status-legend [data-state="issue"] {color:#ff7373;}
 .psu-status-legend small {flex-basis:100%;color:var(--muted-foreground);}
+
+/* The Power workflow keeps demand, review and save targets reachable at every width. */
+.power-workflow-shell {min-width:0;padding:clamp(16px,3vw,32px);}
+.power-workflow-nav {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;list-style:none;padding:0;margin:0;}
+.power-workflow-nav li {min-width:0;}
+.power-workflow-nav a {display:flex;align-items:center;gap:10px;min-height:48px;height:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;overflow-wrap:anywhere;}
+.power-workflow-nav a > span {display:grid;place-items:center;flex:0 0 24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary);font-size:12px;}
+.power-workflow-nav a:hover {background:color-mix(in srgb,var(--muted) 50%,transparent);}
+.power-workflow-nav a:focus-visible {outline:2px solid var(--ring);outline-offset:2px;}
+.power-workflow-shell [id^="power-"] {scroll-margin-top:24px;}
+@media(max-width:700px){.power-workflow-nav{grid-template-columns:repeat(2,minmax(0,1fr));}.power-workflow-nav a{padding:10px;font-size:12px;gap:8px;}}

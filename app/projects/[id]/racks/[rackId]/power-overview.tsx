@@ -24,12 +24,11 @@ export function PowerOverview({equipment,saved,dirty}:{equipment:FeedEquipment[]
     ?{target:'save-inputs',label:'Review and save inputs',text:'Save your edits before connecting equipment or reviewing updated results.'}
     :overview.next);
 
-  return <section aria-label="Rack power overview" className="space-y-5 rounded-xl border border-border bg-card p-4 sm:p-5">
+  return <section aria-label="Rack power overview" className="min-w-0 space-y-4">
     <header className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className={sectionLabelClassName}>Rack power</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight">Your rack power plan</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{overview.systems} powered systems · {overview.pdus} PDUs</p>
+        <h4 className="font-semibold tracking-tight">Saved rack summary</h4>
+        <p className="mt-1 text-sm text-muted-foreground">{overview.systems} powered systems · {overview.pdus} PDUs</p>
       </div>
       <span className="rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground">Saved values</span>
     </header>

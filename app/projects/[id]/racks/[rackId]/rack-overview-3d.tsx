@@ -21,9 +21,9 @@ function Box({x=0,y=0,z=0,w,h,d,front,rear,top,left,right,className='',name,onSe
  return <div className={`rack3-box ${className}`} style={{transform:`translate3d(${x}px,${y}px,${z}px) rotateY(${rotationY}deg)`}}>{faces.map(f=><div key={f.key} className={`rack3-face rack3-${f.key}`} style={{width:f.w,height:f.h,left:-f.w/2,top:-f.h/2,transform:f.t}} onClick={onSelect} title={name}>{f.content}</div>)}</div>;
 }
 function DeviceFace({device,face,pocket}:{device:RackGridDevice;face:'front'|'rear';pocket:boolean}){
- const p=catalogProfile(device.catalogDevice.sku||'',device.catalogDevice.model);
+ const p=catalogProfile(device.catalogDevice.sku||'',device.catalogDevice.model,device.catalogDevice.rawData);
  if(p){
-  if(isBlankingPanel(device.catalogDevice.sku,device.catalogDevice.model,device.catalogDevice.heightRU,pocket))return <Image src={artworkUrl(p,face)} alt="" fill unoptimized sizes="190px" loading="eager" draggable={false} style={{pointerEvents:'none'}}/>;
+  if(isBlankingPanel(device.catalogDevice.sku,device.catalogDevice.model,device.catalogDevice.heightRU,pocket,device.catalogDevice.rawData))return <Image src={artworkUrl(p,face)} alt="" fill unoptimized sizes="190px" loading="eager" draggable={false} style={{pointerEvents:'none'}}/>;
   if(pocket)return <div className="rack3-art-detail"><PocketFace profile={p} face={face} stretch/></div>;
   if(p.key==='smc-b3008u')return <div className="rack3-art-detail"><svg viewBox="0 0 800 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><image href={artworkUrl(p,face)} width="800" height="640" preserveAspectRatio="xMidYMid meet"/></svg></div>;
   const ru=device.catalogDevice.heightRU,fh=p.key==='dell-r940'?R940_FACE_HEIGHT:ru<=1?112:ru===2?160:ru===4?280:440;
@@ -87,7 +87,7 @@ export function RackOverview3D({heightRU,config,devices,onEdit}:{heightRU:number
  {panels&&[-1,1].flatMap(x=>[-1,1].map(y=><Box key={`panel${x}${y}`} x={x*outerW/2} y={y*H/4} w={3} h={H/2-10} d={D-10} className="rack3-panel" left={<div className="rack3-panel-lock"/>} right={<div className="rack3-panel-lock"/>}/>))}
  {devices.map(device=>{
  const pocket=isPocket(heightRU,device.startRU,config.pockets),pdu=device.catalogDevice.heightRU===0;
- const blankPanel=isBlankingPanel(device.catalogDevice.sku,device.catalogDevice.model,device.catalogDevice.heightRU,pocket);
+ const blankPanel=isBlankingPanel(device.catalogDevice.sku,device.catalogDevice.model,device.catalogDevice.heightRU,pocket,device.catalogDevice.rawData);
  let x=0,y=(heightRU/2-(device.startRU-1+device.catalogDevice.heightRU/2))*U,z=0,w=W,h=Math.max(5,device.catalogDevice.heightRU*U-2),depth=blankPanel?4:device.catalogDevice.category==='switch'?140:245;
  if(pocket){const bay=POCKET_BAYS.find(b=>[...b.left,...b.right].some(n=>n===device.startRU))!;const left=bay.left.some(n=>n===device.startRU);const pair=left?bay.left:bay.right;const slot=pair.findIndex(n=>n===device.startRU);const span=Math.min(device.catalogDevice.heightRU,pair.length-slot);const lane=left?pair.length-slot-span:slot;x=(left?-1:1)*(W/2+17+(lane+(span-1)/2)*19);y=(heightRU/2-(bay.from-1+(bay.to-bay.from+1)/2))*U;w=span*19-1;h=(bay.to-bay.from+1)*U-4;depth=115;}
  if(pdu){const raritan=device.catalogDevice.pduModel===PX3_4068_ID;w=raritan?44:26;depth=20;x=(device.mounting.includes('left')?-1:1)*(W/2+pduLane/2+5+(device.mounting.endsWith('-2')?pduLane:0));z=-D/2+14+w/2;h=heightRU*U*.96;y=0;}

@@ -6,7 +6,7 @@ import {POCKET_BAYS,isPocket} from '@/lib/onerack-layout';
 export function RackCableBundles({devices,heightRU,width,depth,pockets}:{devices:RackGridDevice[];heightRU:number;width:number;depth:number;pockets:boolean}){
  const height=heightRU*17.5,center=width/2;
  const level=(d:RackGridDevice)=>height-(d.startRU-1+d.catalogDevice.heightRU/2)*17.5;
- const servers=devices.filter(d=>d.catalogDevice.heightRU>0&&d.catalogDevice.category!=='switch'&&!isBlankingPanel(d.catalogDevice.sku,d.catalogDevice.model,d.catalogDevice.heightRU)&&!isPocket(heightRU,d.startRU,pockets)).sort((a,b)=>b.startRU-a.startRU);
+ const servers=devices.filter(d=>d.catalogDevice.heightRU>0&&d.catalogDevice.category!=='switch'&&!isBlankingPanel(d.catalogDevice.sku,d.catalogDevice.model,d.catalogDevice.heightRU,false,d.catalogDevice.rawData)&&!isPocket(heightRU,d.startRU,pockets)).sort((a,b)=>b.startRU-a.startRU);
  const switches=devices.filter(d=>d.catalogDevice.category==='switch'&&d.mounting==='rear');
  if(!servers.length||!switches.length)return null;
  return <svg className="rack3-cable-bundles" aria-hidden="true" width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{position:'absolute',left:-width/2,top:-height/2,overflow:'visible',pointerEvents:'none',backfaceVisibility:'hidden',transform:`translateZ(${-depth/2+8}px) rotateY(180deg)`}}>

@@ -61,7 +61,11 @@ test('input permutation preserves every electrical endpoint and normal/failure t
  const f=fixture(false),original:Cord[]=[1,2,3,4].map(inlet=>({deviceId:'lower',inlet,pduId:inlet%2?'A1':'B1',outlet:Math.ceil(inlet/2)}));
  const before=structuredClone(original),routed=routePowerAssignments(f.equipment,original,[]),model=feedRack(f.equipment,f.inputs);
  assertOrdered(f.equipment,routed.assignments);assert.deepEqual(original,before);
- assert.deepEqual(analyzeFeeds(model.supplies,model.loads,original).scenarios,analyzeFeeds(model.supplies,model.loads,routed.assignments).scenarios);
+ // Routing intentionally permutes PSU numbers; every per-outlet electrical
+ // value and the normal/feed-loss totals must still remain identical.
+ const electrical=(cords:Cord[])=>analyzeFeeds(model.supplies,model.loads,cords).scenarios.map(s=>({...s,outletLoads:s.outletLoads.map(c=>({...c,inlet:0}))}));
+ assert.deepEqual(electrical(original),electrical(routed.assignments));
+ assert.deepEqual(routed.assignments.map(c=>c.inlet).sort(),original.map(c=>c.inlet).sort());
 });
 
 test('a crossed saved connection remains fixed and the routing constraint is explained',()=>{

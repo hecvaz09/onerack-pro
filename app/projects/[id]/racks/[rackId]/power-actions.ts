@@ -4,6 +4,7 @@ import {rackMutation} from "@/lib/rack-mutation";
 import {matchesPowerInputsRevision,powerInputsRevision,lockedPowerInputRack} from "@/lib/power-input-revision";
 import {POWER_INPUT_CONFLICT} from "@/lib/power-input-state";
 import {detailsObject,readDetails} from "@/lib/equipment-details";
+import {powerPlanEndpointError} from "@/lib/power-connection-review";
 import {readPx3Settings,px3SettingsError,balancePx3,powerRevision,type Px3Settings,type PowerEquipment} from "@/lib/px3-power";
 
 export async function savePowerSettings(rackId:string,settings:Px3Settings,expectedRevision?:unknown){
@@ -30,14 +31,18 @@ export async function applyPowerBalance(rackId:string,revision:string,inputs?:Px
     const result=await rackMutation(rackId,async tx=>{
       const rack=inputs?await lockedPowerInputRack(tx,rackId):await tx.rack.findUnique({where:{id:rackId},include:{devices:{include:{catalogDevice:true},orderBy:{startRU:"asc"}}}});
       if(!rack)return {error:"Rack not found."};
+      // Match readFeedInputs: once shared inputs exist they are authoritative.
+      // An old tab must not apply a cable plan calculated from stale px3Power.
+      if(detailsObject(rack.configuration).feedPower)return {error:'This rack uses saved shared power inputs. Reload the shared Power workspace and calculate a new cable plan.'};
       if(inputs&&!matchesPowerInputsRevision(expectedInputRevision,rackId,rack))return {error:POWER_INPUT_CONFLICT,conflict:true as const};
       const equipment:PowerEquipment[]=rack.devices.map(d=>({id:d.id,name:`${d.label||d.catalogDevice.model} · U${d.startRU}`,sku:d.catalogDevice.sku,model:d.catalogDevice.model,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:d.details}));
-      if((rack.configuration as {feedPower?:{cablePolicy?:string}}|null)?.feedPower?.cablePolicy==='low-ru-c13-switch-top')return {error:'This rack uses C13-only / dedicated switch outlet rules. Use the shared power planner to calculate and save cables.'};
       const savedSettings=readPx3Settings(rack.configuration);
       if(powerRevision(equipment,savedSettings)!==revision)return {error:"The rack or power inputs changed. Reload and preview a fresh plan."};
       const settings=inputs??savedSettings;
       const plan=balancePx3(equipment,settings);
       if(plan.error||!plan.analysis.ready)return {error:plan.error||"This plan is not ready to apply."};
+      const endpointError=powerPlanEndpointError(equipment,{...rack.configuration as Record<string,unknown>,px3Power:settings},plan.assignments);
+      if(endpointError)return {error:endpointError};
       if(inputs)await tx.rack.update({where:{id:rackId},data:{configuration:JSON.parse(JSON.stringify({...rack.configuration as Record<string,unknown>,px3Power:settings}))}});
       for(const pdu of equipment.filter(d=>d.category==="pdu")){
         const details=detailsObject(pdu.details),outlets=detailsObject(details.outlets);

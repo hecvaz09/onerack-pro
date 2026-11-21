@@ -7,7 +7,12 @@ import {PX3_4068_OUTLETS} from "./pdu-models.ts";
 
 export type BuildDocument = {
   consumption?:{name:string;summary:string}[];
-  feedPower?:ReturnType<typeof import("./feed-power.ts").analyzeFeeds>;
+  feedPower?:ReturnType<typeof import("./feed-power.ts").analyzeFeeds>&{
+    verificationNotes?:string[];
+    verificationReady?:boolean;
+    headroomPercent?:number;
+    supplies?:import("./feed-power.ts").Supply[];
+  };
   power?:PowerAnalysis;
   project: string;
   customer: string | null;
@@ -104,12 +109,47 @@ export async function buildRackPdf(data: BuildDocument): Promise<Uint8Array> {
   }
   table("Placed devices", ["Device", "Manufacturer / model", "Rack units"], [175, 255, 80], data.devices.map(d => [d.label, `${d.vendor} / ${d.model}`, d.heightRU === 0 ? (d.mounting || "Rail") : `${d.mounting || "front"} ${d.startRU}-${d.startRU + d.heightRU - 1}`]));
   table("Cable manifest", ["From", "To", "Cable", "Label"], [155, 155, 80, 120], data.connections.map(c => [c.from, c.to, c.cableType || "Unspecified", c.label || ""]));
-  const outlets=data.devices.flatMap(d=>Object.entries(readDetails(d.details).outlets).map(([number,a])=>[`${d.label} / ${d.mounting}`,number,(()=>{const target=data.devices.find(v=>v.id===a.deviceId);return target?target.label+(data.feedPower?.scopeNotes?.length&&a.inlet?" / "+powerAssignmentLabel(target,a):""):"Unassigned";})(),a.notes]));
+  const outlets=data.devices.flatMap(d=>Object.entries(readDetails(d.details).outlets).map(([number,a])=>[`${d.label} / ${d.mounting}`,number,(()=>{const target=data.devices.find(v=>v.id===a.deviceId);return target?target.label+(a.inlet?" / "+powerAssignmentLabel(target,a):""):"Unassigned";})(),a.notes]));
   if(outlets.length)table("Power outlet assignments",["PDU","Outlet","Equipment","Notes"],[160,45,150,155],outlets);
   if(data.consumption?.length)table("Consumption sources (PSU checks are separate)",["Equipment","Consumption and source"],[180,330],data.consumption.map(v=>[v.name,v.summary]));
   if(data.feedPower){
     const result=data.feedPower;
-    table(result.scopeNotes?.length?"Power connections / PDU capacity":"Four-PDU power / feed loss",["Check","Result"],[180,330],[["Status",result.scopeNotes?.length?(result.ready?"Within entered PDU capacity limits":"NEEDS REVIEW - incomplete power inputs or assignments"):"NEEDS REVIEW - workbook wiring retained; not approved for hardware"],...(result.scopeNotes||[]).map(note=>["Scope",note]),["Basis","Single-phase AC watts / (voltage x power factor). Equal sharing across surviving cords; configured headroom applied once. Missing budgets are not zero-load devices."],...result.issues.map(i=>["Unresolved",i]),...result.scenarios.flatMap(s=>[[s.lost?`Feed ${s.lost} lost`:"Normal operation","Saved wiring"],...s.totals.map(p=>[p.name,p.online?`${p.amps.toFixed(2)} / ${p.limitAmps} A (entered budgets only)`:"Offline"]),...s.errors.map(e=>["FAIL",e])])]);
+    const verification=result.verificationNotes||[];
+    const status=result.ready?(result.scopeNotes?.length?"Within entered PDU capacity limits":"Design checks passed"):"NEEDS REVIEW - incomplete inputs, assignments or modeled conflicts";
+    table(result.scopeNotes?.length?"Power connections / PDU capacity":"Power design / feed loss",["Check","Result"],[180,330],[
+      ["Status",status],
+      ["Verification",result.verificationReady===false||verification.length?"Pending site, equipment or estimate verification. Design results do not confirm physical installation.":"Calculated from saved inputs. Site verification and physical installation are separate."],
+      ...(result.scopeNotes||[]).map(note=>["Scope",note]),
+      ["Basis",`Saved demand and wiring; equal sharing across surviving cords. ${result.headroomPercent===undefined?'Configured':`${result.headroomPercent}%`} extra headroom applied once. Missing budgets are not zero-load devices.`],
+      ["Electrical model","Each installed PDU uses its configured supply topology, outlet phase mapping, power factor and current limits. Three-phase currents use an ABC sinusoidal model; neutral current excludes harmonics."],
+      ...result.issues.map(i=>["Unresolved",i]),
+      ...verification.map(i=>["Verification pending",i]),
+      ...result.scenarios.flatMap(s=>[
+        [s.lost?`Feed ${s.lost} lost`:"Normal operation","Saved wiring"],
+        ...s.totals.flatMap(p=>{
+          const supply=result.supplies?.find(v=>v.id===p.id);
+          return p.online?[
+            [p.name,`${(p.watts/1000).toFixed(3)} kW / ${(p.va/1000).toFixed(3)} kVA`],
+            [`${p.name} / input`,`${p.amps.toFixed(2)} / ${p.limitAmps} A`],
+            ...p.phases.map((amps,i)=>[`${p.name} / ${p.phases.length>1?`L${i+1}`:'Line'}`,`${amps.toFixed(2)} / ${p.limitAmps} A`]),
+            ...(p.phases.length>1?[[`${p.name} / phase spread`,`${p.spread.toFixed(2)} A`]]:[]),
+            ...(supply?.topology==='three-phase-wye'?[[`${p.name} / fundamental neutral`,`${p.neutralAmps.toFixed(2)} A`]]:[]),
+            ...Object.entries(p.branches).map(([branch,amps])=>[`${p.name} / branch ${branch}`,`${amps.toFixed(2)} / ${supply?.branches?.[branch]??'?'} A`]),
+          ]:[[p.name,"Offline"]];
+        }),
+        ...s.unavailable.map(name=>["Redundancy limited",`${name}: single-PSU equipment is offline in this scenario.`]),
+        ...s.errors.map(e=>["FAIL",e]),
+      ]),
+    ]);
+    table("Power cabling / modeled loads",["Scenario / outlet","Branch / phase","Equipment / PSU","Calculated load"],[120,75,190,125],result.scenarios.flatMap(s=>s.outletLoads.map(c=>{
+      const supply=result.supplies?.find(p=>p.id===c.pduId),outlet=supply?.outlets.find(o=>o.n===c.outlet),device=data.devices.find(d=>d.id===c.deviceId);
+      return [
+        `${s.lost?`Feed ${s.lost} lost`:'Normal'} / ${supply?.name||c.pduId} / P${c.outlet}`,
+        `${outlet?.branch||'?'} / ${outlet?.phase||(supply?.topology==='single-phase'?'Line':'?')}`,
+        `${device?.label||c.deviceId} / ${device?.mounting||''} U${device?.startRU??'?'} / ${powerAssignmentLabel(device,c)}`,
+        `${c.watts.toFixed(1)} W / ${c.va.toFixed(1)} VA / ${c.amps.toFixed(2)} A`,
+      ];
+    })));
   }
   if(data.power){
     const power=data.power;

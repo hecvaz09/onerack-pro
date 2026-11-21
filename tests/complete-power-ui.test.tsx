@@ -35,7 +35,8 @@ test('Calculate then inspect PSU shows the full plan and saves only through the 
  assert.match(text(controls.children),/Save all 5 proposed connections together/);
  assert.match(text(tree),/5.04 A/);assert.match(text(tree),/10.09 A/);assert.doesNotMatch(text(tree),/20.17|PDU capacity exceeded|Cannot save this step/);
  assert.equal((h.grid(tree).powerStatuses as Record<string,Record<number,{state:string}>>).server[1].state,'off');
- click(controls.children,'Save planning layout');click(controls.children,'Save planning layout');assert.equal(h.calls.length,1);
+ assert.ok(nodes(controls.children).some(p=>p.href==='#power-save-connections'&&text(p.children)==='Review and save layout'));
+ click(tree,'Save planning layout');click(tree,'Save planning layout');assert.equal(h.calls.length,1);
  const plan=simplePowerPlan(h.f.equipment,h.f.rack.configuration);assert.deepEqual(h.calls[0],[h.f.rack.id,plan.revision,true]);
  const saved=withCables(h.f.equipment,plan.assignments);h.finish({ok:true,count:5,planning:true,updates:saved.filter(e=>e.category==='pdu').map(e=>({pduId:e.id,details:e.details}))});await Promise.all(h.queue);
  tree=h.render();assert.ok(Object.values((h.grid(tree).powerStatuses as Record<string,Record<number,{state:string}>>).server).every(s=>s.state==='connected'));

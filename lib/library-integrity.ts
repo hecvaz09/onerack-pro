@@ -15,10 +15,10 @@ export function libraryIntegrity(records:LibraryRecord[],assetExists?:(path:stri
   const count=specs.components.filter(c=>c.kind==='psu').reduce((n,c)=>n+c.quantity,0),old=Number(obj(raw.psu).count);
   if(count&&old&&old!==count)errors.push(`${sku}: legacy and structured PSU counts disagree.`);
   const ports=networkPorts(raw);if(new Set(ports.map(p=>p.id)).size!==ports.length)errors.push(`${sku}: duplicate network endpoint IDs.`);
-  const profile=catalogProfile(r.sku||'',r.model);
+  const profile=catalogProfile(r.sku||'',r.model,raw);
   const reference=obj(raw.catalogReference);
-  if(profile)for(const face of ['front','rear'] as const)if(reference[face+'Svg']&&reference[face+'Svg']!==artworkUrl(profile,face,r.sku||undefined))errors.push(`${sku}: stale ${face} artwork reference.`);
-  if(profile&&assetExists)for(const face of ['front','rear'] as const){const path=artworkUrl(profile,face,r.sku||undefined);if(!assetExists(path))errors.push(`${sku}: missing ${face} reference artwork.`);}
+  if(profile)for(const face of ['front','rear'] as const)if(reference[face+'Svg']&&reference[face+'Svg']!==artworkUrl(profile,face,r.sku||undefined,raw))errors.push(`${sku}: stale ${face} artwork reference.`);
+  if(profile&&assetExists)for(const face of ['front','rear'] as const){const path=artworkUrl(profile,face,r.sku||undefined,raw);if(!assetExists(path))errors.push(`${sku}: missing ${face} reference artwork.`);}
  }
  return errors;
 }
