@@ -2,15 +2,13 @@
 import {useState,type ReactNode} from 'react';
 import Link from 'next/link';
 import {rackSpaceStatus,type StatusDevice} from '@/lib/rack-status';
-import {feedRack,readFeedInputs,type FeedEquipment} from '@/lib/feed-rack';
-import {analyzeFeeds} from '@/lib/feed-power';
-import {designPowerAnalysis} from '@/lib/outlet-planning-checks';
+import type {FeedEquipment} from '@/lib/feed-rack';
+import {savedRackPowerAssessment} from '@/lib/rack-power-assessment';
 
 export function RackStatusPane({children,devices,equipment,configuration,heightRU,pockets,basePath,networkCables}:{children:ReactNode;devices:StatusDevice[];equipment:FeedEquipment[];configuration:unknown;heightRU:number;pockets:boolean;basePath:string;networkCables:number}){
  const [open,setOpen]=useState(true);
  const space=rackSpaceStatus(heightRU,pockets,devices);
- const inputs=readFeedInputs(configuration,equipment),{supplies,loads,cords}=feedRack(equipment,inputs);
- const analysis=designPowerAnalysis(analyzeFeeds(supplies,loads,cords,inputs.headroomPercent));
+ const {inputs,supplies,loads,cords,design:analysis}=savedRackPowerAssessment(equipment,configuration);
  const known=loads.filter(d=>Number.isFinite(d.watts)&&Number(d.watts)>0),watts=known.reduce((n,d)=>n+Number(d.watts),0);
  const issues=[...new Set([...analysis.issues,...analysis.scenarios.flatMap(s=>s.errors)])];
  return <div className={`rack-status-layout ${open?'status-open':'status-closed'}`}>

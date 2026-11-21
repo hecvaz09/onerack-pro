@@ -22,7 +22,7 @@ export function OutletEditor({ rackId, pdu, outlet, devices, onClose }: {
     const dialog = useRef<HTMLDialogElement>(null);
     useEffect(() => { dialog.current?.showModal(); }, []);
     function save(clear = false) { start(async () => { try {
-        const result = await saveOutlet(rackId, pdu.id, outlet.n, clear ? "" : deviceId, clear ? "" : notes,clear?0:inlet);
+        const result = await saveOutlet(rackId, pdu.id, outlet.n, clear ? "" : deviceId, clear ? "" : notes,clear?0:inlet,true);
         if (result.ok)
             onClose();
         else
@@ -39,7 +39,7 @@ export function OutletEditor({ rackId, pdu, outlet, devices, onClose }: {
     <label className="mt-4 block text-sm">Notes<textarea maxLength={2000} value={notes} onChange={e => setNotes(e.target.value)} rows={4} className="mt-2 w-full rounded-md border border-border bg-background p-2"/></label>
     <label className="mt-4 block text-sm">Device power supply<select className="mt-2 w-full rounded-md border border-border bg-background p-2" value={inlet} onChange={e=>setInlet(Number(e.target.value))}><option value={0}>Not identified</option>{Array.from({length:b300?12:6},(_,i)=>i+1).map(n=><option key={n} value={n}>{powerInputLabel(target?.catalogDevice,n)}</option>)}</select></label>
     {b300&&existing?.deviceId===deviceId&&existing.inputIdentity!==B300_INPUT_IDENTITY&&<p role="note" className="text-sm">The old PSU assignment does not identify an exact AC input. Clear the legacy assignment, then select the physical module input.</p>}
-    <p className="mt-2 text-xs text-muted-foreground">Manual assignments stay locked during automatic balancing.</p>
+    <p className="mt-2 text-xs text-muted-foreground">Manual assignments stay locked during automatic balancing. Missing specifications keep a saved connection marked as planning.</p>
     {error && <p role="alert" className="my-2 text-sm text-red-400">{error}</p>}
     <div className="mt-5 flex justify-between gap-3"><button type="button" disabled={pending} onClick={() => save(true)} className="rounded-md border border-border px-3 py-2 text-sm">Clear assignment</button><button disabled={pending||(b300&&(inlet<1||existing?.deviceId===deviceId&&existing.inputIdentity!==B300_INPUT_IDENTITY))} className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">{pending ? "Saving…" : "Save outlet"}</button></div>
   </form></dialog>;

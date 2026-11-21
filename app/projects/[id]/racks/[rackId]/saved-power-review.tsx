@@ -1,13 +1,12 @@
  'use client';
-import {analyzeFeeds,type FeedInputs} from '@/lib/feed-power';
-import {feedRack,type FeedEquipment} from '@/lib/feed-rack';
+import type {FeedInputs} from '@/lib/feed-power';
+import type {FeedEquipment} from '@/lib/feed-rack';
+import {rackPowerAssessment} from '@/lib/rack-power-assessment';
 import {powerReviewResult} from '@/lib/power-review-result';
 import {powerReviewSummary} from '@/lib/power-review-summary';
-import {designPowerAnalysis} from '@/lib/outlet-planning-checks';
 
 export function SavedPowerReview({equipment,saved,dirty}:{equipment:FeedEquipment[];saved:FeedInputs;dirty:boolean}){
- const {supplies,loads,cords}=feedRack(equipment,saved);
- const analysis=designPowerAnalysis(analyzeFeeds(supplies,loads,cords,saved.headroomPercent));
+ const {supplies,design:analysis}=rackPowerAssessment(equipment,saved);
  const result=powerReviewResult(analysis);
  const attention=[...new Set([...analysis.issues,...analysis.scenarios.flatMap(s=>s.errors)])];
  const review=powerReviewSummary(attention,equipment);

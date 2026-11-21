@@ -1,9 +1,8 @@
 "use server";
 import type {Prisma} from '@/generated/prisma/client';
 import {preparePduPlacement,preservedPduIdentity,type PduPlacement} from '@/lib/pdu-placement';
-import {powerWiringGuide} from '@/lib/power-wiring-guide';
 import {isB300PowerDevice,B300_INPUT_IDENTITY} from '@/lib/b300-power-inputs';
-import {validateVisualPower,visualPowerBalance,canSaveVisualPowerDraft} from '@/lib/visual-power';
+import {reviewPowerConnection,powerConnectionNotes} from '@/lib/power-connection-review';
 import {requireActiveRack} from "@/lib/rack-trash";
 
 import {requireActiveProjectForRack} from "@/lib/project-lifecycle";
@@ -167,9 +166,9 @@ export async function removeDevice(rackId: string, deviceId: string): Promise<Mo
   }
 }
 
-export async function saveOutlet(rackId: string, pduId: string, outlet: number, deviceId: string, notes: string, inlet=0): Promise<MoveDeviceResult> {
+export async function saveOutlet(rackId: string, pduId: string, outlet: number, deviceId: string, notes: string, inlet=0, planning=false): Promise<MoveDeviceResult> {
   if(!Number.isInteger(inlet)||inlet<0||inlet>12)return {ok:false,error:"Choose a power input from 1 to 12."};
-  if (!Number.isInteger(outlet) || notes.length > 2000) return { ok:false,error:"Invalid outlet or notes longer than 2,000 characters." };
+  if (!Number.isInteger(outlet) || typeof notes!=="string" || notes.length > 2000 || typeof planning!=="boolean") return { ok:false,error:"Invalid outlet or notes longer than 2,000 characters." };
   try {
     const result = await rackMutation(rackId, async tx => {
       const pdu = await tx.deviceInstance.findFirst({where:{id:pduId,rackId,catalogDevice:{category:"pdu"}},include:{catalogDevice:true,rack:true}});
@@ -178,20 +177,20 @@ export async function saveOutlet(rackId: string, pduId: string, outlet: number, 
       if(deviceId&&!device)return {error:"Choose installed equipment in this rack."};
       const b300=isB300PowerDevice(device?.catalogDevice);
       const occupied=readDetails(pdu.details).outlets[outlet];
-      if(deviceId&&occupied?.deviceId&&(b300||occupied.inputIdentity===B300_INPUT_IDENTITY)&&(occupied.deviceId!==deviceId||occupied.inlet!==inlet||b300&&occupied.inputIdentity!==B300_INPUT_IDENTITY))return {error:'This outlet already has an assignment. Clear it before selecting a different physical input.'};
-      if(deviceId&&(!b300&&inlet>6||b300&&inlet<1))return {error:b300?'Select one of the 12 physical B300 inputs.':'Choose a PSU number from 1 to 6.'};
-      if(b300){
+      if(deviceId&&occupied?.deviceId&&(occupied.deviceId!==deviceId||occupied.inlet!==inlet||b300&&occupied.inputIdentity!==B300_INPUT_IDENTITY))return {error:'This outlet is already connected. Clear its assignment before reconnecting.'};
+      let pending=false;
+      if(deviceId){
         const rack=await tx.rack.findUniqueOrThrow({where:{id:rackId},include:{devices:{include:{catalogDevice:true}}}});
+        // Editing notes for this exact binding is allowed. Remove only that
+        // binding from the review snapshot; every other saved cable still counts.
         const equipment=rack.devices.map(d=>{const outlets=readDetails(d.details).outlets;if(d.id===pduId)delete outlets[outlet];return {id:d.id,name:d.label||d.catalogDevice.model,sku:d.catalogDevice.sku,model:d.catalogDevice.model,startRU:d.startRU,mounting:d.mounting,category:d.catalogDevice.category,rawData:d.catalogDevice.rawData,details:{...d.details as object,outlets}};});
-        const endpointError=validateVisualPower(equipment,rack.configuration,pduId,outlet,deviceId,inlet);if(endpointError)return {error:endpointError};
-        const review=visualPowerBalance(equipment,rack.configuration,{pduId,outlet,deviceId,inlet});
-        if(review.errors.length&&!canSaveVisualPowerDraft(review))return {error:review.errors.join(' ')};
-        const plan=powerWiringGuide(equipment,rack.configuration,{deviceId,inlet},{pduId,outlet,deviceId,inlet});
-        if(plan.error)return {error:plan.error};
+        const review=reviewPowerConnection(equipment,rack.configuration,{pduId,outlet,deviceId,inlet},planning);
+        if(review.error)return {error:review.error};
+        pending=review.planning;
       }
       const details=detailsObject(pdu.details),outlets=detailsObject(details.outlets);
       if (!deviceId && !notes.trim()) delete outlets[String(outlet)];
-      else outlets[String(outlet)]=withOutletAssignment(outlets[String(outlet)],{deviceId,notes:notes.trim(),inlet,locked:true,...(b300?{inputIdentity:B300_INPUT_IDENTITY}:{})});
+      else outlets[String(outlet)]=withOutletAssignment(outlets[String(outlet)],{deviceId,notes:powerConnectionNotes(notes,pending),inlet,locked:true,...(b300?{inputIdentity:B300_INPUT_IDENTITY}:{})});
       await tx.deviceInstance.update({where:{id:pduId},data:{details:JSON.parse(JSON.stringify({...details,outlets}))}});
       return {projectId:pdu.rack.projectId};
     });

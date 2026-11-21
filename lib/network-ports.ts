@@ -85,7 +85,7 @@ export function portCompatibility(a:NetworkPort,b:NetworkPort,cableType:string):
   if(!cableType||cableType==='Other')warnings.push('Cable type needs review.');
   return {warnings};
 }
-export function networkShape(raw:unknown){return JSON.stringify(networkPorts(raw).map(({id,protocol,connector,speedGbps,supportedSpeedsGbps,node,aiom})=>({id,protocol,connector,speedGbps,...(supportedSpeedsGbps?{supportedSpeedsGbps}:{}),...(node?{node}:{}),...(aiom?{aiom}:{})})).sort((a,b)=>a.id.localeCompare(b.id)));}
+export function networkShape(raw:unknown){return JSON.stringify(networkPorts(raw).map(({id,protocol,connector,speedGbps,supportedSpeedsGbps,node,aiom,slot,endpoint,position,number,parentId,lane,parentEndpoint})=>({id,protocol,connector,speedGbps,supportedSpeedsGbps,node,aiom,slot,endpoint,position,number,parentId,lane,parentEndpoint})).sort((a,b)=>a.id.localeCompare(b.id)));}
 
 
 // Automatic labels are derived, so moving equipment cannot leave stale RU identifiers.

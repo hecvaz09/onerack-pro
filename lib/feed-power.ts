@@ -110,6 +110,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
   }
   const scenarios=([null,'A','B'] as const).map(lost=>{
     const errors:string[]=[],unavailable:string[]=[],active=valid.filter(c=>supplies.find(p=>p.id===c.pduId)?.feed!==lost);
+    const outletLoads:(Cord&{watts:number;va:number;amps:number})[]=[];
     const items=new Map<string,{outlet:Supply['outlets'][number];watts:number;pf:number}[]>();
     const totals=supplies.map(p=>({id:p.id,name:p.name,feed:p.feed,online:p.feed!==lost,limitAmps:p.limitAmps,...supplyDemand(p,[])}));
     for(const d of loads){
@@ -127,6 +128,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
         const p=supplies.find(p=>p.id===c.pduId)!,o=p.outlets.find(o=>o.n===c.outlet)!;
         if(p.voltage<=0)continue;
         const amps=va/outletVoltage(p,o);
+        outletLoads.push({...c,watts,va,amps});
         const rows=items.get(p.id)||[];rows.push({outlet:o,watts,pf:Number(d.pf)});items.set(p.id,rows);
         if((o.limitAmps&&amps>o.limitAmps)||(d.cordLimitAmps&&amps>d.cordLimitAmps))errors.push(`${p.name} P${o.n}: outlet or cord current exceeded.`);
       }
@@ -139,7 +141,7 @@ export function analyzeFeeds(supplies:Supply[],loads:Load[],cords:Cord[],headroo
       const p=supplies.find(p=>p.id===t.id)!;
       for(const [b,a] of Object.entries(t.branches))if(p.branches?.[b]&&a>p.branches[b])errors.push(`${t.name}: branch ${b} overloaded.`);
     }
-    return {lost,totals,errors,unavailable};
+    return {lost,totals,errors,unavailable,outletLoads:outletLoads.sort((a,b)=>a.pduId.localeCompare(b.pduId)||a.outlet-b.outlet)};
   });
   return {ready:issues.size===0&&scenarios.every(s=>s.errors.length===0),issues:[...issues],scenarios,...(loads.some(d=>d.assessment==="pdu-capacity")?{scopeNotes:[B300_POWER_SCOPE]}:{})};
 }

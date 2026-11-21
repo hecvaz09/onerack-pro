@@ -50,6 +50,7 @@ export type RackGridDevice = {
         sku?: string | null;
         outlets?: Outlet[];
         nodeNames?: string[];
+        rawData?: unknown;
     };
 };
 type Controls = {
@@ -144,7 +145,7 @@ function Device({ device, face, controls, row, pocket = false, standardBay = fal
     const rear = face.startsWith("rear");
     const chassisPanel=!pocket&&/AS-?\s*8126GS-TNMR/i.test(device.catalogDevice.model);
     const rearPanel=rear&&chassisPanel;
-    const art=catalogProfile(device.catalogDevice.sku||'',device.catalogDevice.model);
+    const art=catalogProfile(device.catalogDevice.sku||'',device.catalogDevice.model,device.catalogDevice.rawData);
     const b300=!pocket&&art?.key==='smc-b3008u';
     const switchWithoutLabel=device.catalogDevice.category==='switch'||art?.category==='switch';
     const blankPanel=!pocket&&art?.key==='blank-1u'&&device.catalogDevice.heightRU===1;

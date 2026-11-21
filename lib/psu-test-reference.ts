@@ -1,4 +1,5 @@
 import {readSystemSpecs} from './system-specs.ts';
+import {catalogBaseSku} from './catalog-identity.ts';
 
 // Bench results for one exact PSU, not server consumption or an AC/cord limit.
 export const PWS_504P_1R_TEST = {
@@ -16,7 +17,7 @@ export const PWS_504P_1R_TEST = {
 } as const;
 
 export function psuTestReference(model:string,raw:unknown){
- if(!/(^|[^A-Z0-9-])SYS-510P-WTR($|[^A-Z0-9-])/i.test(model))return undefined;
+ if(!/(^|[^A-Z0-9-])SYS-510P-WTR($|[^A-Z0-9-])/i.test(catalogBaseSku(model,raw)))return undefined;
  const psus=readSystemSpecs(raw).components.filter(c=>c.kind==='psu');
  // Similar part names (including -1R2) must not inherit this report.
  if(psus.some(p=>p.model.trim()&&p.model.trim().toUpperCase()!==PWS_504P_1R_TEST.model))return undefined;

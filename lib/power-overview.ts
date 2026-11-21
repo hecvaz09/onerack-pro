@@ -1,6 +1,6 @@
-import {analyzeFeeds,supplyDesignIssues,type FeedInputs} from './feed-power.ts';
-import {designPowerAnalysis} from './outlet-planning-checks.ts';
-import {feedRack,type FeedEquipment} from './feed-rack.ts';
+import {supplyDesignIssues,type FeedInputs} from './feed-power.ts';
+import type {FeedEquipment} from './feed-rack.ts';
+import {rackPowerAssessment} from './rack-power-assessment.ts';
 import {isMeasuredPower} from './power-consumption.ts';
 import {powerReviewSummary} from './power-review-summary.ts';
 import {powerReviewResult} from './power-review-result.ts';
@@ -8,8 +8,7 @@ import {powerAssignmentSummary,scenarioDiagnostic} from './power-assignment-summ
 
 // Presentation of the saved rack only; does not change allocation or validation.
 export function powerOverview(equipment:FeedEquipment[],saved:FeedInputs){
-  const {loads,supplies,cords}=feedRack(equipment,saved);
-  const rawAnalysis=analyzeFeeds(supplies,loads,cords,saved.headroomPercent),analysis=designPowerAnalysis(rawAnalysis);
+  const {loads,supplies,cords,strict:rawAnalysis,design:analysis}=rackPowerAssessment(equipment,saved);
   const review=powerReviewResult(analysis);
   const assignments=powerAssignmentSummary(equipment,supplies,loads,cords,analysis);
   const priority=review.failures.length?{target:'review',label:'Review power checks',text:'The saved plan has electrical or wiring conflicts. Review these before proceeding.'}:assignments.backupFailures.length?{target:'connections',label:'Review backup-power connections',text:'Saved assignments lose required PSU connections in a modeled feed-loss check. Review the affected connections.'}:undefined;
