@@ -38,7 +38,7 @@ test('unknown site power allows calculate, bulk save and reloaded green design i
  assert.ok(statuses.every(s=>s.state==='connected'&&s.verificationNotes?.some(n=>n.includes('confirm actual supply'))));
  const raw=analyzeFeeds(m.supplies,m.loads,m.cords,f.inputs.headroomPercent);
  assert.equal(raw.ready,false);assert.equal(designPowerAnalysis(raw).ready,true);
- assert.equal(simplePowerPlan(e,saved.configuration).remaining.length,0);assert.equal(powerOverview(e,f.inputs).next.target,'review');
+ assert.equal(simplePowerPlan(e,saved.configuration).remaining.length,0);assert.equal(powerOverview(e,f.inputs).next.target,'rack-review');
  const html=renderToStaticMarkup(<RackStatusPane devices={[]} equipment={e} configuration={saved.configuration} heightRU={42} pockets={false} basePath="/synthetic" networkCables={0}>{null}</RackStatusPane>);
  assert.match(html,/Power design/);assert.match(html,/Plan checked/);assert.doesNotMatch(html,/Needs review|Incomplete|confirm actual supply/);
 });
